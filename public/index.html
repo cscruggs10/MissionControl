@@ -21,21 +21,11 @@
       border-radius: 20px;
       box-shadow: 0 20px 60px rgba(0,0,0,0.3);
     }
-    h1 {
-      color: #667eea;
-      margin-bottom: 0.5rem;
-      font-size: 2rem;
-    }
-    .subtitle {
-      color: #666;
-      margin-bottom: 2rem;
-    }
-    .step {
-      display: none;
-    }
-    .step.active {
-      display: block;
-    }
+    h1 { color: #667eea; margin-bottom: 0.5rem; font-size: 2rem; }
+    h2 { color: #374151; margin-bottom: 1rem; font-size: 1.25rem; }
+    .subtitle { color: #666; margin-bottom: 2rem; }
+    .step { display: none; }
+    .step.active { display: block; }
     .step-indicator {
       display: flex;
       justify-content: center;
@@ -48,12 +38,8 @@
       border-radius: 50%;
       background: #e5e7eb;
     }
-    .step-dot.active {
-      background: #667eea;
-    }
-    .step-dot.completed {
-      background: #10b981;
-    }
+    .step-dot.active { background: #667eea; }
+    .step-dot.completed { background: #10b981; }
     .upload-section {
       border: 2px dashed #667eea;
       border-radius: 10px;
@@ -63,26 +49,11 @@
       cursor: pointer;
       transition: all 0.3s;
     }
-    .upload-section:hover {
-      border-color: #764ba2;
-      background: #f9fafb;
-    }
-    .upload-section.dragover {
-      border-color: #10b981;
-      background: #ecfdf5;
-    }
-    input[type="file"] {
-      display: none;
-    }
-    .form-group {
-      margin-bottom: 1.5rem;
-    }
-    label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      color: #374151;
-    }
+    .upload-section:hover { border-color: #764ba2; background: #f9fafb; }
+    .upload-section.dragover { border-color: #10b981; background: #ecfdf5; }
+    input[type="file"] { display: none; }
+    .form-group { margin-bottom: 1.5rem; }
+    label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151; }
     input[type="text"], input[type="date"], select {
       width: 100%;
       padding: 0.75rem;
@@ -95,13 +66,10 @@
       border-color: #667eea;
       box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
     }
-    .row {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 1rem;
-    }
+    .row { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; }
+    .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
     button {
-      padding: 1rem 2rem;
+      padding: 0.75rem 1.5rem;
       background: #667eea;
       color: white;
       border: none;
@@ -111,27 +79,13 @@
       cursor: pointer;
       transition: background 0.3s;
     }
-    button:hover {
-      background: #764ba2;
-    }
-    button:disabled {
-      background: #9ca3af;
-      cursor: not-allowed;
-    }
-    button.secondary {
-      background: #6b7280;
-    }
-    button.success {
-      background: #10b981;
-    }
-    .button-row {
-      display: flex;
-      gap: 1rem;
-      margin-top: 1.5rem;
-    }
-    .button-row button {
-      flex: 1;
-    }
+    button:hover { background: #764ba2; }
+    button:disabled { background: #9ca3af; cursor: not-allowed; }
+    button.secondary { background: #6b7280; }
+    button.success { background: #10b981; }
+    button.small { padding: 0.5rem 1rem; font-size: 0.875rem; }
+    .button-row { display: flex; gap: 1rem; margin-top: 1.5rem; }
+    .button-row button { flex: 1; }
     .file-info {
       margin-top: 1rem;
       padding: 1rem;
@@ -139,9 +93,7 @@
       border-radius: 8px;
       text-align: left;
     }
-    .progress {
-      margin-top: 1.5rem;
-    }
+    .progress { margin-top: 1.5rem; }
     .progress-bar {
       width: 100%;
       height: 8px;
@@ -155,42 +107,13 @@
       width: 0%;
       transition: width 0.3s;
     }
-    .progress-text {
-      margin-top: 0.5rem;
-      color: #666;
-      font-size: 0.9rem;
-    }
-    .match-results {
-      margin-top: 1.5rem;
-    }
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-    .stat-card {
-      background: #f9fafb;
-      padding: 1rem;
-      border-radius: 8px;
-      text-align: center;
-    }
-    .stat-card .value {
-      font-size: 2rem;
-      font-weight: bold;
-      color: #667eea;
-    }
-    .stat-card .label {
-      color: #666;
-      font-size: 0.9rem;
-    }
-    .stat-card.highlight {
-      background: #ecfdf5;
-      border: 2px solid #10b981;
-    }
-    .stat-card.highlight .value {
-      color: #10b981;
-    }
+    .progress-text { margin-top: 0.5rem; color: #666; font-size: 0.9rem; }
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-card { background: #f9fafb; padding: 1rem; border-radius: 8px; text-align: center; }
+    .stat-card .value { font-size: 2rem; font-weight: bold; color: #667eea; }
+    .stat-card .label { color: #666; font-size: 0.9rem; }
+    .stat-card.highlight { background: #ecfdf5; border: 2px solid #10b981; }
+    .stat-card.highlight .value { color: #10b981; }
     .vehicle-list {
       max-height: 300px;
       overflow-y: auto;
@@ -204,26 +127,11 @@
       justify-content: space-between;
       align-items: center;
     }
-    .vehicle-item:last-child {
-      border-bottom: none;
-    }
-    .vehicle-item .info {
-      font-weight: 500;
-    }
-    .vehicle-item .meta {
-      color: #666;
-      font-size: 0.85rem;
-    }
-    .badge {
-      padding: 0.25rem 0.5rem;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
-    .badge.exact { background: #10b981; color: white; }
+    .vehicle-item:last-child { border-bottom: none; }
+    .vehicle-item .info { font-weight: 500; }
+    .vehicle-item .meta { color: #666; font-size: 0.85rem; }
+    .badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
     .badge.strong { background: #3b82f6; color: white; }
-    .badge.moderate { background: #f59e0b; color: white; }
-    .badge.weak { background: #6b7280; color: white; }
     .error {
       margin-top: 1rem;
       padding: 1rem;
@@ -239,12 +147,60 @@
       border-radius: 8px;
       border-left: 4px solid #10b981;
     }
-    .section-title {
-      font-size: 1.1rem;
-      font-weight: 600;
+    .section-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: #374151; }
+    .mapping-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
       margin-bottom: 1rem;
-      color: #374151;
     }
+    .mapping-item { display: flex; align-items: center; gap: 0.5rem; }
+    .mapping-item label { min-width: 120px; margin-bottom: 0; }
+    .mapping-item select { flex: 1; }
+    .required-label::after { content: ' *'; color: #ef4444; }
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: white;
+      padding: 2rem;
+      border-radius: 16px;
+      max-width: 700px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal h2 { margin-bottom: 1.5rem; }
+    .auction-select-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-end;
+    }
+    .auction-select-row .form-group { flex: 1; margin-bottom: 0; }
+    .sample-data {
+      background: #f9fafb;
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1rem 0;
+      overflow-x: auto;
+    }
+    .sample-data table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .sample-data th, .sample-data td {
+      padding: 0.5rem;
+      border: 1px solid #e5e7eb;
+      text-align: left;
+    }
+    .sample-data th { background: #667eea; color: white; }
   </style>
 </head>
 <body>
@@ -260,7 +216,7 @@
 
     <!-- Step 1: Upload -->
     <div class="step active" id="step1">
-      <h2 class="section-title">Step 1: Upload Runlist</h2>
+      <h2>Step 1: Upload Runlist</h2>
 
       <div class="upload-section" id="uploadZone">
         <div id="uploadPrompt">
@@ -273,8 +229,15 @@
 
       <div class="row">
         <div class="form-group">
-          <label for="auctionName">Auction Name</label>
-          <input type="text" id="auctionName" placeholder="e.g., Americas Auto Auction Dallas" required>
+          <label for="auctionSelect">Auction</label>
+          <div class="auction-select-row">
+            <div class="form-group">
+              <select id="auctionSelect">
+                <option value="">-- Select Auction --</option>
+              </select>
+            </div>
+            <button type="button" class="small" id="addAuctionBtn">+ New</button>
+          </div>
         </div>
         <div class="form-group">
           <label for="auctionDate">Auction Date</label>
@@ -296,7 +259,7 @@
 
     <!-- Step 2: Review Matches -->
     <div class="step" id="step2">
-      <h2 class="section-title">Step 2: Review Matches</h2>
+      <h2>Step 2: Review Matches</h2>
 
       <div class="stats-grid">
         <div class="stat-card">
@@ -324,7 +287,7 @@
 
     <!-- Step 3: Scraping -->
     <div class="step" id="step3">
-      <h2 class="section-title">Step 3: Scraping Announcements</h2>
+      <h2>Step 3: Scraping Announcements</h2>
 
       <div class="progress" id="scrapeProgress">
         <div class="progress-bar">
@@ -341,19 +304,68 @@
     </div>
   </div>
 
+  <!-- Add Auction Modal -->
+  <div class="modal-overlay" id="addAuctionModal">
+    <div class="modal">
+      <h2>Add New Auction Format</h2>
+
+      <div id="modalStep1">
+        <div class="form-group">
+          <label for="newAuctionName">Auction Name</label>
+          <input type="text" id="newAuctionName" placeholder="e.g., Manheim Little Rock">
+        </div>
+
+        <div class="upload-section" id="sampleUploadZone">
+          <div id="sampleUploadPrompt">
+            <h3 style="color: #667eea; margin-bottom: 0.5rem;">Upload Sample CSV</h3>
+            <p style="color: #666;">to detect column names</p>
+          </div>
+          <input type="file" id="sampleFileInput" accept=".csv">
+        </div>
+
+        <div class="error" id="modalError" style="display: none;"></div>
+
+        <div class="button-row">
+          <button class="secondary" id="cancelModalBtn">Cancel</button>
+          <button id="detectColumnsBtn" disabled>Detect Columns</button>
+        </div>
+      </div>
+
+      <div id="modalStep2" style="display: none;">
+        <p style="margin-bottom: 1rem;">Map your CSV columns to vehicle fields:</p>
+
+        <div class="sample-data" id="sampleDataPreview"></div>
+
+        <h3 style="margin: 1.5rem 0 1rem;">Required Fields</h3>
+        <div class="mapping-grid" id="requiredMappings"></div>
+
+        <h3 style="margin: 1.5rem 0 1rem;">Optional Fields</h3>
+        <div class="mapping-grid" id="optionalMappings"></div>
+
+        <div class="error" id="mappingError" style="display: none;"></div>
+
+        <div class="button-row">
+          <button class="secondary" id="backToStep1Btn">Back</button>
+          <button class="success" id="saveMappingBtn">Save Auction Format</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     // Elements
     const uploadZone = document.getElementById('uploadZone');
     const fileInput = document.getElementById('fileInput');
     const uploadPrompt = document.getElementById('uploadPrompt');
     const fileInfo = document.getElementById('fileInfo');
-    const auctionName = document.getElementById('auctionName');
+    const auctionSelect = document.getElementById('auctionSelect');
     const auctionDate = document.getElementById('auctionDate');
     const uploadBtn = document.getElementById('uploadBtn');
     const uploadProgress = document.getElementById('uploadProgress');
     const uploadProgressFill = document.getElementById('uploadProgressFill');
     const uploadProgressText = document.getElementById('uploadProgressText');
     const uploadError = document.getElementById('uploadError');
+    const addAuctionBtn = document.getElementById('addAuctionBtn');
 
     const backBtn = document.getElementById('backBtn');
     const scrapeBtn = document.getElementById('scrapeBtn');
@@ -365,12 +377,51 @@
     const finishButtons = document.getElementById('finishButtons');
     const newUploadBtn = document.getElementById('newUploadBtn');
 
+    // Modal elements
+    const addAuctionModal = document.getElementById('addAuctionModal');
+    const newAuctionName = document.getElementById('newAuctionName');
+    const sampleUploadZone = document.getElementById('sampleUploadZone');
+    const sampleFileInput = document.getElementById('sampleFileInput');
+    const detectColumnsBtn = document.getElementById('detectColumnsBtn');
+    const cancelModalBtn = document.getElementById('cancelModalBtn');
+    const modalStep1 = document.getElementById('modalStep1');
+    const modalStep2 = document.getElementById('modalStep2');
+    const requiredMappings = document.getElementById('requiredMappings');
+    const optionalMappings = document.getElementById('optionalMappings');
+    const saveMappingBtn = document.getElementById('saveMappingBtn');
+    const backToStep1Btn = document.getElementById('backToStep1Btn');
+    const sampleDataPreview = document.getElementById('sampleDataPreview');
+
     let selectedFile = null;
+    let sampleFile = null;
     let currentRunlistId = null;
     let currentStep = 1;
+    let detectedColumns = [];
 
-    // Set default date
+    const requiredFields = ['vin', 'year', 'make', 'model'];
+    const optionalFields = ['mileage', 'lane', 'lot', 'run_number', 'exterior_color', 'interior_color', 'grade', 'mmr_value', 'trim'];
+
+    // Initialize
     auctionDate.valueAsDate = new Date();
+    loadAuctionFormats();
+
+    // Load auction formats
+    async function loadAuctionFormats() {
+      try {
+        const response = await fetch('/api/auction-formats');
+        const data = await response.json();
+
+        auctionSelect.innerHTML = '<option value="">-- Select Auction --</option>';
+        for (const format of data.formats) {
+          const option = document.createElement('option');
+          option.value = format.auction_name;
+          option.textContent = format.auction_name;
+          auctionSelect.appendChild(option);
+        }
+      } catch (err) {
+        console.error('Failed to load auction formats:', err);
+      }
+    }
 
     // Step management
     function goToStep(step) {
@@ -387,28 +438,15 @@
 
     // Upload zone
     uploadZone.addEventListener('click', () => fileInput.click());
-
-    uploadZone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      uploadZone.classList.add('dragover');
-    });
-
-    uploadZone.addEventListener('dragleave', () => {
-      uploadZone.classList.remove('dragover');
-    });
-
+    uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
     uploadZone.addEventListener('drop', (e) => {
       e.preventDefault();
       uploadZone.classList.remove('dragover');
-      if (e.dataTransfer.files.length > 0) {
-        handleFile(e.dataTransfer.files[0]);
-      }
+      if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
     });
-
     fileInput.addEventListener('change', (e) => {
-      if (e.target.files.length > 0) {
-        handleFile(e.target.files[0]);
-      }
+      if (e.target.files.length > 0) handleFile(e.target.files[0]);
     });
 
     function handleFile(file) {
@@ -423,12 +461,11 @@
       checkForm();
     }
 
-    [auctionName, auctionDate].forEach(input => {
-      input.addEventListener('input', checkForm);
-    });
+    auctionSelect.addEventListener('change', checkForm);
+    auctionDate.addEventListener('input', checkForm);
 
     function checkForm() {
-      uploadBtn.disabled = !(selectedFile && auctionName.value.trim() && auctionDate.value);
+      uploadBtn.disabled = !(selectedFile && auctionSelect.value && auctionDate.value);
     }
 
     function showUploadError(msg) {
@@ -446,7 +483,7 @@
 
       const formData = new FormData();
       formData.append('file', selectedFile);
-      formData.append('auction_name', auctionName.value.trim());
+      formData.append('auction_name', auctionSelect.value);
       formData.append('auction_date', auctionDate.value);
 
       try {
@@ -468,8 +505,6 @@
         uploadProgressText.textContent = 'Complete!';
 
         currentRunlistId = data.runlist.id;
-
-        // Fetch full runlist data
         setTimeout(() => loadRunlistResults(currentRunlistId), 500);
 
       } catch (err) {
@@ -484,16 +519,12 @@
         const response = await fetch(`/api/runlist/${runlistId}`);
         const data = await response.json();
 
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to load results');
-        }
+        if (!response.ok) throw new Error(data.error || 'Failed to load results');
 
-        // Update stats
         document.getElementById('totalCount').textContent = data.stats.total;
         document.getElementById('matchedCount').textContent = data.stats.matched;
         document.getElementById('unmatchedCount').textContent = data.stats.unmatched;
 
-        // Populate matched list
         const matched = data.vehicles.filter(v => v.matched);
         matchedList.innerHTML = matched.length > 0
           ? matched.map(v => `
@@ -531,9 +562,7 @@
       finishButtons.style.display = 'none';
 
       try {
-        const response = await fetch(`/api/runlist/${currentRunlistId}/scrape`, {
-          method: 'POST'
-        });
+        const response = await fetch(`/api/runlist/${currentRunlistId}/scrape`, { method: 'POST' });
 
         if (!response.ok) {
           const err = await response.json();
@@ -553,12 +582,10 @@
           for (const line of lines) {
             if (line.startsWith('data: ')) {
               const data = JSON.parse(line.slice(6));
-
               if (data.progress !== undefined) {
                 scrapeProgressFill.style.width = data.progress + '%';
                 scrapeProgressText.textContent = data.message || `${data.progress}%`;
               }
-
               if (data.complete) {
                 scrapeResults.style.display = 'block';
                 scrapeResults.innerHTML = `
@@ -569,14 +596,10 @@
                 `;
                 finishButtons.style.display = 'block';
               }
-
-              if (data.error) {
-                throw new Error(data.error);
-              }
+              if (data.error) throw new Error(data.error);
             }
           }
         }
-
       } catch (err) {
         scrapeProgressText.textContent = 'Error: ' + err.message;
         finishButtons.style.display = 'block';
@@ -590,12 +613,207 @@
       fileInput.value = '';
       uploadPrompt.style.display = 'block';
       fileInfo.style.display = 'none';
-      auctionName.value = '';
+      auctionSelect.value = '';
       auctionDate.valueAsDate = new Date();
       uploadBtn.disabled = true;
       uploadProgress.style.display = 'none';
       uploadError.style.display = 'none';
       goToStep(1);
+    });
+
+    // Modal functionality
+    addAuctionBtn.addEventListener('click', () => {
+      addAuctionModal.classList.add('active');
+      modalStep1.style.display = 'block';
+      modalStep2.style.display = 'none';
+      newAuctionName.value = '';
+      sampleFile = null;
+      detectColumnsBtn.disabled = true;
+    });
+
+    cancelModalBtn.addEventListener('click', closeModal);
+
+    function closeModal() {
+      addAuctionModal.classList.remove('active');
+      sampleFile = null;
+      newAuctionName.value = '';
+    }
+
+    sampleUploadZone.addEventListener('click', () => sampleFileInput.click());
+    sampleFileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        sampleFile = e.target.files[0];
+        document.getElementById('sampleUploadPrompt').innerHTML = `
+          <strong>File:</strong> ${sampleFile.name}
+        `;
+        checkModalForm();
+      }
+    });
+
+    newAuctionName.addEventListener('input', checkModalForm);
+
+    function checkModalForm() {
+      detectColumnsBtn.disabled = !(sampleFile && newAuctionName.value.trim());
+    }
+
+    detectColumnsBtn.addEventListener('click', async () => {
+      const formData = new FormData();
+      formData.append('file', sampleFile);
+
+      try {
+        document.getElementById('modalError').style.display = 'none';
+        detectColumnsBtn.disabled = true;
+        detectColumnsBtn.textContent = 'Detecting...';
+
+        const response = await fetch('/api/csv/detect-columns', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) throw new Error(data.error);
+
+        detectedColumns = data.columns;
+        showMappingUI(data.columns, data.sampleData);
+
+      } catch (err) {
+        document.getElementById('modalError').style.display = 'block';
+        document.getElementById('modalError').textContent = err.message;
+      } finally {
+        detectColumnsBtn.disabled = false;
+        detectColumnsBtn.textContent = 'Detect Columns';
+      }
+    });
+
+    function showMappingUI(columns, sampleData) {
+      modalStep1.style.display = 'none';
+      modalStep2.style.display = 'block';
+
+      // Show sample data preview
+      let tableHtml = '<table><tr>';
+      columns.forEach(col => tableHtml += `<th>${col}</th>`);
+      tableHtml += '</tr>';
+      sampleData.slice(0, 2).forEach(row => {
+        tableHtml += '<tr>';
+        columns.forEach(col => tableHtml += `<td>${row[col] || ''}</td>`);
+        tableHtml += '</tr>';
+      });
+      tableHtml += '</table>';
+      sampleDataPreview.innerHTML = tableHtml;
+
+      // Build mapping selects
+      const optionsHtml = '<option value="">-- Skip --</option>' +
+        columns.map(c => `<option value="${c}">${c}</option>`).join('');
+
+      requiredMappings.innerHTML = requiredFields.map(field => `
+        <div class="mapping-item">
+          <label class="required-label">${formatFieldName(field)}</label>
+          <select id="map_${field}">${optionsHtml}</select>
+        </div>
+      `).join('');
+
+      optionalMappings.innerHTML = optionalFields.map(field => `
+        <div class="mapping-item">
+          <label>${formatFieldName(field)}</label>
+          <select id="map_${field}">${optionsHtml}</select>
+        </div>
+      `).join('');
+
+      // Auto-detect common columns
+      autoDetectColumns(columns);
+    }
+
+    function formatFieldName(field) {
+      return field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    }
+
+    function autoDetectColumns(columns) {
+      const mappings = {
+        vin: ['vin', 'vin_number', 'vehicle_vin'],
+        year: ['year', 'model_year', 'yr'],
+        make: ['make', 'manufacturer'],
+        model: ['model', 'vehicle_model'],
+        mileage: ['mileage', 'odometer', 'odometer value', 'miles'],
+        lane: ['lane'],
+        lot: ['lot'],
+        run_number: ['run', 'run number', 'run_number'],
+        exterior_color: ['exterior color', 'ext color', 'color'],
+        interior_color: ['interior color', 'int color'],
+        grade: ['grade', 'condition report grade', 'cr grade'],
+        mmr_value: ['mmr', 'mmr value'],
+        trim: ['trim', 'style']
+      };
+
+      for (const [field, aliases] of Object.entries(mappings)) {
+        const select = document.getElementById(`map_${field}`);
+        if (!select) continue;
+
+        for (const col of columns) {
+          if (aliases.some(a => col.toLowerCase().includes(a))) {
+            select.value = col;
+            break;
+          }
+        }
+      }
+    }
+
+    backToStep1Btn.addEventListener('click', () => {
+      modalStep1.style.display = 'block';
+      modalStep2.style.display = 'none';
+    });
+
+    saveMappingBtn.addEventListener('click', async () => {
+      const mappings = {};
+
+      // Collect all mappings
+      for (const field of [...requiredFields, ...optionalFields]) {
+        const select = document.getElementById(`map_${field}`);
+        if (select && select.value) {
+          mappings[field] = select.value;
+        }
+      }
+
+      // Validate required fields
+      for (const field of requiredFields) {
+        if (!mappings[field]) {
+          document.getElementById('mappingError').style.display = 'block';
+          document.getElementById('mappingError').textContent = `Please map the required field: ${formatFieldName(field)}`;
+          return;
+        }
+      }
+
+      try {
+        document.getElementById('mappingError').style.display = 'none';
+        saveMappingBtn.disabled = true;
+        saveMappingBtn.textContent = 'Saving...';
+
+        const response = await fetch('/api/auction-formats', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            auction_name: newAuctionName.value.trim(),
+            column_mappings: mappings
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) throw new Error(data.error);
+
+        // Reload auction formats and select the new one
+        await loadAuctionFormats();
+        auctionSelect.value = newAuctionName.value.trim();
+        checkForm();
+        closeModal();
+
+      } catch (err) {
+        document.getElementById('mappingError').style.display = 'block';
+        document.getElementById('mappingError').textContent = err.message;
+      } finally {
+        saveMappingBtn.disabled = false;
+        saveMappingBtn.textContent = 'Save Auction Format';
+      }
     });
   </script>
 </body>

@@ -4,7 +4,7 @@ const { Pool } = require('pg');
 const { spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs');
-const { parseRunlist, getSupportedAuctions } = require('../lib/runlist-parser');
+const { parseRunlistWithMappings, REQUIRED_FIELDS, OPTIONAL_FIELDS } = require('../lib/runlist-parser');
 const { matchRunlist } = require('../lib/matcher');
 const router = express.Router();
 
@@ -39,10 +39,107 @@ router.get('/status', async (req, res) => {
   }
 });
 
-// Get supported auction formats
-router.get('/auctions', (req, res) => {
-  const auctions = getSupportedAuctions();
-  res.json({ auctions });
+// Get supported auction formats (from database)
+router.get('/auction-formats', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT id, auction_name, column_mappings, created_at
+      FROM auction_formats
+      ORDER BY auction_name
+    `);
+    res.json({ formats: result.rows });
+  } catch (err) {
+    // If table doesn't exist yet, return empty array
+    if (err.code === '42P01') {
+      return res.json({ formats: [] });
+    }
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Detect columns from uploaded CSV
+router.post('/csv/detect-columns', upload.single('file'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const csvContent = fs.readFileSync(req.file.path, 'utf-8');
+    const { parse } = require('csv-parse/sync');
+
+    const records = parse(csvContent, {
+      columns: true,
+      skip_empty_lines: true,
+      relax_quotes: true,
+      trim: true,
+      to: 5 // Only parse first 5 rows for preview
+    });
+
+    if (records.length === 0) {
+      return res.status(400).json({ error: 'CSV file is empty or invalid' });
+    }
+
+    const columns = Object.keys(records[0]);
+    const sampleData = records.slice(0, 3);
+
+    // Clean up temp file
+    fs.unlink(req.file.path, () => {});
+
+    res.json({
+      columns,
+      sampleData,
+      rowCount: records.length
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Save new auction format
+router.post('/auction-formats', async (req, res) => {
+  try {
+    const { auction_name, column_mappings } = req.body;
+
+    if (!auction_name || !column_mappings) {
+      return res.status(400).json({ error: 'auction_name and column_mappings are required' });
+    }
+
+    // Validate required fields are mapped
+    const required = ['vin', 'year', 'make', 'model'];
+    for (const field of required) {
+      if (!column_mappings[field]) {
+        return res.status(400).json({ error: `Missing required mapping: ${field}` });
+      }
+    }
+
+    const result = await pool.query(`
+      INSERT INTO auction_formats (auction_name, column_mappings)
+      VALUES ($1, $2)
+      ON CONFLICT (auction_name) DO UPDATE SET
+        column_mappings = $2,
+        updated_at = CURRENT_TIMESTAMP
+      RETURNING id, auction_name, column_mappings, created_at
+    `, [auction_name, JSON.stringify(column_mappings)]);
+
+    res.json({
+      success: true,
+      format: result.rows[0]
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Legacy endpoint - redirect to new one
+router.get('/auctions', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT auction_name FROM auction_formats ORDER BY auction_name
+    `);
+    res.json({ auctions: result.rows.map(r => r.auction_name) });
+  } catch (err) {
+    res.json({ auctions: [] });
+  }
 });
 
 // Upload runlist CSV
@@ -50,30 +147,50 @@ router.post('/runlist/upload', upload.single('file'), async (req, res) => {
   try {
     const { auction_name, auction_date } = req.body;
     const file = req.file;
-    
+
     if (!file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
-    
+
     if (!auction_name) {
       return res.status(400).json({ error: 'auction_name is required' });
     }
-    
+
     if (!auction_date) {
       return res.status(400).json({ error: 'auction_date is required' });
     }
-    
-    // Parse CSV
-    let vehicles;
-    try {
-      vehicles = parseRunlist(file.path, auction_name);
-    } catch (parseErr) {
-      return res.status(400).json({ 
-        error: parseErr.message,
-        hint: 'This auction format is not yet configured. Supported: ' + getSupportedAuctions().join(', ')
+
+    // Look up auction format from database
+    const formatResult = await pool.query(
+      'SELECT column_mappings FROM auction_formats WHERE auction_name = $1',
+      [auction_name]
+    );
+
+    if (formatResult.rows.length === 0) {
+      // Clean up temp file
+      fs.unlink(file.path, () => {});
+      return res.status(400).json({
+        error: `Unknown auction format: ${auction_name}`,
+        hint: 'Please create this auction format first by mapping its columns.'
       });
     }
-    
+
+    const columnMappings = formatResult.rows[0].column_mappings;
+
+    // Parse CSV using the stored mappings
+    let vehicles;
+    try {
+      vehicles = parseRunlistWithMappings(file.path, columnMappings);
+    } catch (parseErr) {
+      fs.unlink(file.path, () => {});
+      return res.status(400).json({
+        error: parseErr.message
+      });
+    }
+
+    // Clean up temp file
+    fs.unlink(file.path, () => {});
+
     if (vehicles.length === 0) {
       return res.status(400).json({ error: 'No valid vehicles found in CSV' });
     }
