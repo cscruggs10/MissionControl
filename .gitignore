@@ -20,3 +20,20 @@ Thumbs.db
 # Temporary
 *.tmp
 *.temp
+
+# Personal workspace (keep local only)
+journal/
+memory/
+MEMORY.md
+SOUL.md
+USER.md
+IDENTITY.md
+AGENTS.md
+BOOTSTRAP.md
+HEARTBEAT.md
+TOOLS.md
+BUSINESS_CONTEXT.md
+MARKETING_AGENT.md
+projects/
+JOURNAL_WEB_UI.md
+README-WEB-UI.md
