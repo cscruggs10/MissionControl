@@ -333,6 +333,105 @@ router.get('/runlist/:id', async (req, res) => {
   }
 });
 
+// Get enriched runlist data (with scraped announcements)
+router.get('/runlist/:id/enriched', async (req, res) => {
+  try {
+    const runlistId = req.params.id;
+
+    const runlist = await pool.query('SELECT * FROM runlists WHERE id = $1', [runlistId]);
+    if (runlist.rows.length === 0) {
+      return res.status(404).json({ error: 'Runlist not found' });
+    }
+
+    // Join runlist vehicles with scraped data
+    const vehicles = await pool.query(`
+      SELECT
+        rv.id, rv.vin, rv.year, rv.make, rv.model, rv.lane, rv.lot,
+        rv.matched, rv.match_count,
+        v.cr_score as grade,
+        v.raw_announcements as announcements,
+        v.scraped_at
+      FROM runlist_vehicles rv
+      LEFT JOIN vehicles v ON rv.vin = v.vin
+      WHERE rv.runlist_id = $1
+      ORDER BY
+        v.cr_score ASC NULLS LAST,
+        rv.lane, rv.lot
+    `, [runlistId]);
+
+    // Flag risky vehicles
+    const flaggedTerms = ['STRUCTURAL', 'SALVAGE', 'FLOOD', 'FIRE', 'INOP', 'AIRBAG', 'FRAME'];
+    const enrichedVehicles = vehicles.rows.map(v => {
+      const flags = [];
+      if (v.announcements) {
+        for (const term of flaggedTerms) {
+          if (v.announcements.toUpperCase().includes(term)) {
+            flags.push(term);
+          }
+        }
+      }
+      return { ...v, flags };
+    });
+
+    res.json({
+      runlist: runlist.rows[0],
+      vehicles: enrichedVehicles,
+      stats: {
+        total: vehicles.rows.length,
+        enriched: vehicles.rows.filter(v => v.grade !== null).length,
+        flagged: enrichedVehicles.filter(v => v.flags.length > 0).length
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Export enriched runlist as CSV
+router.get('/runlist/:id/export', async (req, res) => {
+  try {
+    const runlistId = req.params.id;
+
+    const runlist = await pool.query('SELECT * FROM runlists WHERE id = $1', [runlistId]);
+    if (runlist.rows.length === 0) {
+      return res.status(404).json({ error: 'Runlist not found' });
+    }
+
+    const vehicles = await pool.query(`
+      SELECT
+        rv.vin, rv.year, rv.make, rv.model, rv.lane, rv.lot,
+        v.cr_score as grade,
+        v.raw_announcements as announcements
+      FROM runlist_vehicles rv
+      LEFT JOIN vehicles v ON rv.vin = v.vin
+      WHERE rv.runlist_id = $1
+      ORDER BY rv.lane, rv.lot
+    `, [runlistId]);
+
+    // Build CSV
+    const headers = ['VIN', 'Year', 'Make', 'Model', 'Lane', 'Lot', 'Grade', 'Announcements'];
+    const rows = vehicles.rows.map(v => [
+      v.vin,
+      v.year || '',
+      v.make || '',
+      v.model || '',
+      v.lane || '',
+      v.lot || '',
+      v.grade || '',
+      (v.announcements || '').replace(/\|/g, '; ')
+    ]);
+
+    const csv = [headers.join(','), ...rows.map(r => r.map(c => `"${c}"`).join(','))].join('\n');
+
+    const filename = `${runlist.rows[0].auction_name.replace(/[^a-zA-Z0-9]/g, '-')}-enriched.csv`;
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(csv);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Get all runlists
 router.get('/runlists', async (req, res) => {
   try {
