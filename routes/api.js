@@ -14,6 +14,21 @@ const pool = new Pool({
 
 const upload = multer({ dest: 'uploads/' });
 
+// Get scraped vehicle data
+router.get('/vehicles', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT vin, auction_name, cr_score, raw_announcements, scraped_at
+      FROM vehicles
+      ORDER BY scraped_at DESC
+      LIMIT 50
+    `);
+    res.json({ vehicles: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Migrate database - create missing tables for scraper
 router.post('/migrate', async (req, res) => {
   try {
