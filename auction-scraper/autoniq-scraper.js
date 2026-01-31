@@ -29,20 +29,43 @@ async function login(page) {
     throw new Error('AUTONIQ_USERNAME and AUTONIQ_PASSWORD environment variables required');
   }
 
-  console.log('Logging in to AutoNiq...');
-  await page.goto(AUTONIQ_LOGIN_URL, { waitUntil: 'networkidle' });
+  console.log('  -> Navigating to login page:', AUTONIQ_LOGIN_URL);
+  await page.goto(AUTONIQ_LOGIN_URL, { waitUntil: 'networkidle', timeout: 30000 });
+  console.log('  -> Login page loaded, current URL:', page.url());
 
-  // Fill login form - adjust selectors based on actual AutoNiq login page
+  // Log available input fields for debugging
+  const inputs = await page.$$eval('input', els => els.map(e => ({
+    type: e.type,
+    name: e.name,
+    id: e.id,
+    placeholder: e.placeholder
+  })));
+  console.log('  -> Found input fields:', JSON.stringify(inputs, null, 2));
+
+  // Fill login form
+  console.log('  -> Filling email field...');
   await page.fill('input[name="email"], input[type="email"], #email', username);
+
+  console.log('  -> Filling password field...');
   await page.fill('input[name="password"], input[type="password"], #password', password);
 
-  // Click login button
+  // Find and click login button
+  console.log('  -> Looking for submit button...');
+  const buttons = await page.$$eval('button', els => els.map(e => ({
+    type: e.type,
+    text: e.textContent?.trim(),
+    class: e.className
+  })));
+  console.log('  -> Found buttons:', JSON.stringify(buttons, null, 2));
+
+  console.log('  -> Clicking submit button...');
   await page.click('button[type="submit"], input[type="submit"], .login-button, #login-btn');
 
   // Wait for navigation to complete
+  console.log('  -> Waiting for redirect to /app/...');
   await page.waitForURL('**/app/**', { timeout: 30000 });
 
-  console.log('Login successful!');
+  console.log('  -> Login successful! Current URL:', page.url());
   await randomDelay();
 }
 
@@ -101,24 +124,30 @@ async function scrapeRunlist(csvPath, auctionName) {
   console.log(`Auction: ${auctionName}\n`);
 
   // Load runlist
+  console.log('[1/5] Loading runlist...');
   const vehicles = loadRunlist(csvPath);
-  console.log(`Loaded ${vehicles.length} vehicles from runlist\n`);
+  console.log(`[1/5] Loaded ${vehicles.length} vehicles from runlist\n`);
 
   // Launch browser
+  console.log('[2/5] Launching browser...');
   const browser = await chromium.launch({
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu', '--disable-dev-shm-usage']
   });
+  console.log('[2/5] Browser launched successfully\n');
 
+  console.log('[3/5] Creating browser context...');
   const context = await browser.newContext({
     userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
   });
-
   const page = await context.newPage();
+  console.log('[3/5] Browser context created\n');
 
   try {
     // Login first
+    console.log('[4/5] Starting login process...');
     await login(page);
+    console.log('[4/5] Login complete\n');
 
     // Process each VIN
     let processed = 0;
