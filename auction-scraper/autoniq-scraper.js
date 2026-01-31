@@ -9,7 +9,7 @@
 import { loadRunlist, storeVehicle, pool } from './scraper.js';
 import { chromium } from 'playwright';
 
-const AUTONIQ_LOGIN_URL = 'https://autoniq.com/login';
+const AUTONIQ_LOGIN_URL = 'https://autoniq.com/app/login?redirect=/app/';
 const AUTONIQ_BASE = 'https://autoniq.com/app/';
 const DELAY_MIN_MS = 2000;
 const DELAY_MAX_MS = 5000;
@@ -20,7 +20,7 @@ function randomDelay() {
   return new Promise(resolve => setTimeout(resolve, delay));
 }
 
-// Login to AutoNiq
+// Login to AutoNiq via Okta SSO
 async function login(page) {
   const username = process.env.AUTONIQ_USERNAME;
   const password = process.env.AUTONIQ_PASSWORD;
@@ -29,41 +29,45 @@ async function login(page) {
     throw new Error('AUTONIQ_USERNAME and AUTONIQ_PASSWORD environment variables required');
   }
 
-  console.log('  -> Navigating to login page:', AUTONIQ_LOGIN_URL);
+  // Step 1: Navigate to AutoNiq login page
+  console.log('  -> Step 1: Navigating to AutoNiq login page...');
   await page.goto(AUTONIQ_LOGIN_URL, { waitUntil: 'networkidle', timeout: 30000 });
-  console.log('  -> Login page loaded, current URL:', page.url());
+  console.log('  -> Current URL:', page.url());
 
-  // Log available input fields for debugging
-  const inputs = await page.$$eval('input', els => els.map(e => ({
-    type: e.type,
-    name: e.name,
-    id: e.id,
-    placeholder: e.placeholder
-  })));
-  console.log('  -> Found input fields:', JSON.stringify(inputs, null, 2));
+  // Step 2: Click "Sign In" button to go to Okta
+  console.log('  -> Step 2: Looking for Sign In button...');
+  await page.waitForSelector('text=Sign In, text=Sign in, text=LOGIN, text=Log In, a:has-text("Sign"), button:has-text("Sign")', { timeout: 10000 });
+  await page.click('text=Sign In, text=Sign in, text=LOGIN, text=Log In, a:has-text("Sign"), button:has-text("Sign")');
+  console.log('  -> Clicked Sign In, waiting for Okta redirect...');
 
-  // Fill login form
-  console.log('  -> Filling email field...');
-  await page.fill('input[name="email"], input[type="email"], #email', username);
+  // Step 3: Wait for Okta page and enter username
+  console.log('  -> Step 3: Waiting for Okta username page...');
+  await page.waitForURL('**/okta**', { timeout: 30000 });
+  console.log('  -> On Okta page:', page.url());
 
-  console.log('  -> Filling password field...');
-  await page.fill('input[name="password"], input[type="password"], #password', password);
+  // Wait for username input
+  await page.waitForSelector('input[name="identifier"], input[name="username"], input[type="email"], #okta-signin-username', { timeout: 15000 });
+  console.log('  -> Found username field, entering username...');
+  await page.fill('input[name="identifier"], input[name="username"], input[type="email"], #okta-signin-username', username);
 
-  // Find and click login button
-  console.log('  -> Looking for submit button...');
-  const buttons = await page.$$eval('button', els => els.map(e => ({
-    type: e.type,
-    text: e.textContent?.trim(),
-    class: e.className
-  })));
-  console.log('  -> Found buttons:', JSON.stringify(buttons, null, 2));
+  // Click Next/Continue button
+  console.log('  -> Clicking Next button...');
+  await page.click('input[type="submit"], button[type="submit"], text=Next, text=Continue, text=Submit');
+  await randomDelay();
 
-  console.log('  -> Clicking submit button...');
-  await page.click('button[type="submit"], input[type="submit"], .login-button, #login-btn');
+  // Step 4: Wait for password page and enter password
+  console.log('  -> Step 4: Waiting for password field...');
+  await page.waitForSelector('input[name="credentials.passcode"], input[name="password"], input[type="password"], #okta-signin-password', { timeout: 15000 });
+  console.log('  -> Found password field, entering password...');
+  await page.fill('input[name="credentials.passcode"], input[name="password"], input[type="password"], #okta-signin-password', password);
 
-  // Wait for navigation to complete
-  console.log('  -> Waiting for redirect to /app/...');
-  await page.waitForURL('**/app/**', { timeout: 30000 });
+  // Click Sign In/Submit
+  console.log('  -> Clicking Sign In button...');
+  await page.click('input[type="submit"], button[type="submit"], text=Sign in, text=Sign In, text=Verify');
+
+  // Step 5: Wait for redirect back to AutoNiq
+  console.log('  -> Step 5: Waiting for redirect back to AutoNiq...');
+  await page.waitForURL('**/autoniq.com/app/**', { timeout: 60000 });
 
   console.log('  -> Login successful! Current URL:', page.url());
   await randomDelay();
