@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoIntel - Calendar View</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f3f4f6;
+      min-height: 100vh;
+      color: #333;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 1rem 2rem;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header h1 { font-size: 1.5rem; }
+    .header a { color: white; text-decoration: none; opacity: 0.9; }
+    .header a:hover { opacity: 1; }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+    .week-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      background: white;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .week-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #374151;
+    }
+    .week-nav button {
+      padding: 0.5rem 1rem;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .week-nav button:hover { background: #764ba2; }
+    .week-nav button.secondary { background: #6b7280; }
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.75rem;
+    }
+    .day-column {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      min-height: 400px;
+      overflow: hidden;
+    }
+    .day-header {
+      background: #f9fafb;
+      padding: 0.75rem;
+      text-align: center;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .day-name {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: #6b7280;
+      font-weight: 600;
+    }
+    .day-date {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #374151;
+    }
+    .day-header.today {
+      background: #667eea;
+    }
+    .day-header.today .day-name,
+    .day-header.today .day-date {
+      color: white;
+    }
+    .day-stats {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      padding: 0.5rem;
+      background: #f9fafb;
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+    .day-stats span { display: flex; align-items: center; gap: 0.25rem; }
+    .day-content {
+      padding: 0.5rem;
+    }
+    .auction-card {
+      background: #f9fafb;
+      border-radius: 8px;
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-left: 3px solid #667eea;
+    }
+    .auction-card:hover {
+      background: #f3f4f6;
+      transform: translateX(2px);
+    }
+    .auction-card.enriched { border-left-color: #10b981; }
+    .auction-card.processing { border-left-color: #f59e0b; }
+    .auction-name {
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #374151;
+      margin-bottom: 0.25rem;
+    }
+    .auction-meta {
+      font-size: 0.75rem;
+      color: #6b7280;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .vehicle-count {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .signal-badge {
+      background: #fef3c7;
+      color: #d97706;
+      padding: 0.125rem 0.375rem;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 0.7rem;
+    }
+    .signal-badge.hot {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+    .no-auctions {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: #9ca3af;
+      font-size: 0.85rem;
+    }
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 16px;
+      max-width: 800px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .modal h2 {
+      margin-bottom: 1rem;
+      color: #374151;
+    }
+    .modal-close {
+      float: right;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #6b7280;
+    }
+    .vehicle-list {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .vehicle-row {
+      display: grid;
+      grid-template-columns: 100px 1fr 80px 150px;
+      padding: 0.75rem;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 0.85rem;
+      align-items: center;
+    }
+    .vehicle-row:last-child { border-bottom: none; }
+    .vehicle-row.header {
+      background: #f9fafb;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+    }
+    .vehicle-row.flagged { background: #fef2f2; }
+    .grade-badge {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.75rem;
+      color: white;
+    }
+    .grade-good { background: #10b981; }
+    .grade-ok { background: #f59e0b; }
+    .grade-bad { background: #ef4444; }
+    .quick-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .quick-actions button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    .btn-primary { background: #667eea; color: white; }
+    .btn-success { background: #10b981; color: white; }
+    .btn-secondary { background: #e5e7eb; color: #374151; }
+    @media (max-width: 1200px) {
+      .calendar-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+    @media (max-width: 768px) {
+      .calendar-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>AutoIntel Calendar</h1>
+    <a href="/">Upload Runlist</a>
+  </div>
+
+  <div class="container">
+    <div class="week-nav">
+      <button id="prevWeek" class="secondary">Prev Week</button>
+      <div class="week-title" id="weekTitle">Loading...</div>
+      <div style="display: flex; gap: 0.5rem;">
+        <button id="todayBtn">Today</button>
+        <button id="nextWeek">Next Week</button>
+      </div>
+    </div>
+
+    <div class="calendar-grid" id="calendarGrid">
+      <!-- Days will be populated here -->
+    </div>
+  </div>
+
+  <!-- Auction Detail Modal -->
+  <div class="modal-overlay" id="auctionModal">
+    <div class="modal">
+      <button class="modal-close" id="closeModal">&times;</button>
+      <h2 id="modalTitle">Auction Details</h2>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <script>
+    let currentWeekStart = null;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      // Start with current week
+      const now = new Date();
+      const day = now.getDay();
+      const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+      currentWeekStart = new Date(now.setDate(diff));
+      currentWeekStart.setHours(0, 0, 0, 0);
+
+      loadWeek();
+
+      // Navigation
+      document.getElementById('prevWeek').addEventListener('click', () => {
+        currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+        loadWeek();
+      });
+
+      document.getElementById('nextWeek').addEventListener('click', () => {
+        currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+        loadWeek();
+      });
+
+      document.getElementById('todayBtn').addEventListener('click', () => {
+        const now = new Date();
+        const day = now.getDay();
+        const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+        currentWeekStart = new Date(now.setDate(diff));
+        currentWeekStart.setHours(0, 0, 0, 0);
+        loadWeek();
+      });
+
+      // Modal close
+      document.getElementById('closeModal').addEventListener('click', closeModal);
+      document.getElementById('auctionModal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('auctionModal')) closeModal();
+      });
+    });
+
+    async function loadWeek() {
+      const startStr = currentWeekStart.toISOString().split('T')[0];
+      const endDate = new Date(currentWeekStart);
+      endDate.setDate(endDate.getDate() + 6);
+
+      // Update title
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      document.getElementById('weekTitle').textContent =
+        `${monthNames[currentWeekStart.getMonth()]} ${currentWeekStart.getDate()} - ${monthNames[endDate.getMonth()]} ${endDate.getDate()}, ${endDate.getFullYear()}`;
+
+      try {
+        const response = await fetch(`/api/calendar/week?start=${startStr}`);
+        const data = await response.json();
+        renderCalendar(data.days);
+      } catch (err) {
+        console.error('Failed to load calendar:', err);
+      }
+    }
+
+    function renderCalendar(days) {
+      const grid = document.getElementById('calendarGrid');
+      const today = new Date().toISOString().split('T')[0];
+
+      grid.innerHTML = days.map(day => {
+        const isToday = day.date === today;
+        const auctionsHtml = day.auctions.length > 0
+          ? day.auctions.map(a => `
+              <div class="auction-card ${a.enrichedCount > 0 ? 'enriched' : ''} ${a.status === 'processing' ? 'processing' : ''}"
+                   onclick="openAuction(${a.id}, '${a.auctionName}')">
+                <div class="auction-name">${a.auctionName}</div>
+                <div class="auction-meta">
+                  <span class="vehicle-count">${a.vehicleCount} vehicles</span>
+                  ${a.matchedCount > 0 ? `<span class="signal-badge ${a.matchedCount > 10 ? 'hot' : ''}">${a.matchedCount} matches</span>` : ''}
+                </div>
+              </div>
+            `).join('')
+          : '<div class="no-auctions">No auctions</div>';
+
+        return `
+          <div class="day-column">
+            <div class="day-header ${isToday ? 'today' : ''}">
+              <div class="day-name">${day.dayName.slice(0, 3)}</div>
+              <div class="day-date">${day.dayOfMonth}</div>
+            </div>
+            <div class="day-stats">
+              <span>${day.totalVehicles} cars</span>
+              <span>${day.totalSignals} signals</span>
+            </div>
+            <div class="day-content">
+              ${auctionsHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function openAuction(id, name) {
+      document.getElementById('modalTitle').textContent = name;
+      document.getElementById('auctionModal').classList.add('active');
+      document.getElementById('modalContent').innerHTML = '<p>Loading...</p>';
+
+      try {
+        const response = await fetch(`/api/runlist/${id}/enriched`);
+        const data = await response.json();
+
+        const vehicles = data.vehicles;
+        const flaggedTerms = ['STRUCTURAL', 'SALVAGE', 'FLOOD', 'FIRE', 'INOP'];
+
+        let html = `
+          <div style="margin-bottom: 1rem; display: flex; gap: 1rem;">
+            <div style="background: #f9fafb; padding: 0.75rem 1rem; border-radius: 8px;">
+              <strong>${data.stats.total}</strong> vehicles
+            </div>
+            <div style="background: #ecfdf5; padding: 0.75rem 1rem; border-radius: 8px;">
+              <strong>${data.stats.enriched}</strong> enriched
+            </div>
+            <div style="background: #fef2f2; padding: 0.75rem 1rem; border-radius: 8px;">
+              <strong>${data.stats.flagged}</strong> flagged
+            </div>
+          </div>
+          <div class="vehicle-list">
+            <div class="vehicle-row header">
+              <div>Lane-Run</div>
+              <div>Vehicle</div>
+              <div>Grade</div>
+              <div>Announcements</div>
+            </div>
+        `;
+
+        for (const v of vehicles) {
+          const laneRun = v.lane && v.lot ? `${v.lane}-${v.lot}` : '-';
+          const gradeClass = v.grade ? (v.grade >= 4 ? 'grade-good' : v.grade >= 3 ? 'grade-ok' : 'grade-bad') : '';
+          const isFlagged = v.flags && v.flags.length > 0;
+
+          html += `
+            <div class="vehicle-row ${isFlagged ? 'flagged' : ''}">
+              <div><strong>${laneRun}</strong></div>
+              <div>${v.year} ${v.make} ${v.model}</div>
+              <div>${v.grade ? `<span class="grade-badge ${gradeClass}">${v.grade}</span>` : '-'}</div>
+              <div style="font-size: 0.75rem;">${(v.announcements || '').replace(/\|/g, '; ').slice(0, 50)}${(v.announcements || '').length > 50 ? '...' : ''}</div>
+            </div>
+          `;
+        }
+
+        html += '</div>';
+        html += `
+          <div class="quick-actions">
+            <a href="/api/runlist/${id}/export" class="btn-success" style="text-decoration: none; padding: 0.5rem 1rem; border-radius: 6px;">Export CSV</a>
+            <button class="btn-secondary" onclick="closeModal()">Close</button>
+          </div>
+        `;
+
+        document.getElementById('modalContent').innerHTML = html;
+      } catch (err) {
+        document.getElementById('modalContent').innerHTML = `<p style="color: #ef4444;">Error: ${err.message}</p>`;
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('auctionModal').classList.remove('active');
+    }
+  </script>
+</body>
+</html>

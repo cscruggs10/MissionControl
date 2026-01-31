@@ -446,6 +446,94 @@ router.get('/runlists', async (req, res) => {
   }
 });
 
+// Calendar API - Get runlists grouped by week
+router.get('/calendar/week', async (req, res) => {
+  try {
+    // Get the week start date (defaults to current week)
+    let startDate = req.query.start;
+    if (!startDate) {
+      // Default to Monday of current week
+      const now = new Date();
+      const day = now.getDay();
+      const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+      startDate = new Date(now.setDate(diff)).toISOString().split('T')[0];
+    }
+
+    // Calculate week end (Sunday)
+    const start = new Date(startDate);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 6);
+    const endDate = end.toISOString().split('T')[0];
+
+    // Get all runlists for this week with vehicle and signal counts
+    const runlists = await pool.query(`
+      SELECT
+        r.id,
+        r.auction_name,
+        r.auction_date,
+        r.name as filename,
+        r.status,
+        r.total_vehicles,
+        r.uploaded_at,
+        COUNT(rv.id) as vehicle_count,
+        COUNT(CASE WHEN rv.matched THEN 1 END) as matched_count,
+        COUNT(CASE WHEN v.cr_score IS NOT NULL THEN 1 END) as enriched_count
+      FROM runlists r
+      LEFT JOIN runlist_vehicles rv ON r.id = rv.runlist_id
+      LEFT JOIN vehicles v ON rv.vin = v.vin
+      WHERE r.auction_date >= $1 AND r.auction_date <= $2
+      GROUP BY r.id, r.auction_name, r.auction_date, r.name, r.status, r.total_vehicles, r.uploaded_at
+      ORDER BY r.auction_date, r.auction_name
+    `, [startDate, endDate]);
+
+    // Group by day
+    const days = {};
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+    // Initialize all 7 days
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(start);
+      d.setDate(d.getDate() + i);
+      const dateStr = d.toISOString().split('T')[0];
+      days[dateStr] = {
+        date: dateStr,
+        dayName: dayNames[d.getDay()],
+        dayOfMonth: d.getDate(),
+        auctions: [],
+        totalVehicles: 0,
+        totalSignals: 0
+      };
+    }
+
+    // Fill in auctions
+    for (const r of runlists.rows) {
+      const dateStr = r.auction_date.toISOString().split('T')[0];
+      if (days[dateStr]) {
+        days[dateStr].auctions.push({
+          id: r.id,
+          auctionName: r.auction_name,
+          filename: r.filename,
+          status: r.status,
+          vehicleCount: parseInt(r.vehicle_count) || parseInt(r.total_vehicles) || 0,
+          matchedCount: parseInt(r.matched_count) || 0,
+          enrichedCount: parseInt(r.enriched_count) || 0
+        });
+        days[dateStr].totalVehicles += parseInt(r.vehicle_count) || parseInt(r.total_vehicles) || 0;
+        days[dateStr].totalSignals += parseInt(r.matched_count) || 0;
+      }
+    }
+
+    res.json({
+      weekStart: startDate,
+      weekEnd: endDate,
+      days: Object.values(days)
+    });
+  } catch (err) {
+    console.error('Calendar error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Scrape matched vehicles for a runlist
 router.post('/runlist/:id/scrape', async (req, res) => {
   const runlistId = req.params.id;
