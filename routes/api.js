@@ -446,24 +446,20 @@ router.get('/runlists', async (req, res) => {
   }
 });
 
-// Calendar API - Get runlists grouped by week
+// Calendar API - Get runlists for next 7 days
 router.get('/calendar/week', async (req, res) => {
   try {
-    // Get the week start date (defaults to current week)
-    let startDate = req.query.start;
-    if (!startDate) {
-      // Default to Monday of current week
-      const now = new Date();
-      const day = now.getDay();
-      const diff = now.getDate() - day + (day === 0 ? -6 : 1);
-      startDate = new Date(now.setDate(diff)).toISOString().split('T')[0];
-    }
+    // Always start from today
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const startDate = now.toISOString().split('T')[0];
 
-    // Calculate week end (Sunday)
-    const start = new Date(startDate);
-    const end = new Date(start);
+    // Show 7 days forward (today + 6 more)
+    const end = new Date(now);
     end.setDate(end.getDate() + 6);
     const endDate = end.toISOString().split('T')[0];
+
+    const start = now;
 
     // Get all runlists for this week with vehicle and signal counts
     const runlists = await pool.query(`

@@ -258,11 +258,9 @@
 
   <div class="container">
     <div class="week-nav">
-      <button id="prevWeek" class="secondary">Prev Week</button>
       <div class="week-title" id="weekTitle">Loading...</div>
       <div style="display: flex; gap: 0.5rem;">
-        <button id="todayBtn">Today</button>
-        <button id="nextWeek">Next Week</button>
+        <button id="nextWeek">Next 7 Days</button>
       </div>
     </div>
 
@@ -285,32 +283,15 @@
 
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
-      // Start with current week
-      const now = new Date();
-      const day = now.getDay();
-      const diff = now.getDate() - day + (day === 0 ? -6 : 1);
-      currentWeekStart = new Date(now.setDate(diff));
+      // Always start from today
+      currentWeekStart = new Date();
       currentWeekStart.setHours(0, 0, 0, 0);
 
       loadWeek();
 
-      // Navigation
-      document.getElementById('prevWeek').addEventListener('click', () => {
-        currentWeekStart.setDate(currentWeekStart.getDate() - 7);
-        loadWeek();
-      });
-
+      // Navigation - only forward
       document.getElementById('nextWeek').addEventListener('click', () => {
         currentWeekStart.setDate(currentWeekStart.getDate() + 7);
-        loadWeek();
-      });
-
-      document.getElementById('todayBtn').addEventListener('click', () => {
-        const now = new Date();
-        const day = now.getDay();
-        const diff = now.getDate() - day + (day === 0 ? -6 : 1);
-        currentWeekStart = new Date(now.setDate(diff));
-        currentWeekStart.setHours(0, 0, 0, 0);
         loadWeek();
       });
 
@@ -328,8 +309,13 @@
 
       // Update title
       const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      document.getElementById('weekTitle').textContent =
-        `${monthNames[currentWeekStart.getMonth()]} ${currentWeekStart.getDate()} - ${monthNames[endDate.getMonth()]} ${endDate.getDate()}, ${endDate.getFullYear()}`;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const isStartingToday = currentWeekStart.getTime() === today.getTime();
+
+      document.getElementById('weekTitle').textContent = isStartingToday
+        ? `Today - ${monthNames[endDate.getMonth()]} ${endDate.getDate()}`
+        : `${monthNames[currentWeekStart.getMonth()]} ${currentWeekStart.getDate()} - ${monthNames[endDate.getMonth()]} ${endDate.getDate()}, ${endDate.getFullYear()}`;
 
       try {
         const response = await fetch(`/api/calendar/week?start=${startStr}`);
