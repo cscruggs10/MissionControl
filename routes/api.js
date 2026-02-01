@@ -61,7 +61,47 @@ router.post('/migrate', async (req, res) => {
       )
     `);
 
-    res.json({ success: true, message: 'Migration complete - tables created' });
+    // Users table (for multi-user support)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        password_hash VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Insert default user for single-user mode
+    await pool.query(`
+      INSERT INTO users (email, name)
+      VALUES ('default@autointel.local', 'Default User')
+      ON CONFLICT (email) DO NOTHING
+    `);
+
+    // Bid List table (combines in-lane, proxy, and pass)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS bid_list (
+        id SERIAL PRIMARY KEY,
+        user_id INT NOT NULL,
+        vehicle_id INT NOT NULL REFERENCES runlist_vehicles(id) ON DELETE CASCADE,
+        auction_id INT NOT NULL REFERENCES runlists(id) ON DELETE CASCADE,
+        bid_type VARCHAR(20) NOT NULL CHECK (bid_type IN ('in-lane', 'proxy', 'pass')),
+        max_bid DECIMAL(10,2),
+        created_by INT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, vehicle_id, auction_id)
+      )
+    `);
+
+    // Indexes for bid_list
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_bid_list_user_auction ON bid_list(user_id, auction_id)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_bid_list_bid_type ON bid_list(bid_type)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_bid_list_vehicle ON bid_list(vehicle_id)`);
+
+    res.json({ success: true, message: 'Migration complete - all tables created' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
