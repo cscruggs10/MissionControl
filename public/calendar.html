@@ -197,11 +197,12 @@
     }
     .vehicle-row {
       display: grid;
-      grid-template-columns: 100px 1fr 80px 150px;
-      padding: 0.75rem;
+      grid-template-columns: 70px 1fr 60px 120px 180px;
+      padding: 0.5rem 0.75rem;
       border-bottom: 1px solid #e5e7eb;
       font-size: 0.85rem;
       align-items: center;
+      gap: 0.5rem;
     }
     .vehicle-row:last-child { border-bottom: none; }
     .vehicle-row.header {
@@ -238,6 +239,26 @@
     .btn-primary { background: #667eea; color: white; }
     .btn-success { background: #10b981; color: white; }
     .btn-secondary { background: #e5e7eb; color: #374151; }
+    .bid-actions {
+      display: flex;
+      gap: 0.25rem;
+    }
+    .bid-btn {
+      padding: 0.25rem 0.5rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.7rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .bid-btn:hover { opacity: 0.8; }
+    .bid-btn.in-lane { background: #dbeafe; color: #1d4ed8; }
+    .bid-btn.in-lane.active { background: #1d4ed8; color: white; }
+    .bid-btn.proxy { background: #fef3c7; color: #d97706; }
+    .bid-btn.proxy.active { background: #d97706; color: white; }
+    .bid-btn.pass { background: #fee2e2; color: #dc2626; }
+    .bid-btn.pass.active { background: #dc2626; color: white; }
     @media (max-width: 1200px) {
       .calendar-grid {
         grid-template-columns: repeat(4, 1fr);
@@ -363,50 +384,81 @@
       }).join('');
     }
 
+    let currentAuctionId = null;
+    let currentBids = {};
+
     async function openAuction(id, name) {
+      currentAuctionId = id;
       document.getElementById('modalTitle').textContent = name;
       document.getElementById('auctionModal').classList.add('active');
       document.getElementById('modalContent').innerHTML = '<p>Loading...</p>';
 
       try {
-        const response = await fetch(`/api/runlist/${id}/enriched`);
-        const data = await response.json();
+        // Load vehicles and existing bids in parallel
+        const [vehicleRes, bidsRes] = await Promise.all([
+          fetch(`/api/runlist/${id}/enriched`),
+          fetch(`/api/bid-list/runlist/${id}`)
+        ]);
+
+        const data = await vehicleRes.json();
+        const bidsData = await bidsRes.json();
+
+        // Map bids by vehicle_id
+        currentBids = {};
+        if (bidsData.bids) {
+          for (const bid of bidsData.bids) {
+            currentBids[bid.vehicle_id] = bid;
+          }
+        }
 
         const vehicles = data.vehicles;
-        const flaggedTerms = ['STRUCTURAL', 'SALVAGE', 'FLOOD', 'FIRE', 'INOP'];
 
         let html = `
-          <div style="margin-bottom: 1rem; display: flex; gap: 1rem;">
-            <div style="background: #f9fafb; padding: 0.75rem 1rem; border-radius: 8px;">
+          <div style="margin-bottom: 1rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+            <div style="background: #f9fafb; padding: 0.5rem 1rem; border-radius: 8px;">
               <strong>${data.stats.total}</strong> vehicles
             </div>
-            <div style="background: #ecfdf5; padding: 0.75rem 1rem; border-radius: 8px;">
+            <div style="background: #ecfdf5; padding: 0.5rem 1rem; border-radius: 8px;">
               <strong>${data.stats.enriched}</strong> enriched
             </div>
-            <div style="background: #fef2f2; padding: 0.75rem 1rem; border-radius: 8px;">
+            <div style="background: #fef2f2; padding: 0.5rem 1rem; border-radius: 8px;">
               <strong>${data.stats.flagged}</strong> flagged
+            </div>
+            <div style="background: #dbeafe; padding: 0.5rem 1rem; border-radius: 8px;">
+              <strong id="inLaneCount">0</strong> in-lane
+            </div>
+            <div style="background: #fef3c7; padding: 0.5rem 1rem; border-radius: 8px;">
+              <strong id="proxyCount">0</strong> proxy
             </div>
           </div>
           <div class="vehicle-list">
             <div class="vehicle-row header">
-              <div>Lane-Run</div>
+              <div>Lane</div>
               <div>Vehicle</div>
               <div>Grade</div>
               <div>Announcements</div>
+              <div>Action</div>
             </div>
         `;
 
         for (const v of vehicles) {
-          const laneRun = v.lane && v.lot ? `${v.lane}-${v.lot}` : '-';
+          const laneRun = v.lane && v.lot ? `${v.lane}-${v.lot}` : (v.lot || '-');
           const gradeClass = v.grade ? (v.grade >= 4 ? 'grade-good' : v.grade >= 3 ? 'grade-ok' : 'grade-bad') : '';
           const isFlagged = v.flags && v.flags.length > 0;
+          const bid = currentBids[v.id];
+          const bidType = bid ? bid.bid_type : null;
 
           html += `
-            <div class="vehicle-row ${isFlagged ? 'flagged' : ''}">
+            <div class="vehicle-row ${isFlagged ? 'flagged' : ''}" id="row-${v.id}">
               <div><strong>${laneRun}</strong></div>
-              <div>${v.year} ${v.make} ${v.model}</div>
+              <div style="font-size: 0.8rem;">${v.year} ${v.make} ${v.model}</div>
               <div>${v.grade ? `<span class="grade-badge ${gradeClass}">${v.grade}</span>` : '-'}</div>
-              <div style="font-size: 0.75rem;">${(v.announcements || '').replace(/\|/g, '; ').slice(0, 50)}${(v.announcements || '').length > 50 ? '...' : ''}</div>
+              <div style="font-size: 0.7rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${(v.announcements || '').replace(/\|/g, '; ')}">${(v.announcements || '').replace(/\|/g, '; ').slice(0, 30)}${(v.announcements || '').length > 30 ? '...' : ''}</div>
+              <div class="bid-actions">
+                <button class="bid-btn in-lane ${bidType === 'in-lane' ? 'active' : ''}" onclick="setBid(${v.id}, 'in-lane')">In-Lane</button>
+                <button class="bid-btn proxy ${bidType === 'proxy' ? 'active' : ''}" onclick="setBid(${v.id}, 'proxy')">Proxy</button>
+                <button class="bid-btn pass ${bidType === 'pass' ? 'active' : ''}" onclick="setBid(${v.id}, 'pass')">Pass</button>
+              </div>
             </div>
           `;
         }
@@ -420,9 +472,74 @@
         `;
 
         document.getElementById('modalContent').innerHTML = html;
+        updateBidCounts();
       } catch (err) {
         document.getElementById('modalContent').innerHTML = `<p style="color: #ef4444;">Error: ${err.message}</p>`;
       }
+    }
+
+    async function setBid(vehicleId, bidType) {
+      const existingBid = currentBids[vehicleId];
+
+      // If clicking the same type, remove the bid
+      if (existingBid && existingBid.bid_type === bidType) {
+        try {
+          await fetch(`/api/bid-list/${existingBid.id}`, { method: 'DELETE' });
+          delete currentBids[vehicleId];
+          updateRowButtons(vehicleId, null);
+          updateBidCounts();
+        } catch (err) {
+          console.error('Failed to remove bid:', err);
+        }
+        return;
+      }
+
+      // Add or update bid
+      try {
+        const response = await fetch('/api/bid-list/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            vehicle_id: vehicleId,
+            auction_id: currentAuctionId,
+            bid_type: bidType,
+            max_bid: bidType === 'proxy' ? 0 : null
+          })
+        });
+        const data = await response.json();
+        if (data.bid) {
+          currentBids[vehicleId] = data.bid;
+          updateRowButtons(vehicleId, bidType);
+          updateBidCounts();
+        }
+      } catch (err) {
+        console.error('Failed to set bid:', err);
+      }
+    }
+
+    function updateRowButtons(vehicleId, activeBidType) {
+      const row = document.getElementById(`row-${vehicleId}`);
+      if (!row) return;
+
+      const buttons = row.querySelectorAll('.bid-btn');
+      buttons.forEach(btn => {
+        btn.classList.remove('active');
+        if (activeBidType && btn.classList.contains(activeBidType)) {
+          btn.classList.add('active');
+        }
+      });
+    }
+
+    function updateBidCounts() {
+      let inLane = 0, proxy = 0;
+      for (const bid of Object.values(currentBids)) {
+        if (bid.bid_type === 'in-lane') inLane++;
+        if (bid.bid_type === 'proxy') proxy++;
+      }
+      const inLaneEl = document.getElementById('inLaneCount');
+      const proxyEl = document.getElementById('proxyCount');
+      if (inLaneEl) inLaneEl.textContent = inLane;
+      if (proxyEl) proxyEl.textContent = proxy;
     }
 
     function closeModal() {
