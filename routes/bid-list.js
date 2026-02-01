@@ -30,12 +30,7 @@ router.post('/add', async (req, res) => {
       });
     }
 
-    // Validate max_bid for proxy type
-    if (bid_type === 'proxy' && (!max_bid || max_bid <= 0)) {
-      return res.status(400).json({ 
-        error: 'max_bid is required and must be greater than 0 for proxy bids' 
-      });
-    }
+    // For proxy bids, max_bid is optional (can be set later)
 
     const result = await pool.query(`
       INSERT INTO bid_list (user_id, vehicle_id, auction_id, bid_type, max_bid, created_by)
