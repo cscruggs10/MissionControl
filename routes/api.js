@@ -500,6 +500,38 @@ router.get('/runlists', async (req, res) => {
   }
 });
 
+// Re-run matching on an existing runlist
+router.post('/runlist/:id/rematch', async (req, res) => {
+  try {
+    const runlistId = req.params.id;
+
+    // Verify runlist exists
+    const runlist = await pool.query('SELECT * FROM runlists WHERE id = $1', [runlistId]);
+    if (runlist.rows.length === 0) {
+      return res.status(404).json({ error: 'Runlist not found' });
+    }
+
+    // Reset match status on all vehicles
+    await pool.query(`
+      UPDATE runlist_vehicles
+      SET matched = false, match_count = 0
+      WHERE runlist_id = $1
+    `, [runlistId]);
+
+    // Re-run matching
+    const matchResults = await matchRunlist(runlistId);
+
+    res.json({
+      success: true,
+      runlist: runlist.rows[0],
+      matchResults,
+      message: `Re-matched ${runlist.rows[0].total_vehicles} vehicles. Found ${matchResults.matched} matches.`
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Debug endpoint - compare data formats between historical_sales and runlist_vehicles
 router.get('/debug/data-formats', async (req, res) => {
   try {
