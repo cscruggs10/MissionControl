@@ -116,10 +116,12 @@ router.post('/migrate', async (req, res) => {
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_bid_list_vehicle ON bid_list(vehicle_id)`);
 
     // Add mileage column to runlist_vehicles if it doesn't exist
-    await pool.query(`
-      ALTER TABLE runlist_vehicles
-      ADD COLUMN IF NOT EXISTS mileage INTEGER
-    `);
+    try {
+      await pool.query(`ALTER TABLE runlist_vehicles ADD COLUMN mileage INTEGER`);
+    } catch (err) {
+      // Column already exists, ignore
+      if (err.code !== '42701') throw err;
+    }
 
     res.json({ success: true, message: 'Migration complete - all tables created' });
   } catch (err) {
