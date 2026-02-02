@@ -149,55 +149,63 @@ async function scrapeVIN(page, vin) {
 
     // Parse the extracted text
     if (infoText) {
-      console.log(`  -> Found info: "${infoText.substring(0, 100)}"`);
-
       // Pattern: "41:1065, Grade: 2.8 | As Is/BOS ONLY"
-      // or: "Grade: 2.8 | As Is/BOS ONLY"
-      // or: "Grade: 2.8" (no announcements)
+      // The grade and announcement are in this format
       const gradeMatch = infoText.match(/Grade:\s*([\d.]+)/i);
       if (gradeMatch) {
         grade = parseFloat(gradeMatch[1]);
       }
 
-      // Get announcements - everything after the pipe (if present)
+      // Get announcements - everything after the pipe until we hit garbage
       const pipeIndex = infoText.indexOf('|');
       if (pipeIndex !== -1) {
         let announcementText = infoText.substring(pipeIndex + 1).trim();
 
-        // Clean up: remove any trailing data that's not part of announcement
-        // (e.g., mileage numbers, dates that might be on the same line)
+        // Clean up: truncate at common end markers
+        // These indicate end of announcement section:
+        // - "0/1024" (notes counter)
+        // - "More" (More button)
+        // - Numbers followed by "Similar"
+        // - Mileage patterns (like "146,895" or just trailing numbers)
         announcementText = announcementText
-          .replace(/\d{1,3}(,\d{3})+\s*(miles?)?/gi, '') // Remove mileage like "146,895"
-          .replace(/\b(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b.*$/i, '') // Remove dates
+          .replace(/\d+\/\d+.*$/s, '')  // Stop at "0/1024" notes counter
+          .replace(/More\d*\s*Similar.*$/si, '')  // Stop at "More Similar Vehicles"
+          .replace(/\d+\s*Similar.*$/si, '')  // Stop at "X Similar Vehicles"
+          .replace(/\d{1,3}(,\d{3})+.*$/s, '')  // Stop at mileage like "146,895"
+          .replace(/\d{2,},?$/s, '')  // Stop at trailing 2+ digit numbers (mileage start)
+          .replace(/View\s*CR.*$/si, '')  // Stop at "View CR"
+          .replace(/Add\s*Notes.*$/si, '')  // Stop at "Add Notes"
           .trim();
 
         if (announcementText && announcementText.length > 0) {
-          // Split by semicolon if there are multiple announcements
+          // Split by semicolon or pipe if there are multiple announcements
           announcements = announcementText
-            .split(/[;]/)
+            .split(/[;|]/)
             .map(a => a.trim())
-            .filter(a => a && a.length > 1);
+            .filter(a => a && a.length > 1 && !a.match(/^\d+$/));  // Filter out pure numbers
         }
       }
+
+      console.log(`  -> Grade: ${grade} | Announcements: ${announcements.join('; ') || 'none'}`);
     } else {
-      // Strategy 3: Last resort - search for grade pattern in full page
+      // Strategy 3: Last resort - search for the specific pattern in page
       const pageText = await page.textContent('body');
 
-      // Try to find "Grade: X.X | Announcement" pattern anywhere
-      const fullMatch = pageText.match(/Grade:\s*([\d.]+)\s*\|\s*([^|\n]+)/i);
+      // Look for "Grade: X.X | Announcement" stopping at end markers
+      const fullMatch = pageText.match(/Grade:\s*([\d.]+)\s*\|\s*([^0-9][^|]*?)(?=\d+\/\d+|More|Similar|\d{2,3},\d{3}|$)/i);
       if (fullMatch) {
         grade = parseFloat(fullMatch[1]);
         const announcementText = fullMatch[2].trim();
         if (announcementText && announcementText.length > 1) {
-          announcements = [announcementText];
+          announcements = announcementText.split(/[;|]/).map(a => a.trim()).filter(a => a.length > 1);
         }
-        console.log(`  -> Found via full-page search: Grade ${grade} | ${announcementText}`);
+        console.log(`  -> Found via fallback: Grade ${grade} | ${announcements.join('; ')}`);
       } else {
         // Even simpler fallback - just get the grade
         const gradeMatch = pageText.match(/Grade:\s*([\d.]+)/i);
         if (gradeMatch) {
           grade = parseFloat(gradeMatch[1]);
-          console.log(`  -> Found grade only via fallback: ${grade}`);
+          console.log(`  -> Found grade only: ${grade}`);
         }
       }
     }
