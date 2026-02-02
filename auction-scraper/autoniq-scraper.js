@@ -81,56 +81,141 @@ async function scrapeVIN(page, vin) {
   await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
   await randomDelay();
 
-  // Try to find the auction info banner (light blue section with grade and announcements)
-  // Format: "1:22, Grade: 3.9 | AS IS" or "Lane:Run, Grade: X.X | ANNOUNCEMENT1; ANNOUNCEMENT2"
-
   let grade = null;
   let announcements = [];
-  let laneRun = null;
 
   try {
-    // Look for text containing "Grade:" pattern anywhere on page
-    const pageText = await page.textContent('body');
+    // Wait for page to fully load
+    await page.waitForTimeout(1000);
 
-    // Pattern: captures lane:run, grade, and everything after the pipe as announcements
-    // Example: "1:22, Grade: 3.9 | AS IS" or "1:22, Grade: 3.9 | AS IS; STRUCTURAL DAMAGE"
-    const fullPattern = /(\d+:\d+),?\s*Grade:\s*([\d.]+)\s*\|\s*(.+?)(?=\n|$|\d+:\d+,)/gi;
-    const matches = [...pageText.matchAll(fullPattern)];
+    // Strategy 1: Target the light blue auction info box directly
+    // This box contains: "Lane:Run, Grade: X.X | Announcements"
+    // Look for elements with the auction info pattern
 
-    if (matches.length > 0) {
-      // Take the first match (most recent/relevant)
-      const match = matches[0];
-      laneRun = match[1];
-      grade = parseFloat(match[2]);
-      const announcementText = match[3].trim();
+    // Try multiple selectors for the auction info box
+    const selectors = [
+      // Light blue box selectors (common patterns)
+      '[class*="auction-info"]',
+      '[class*="vehicle-info"]',
+      '[class*="listing-info"]',
+      '[class*="sale-info"]',
+      // Try finding by background color or styling
+      'div[style*="background"]',
+      // Generic containers that might have the data
+      '.card-body',
+      '.info-box',
+      '.details-box'
+    ];
 
-      // Split announcements by semicolon, pipe, or common delimiters
-      announcements = announcementText
-        .split(/[;|]/)
-        .map(a => a.trim())
-        .filter(a => a && a.length > 1 && !a.match(/^\d+:\d+$/)); // Filter out lane:run patterns
-    } else {
-      // Fallback: simpler pattern just for grade and announcements
-      const simplePattern = /Grade:\s*([\d.]+)\s*\|?\s*(.+?)(?=\n|$|Grade:)/i;
-      const simpleMatch = pageText.match(simplePattern);
+    let infoText = null;
 
-      if (simpleMatch) {
-        grade = parseFloat(simpleMatch[1]);
-        const announcementText = simpleMatch[2].trim();
-        announcements = announcementText
-          .split(/[;|]/)
-          .map(a => a.trim())
-          .filter(a => a && a.length > 1);
+    // First, try to find elements containing "Grade:" text
+    const gradeElements = await page.locator('*:has-text("Grade:")').all();
+
+    for (const el of gradeElements) {
+      try {
+        const text = await el.textContent({ timeout: 1000 });
+        // Look for the pattern: "Lane:Run, Grade: X.X | Announcement"
+        if (text && text.includes('Grade:') && text.includes('|')) {
+          // Extract just the relevant line
+          const lines = text.split('\n');
+          for (const line of lines) {
+            if (line.includes('Grade:') && line.includes('|')) {
+              infoText = line.trim();
+              break;
+            }
+          }
+          if (infoText) break;
+        }
+      } catch (e) {
+        // Element not accessible, continue
       }
     }
+
+    // Strategy 2: If no element found, search the full page text
+    if (!infoText) {
+      const pageText = await page.textContent('body');
+
+      // Look for lines containing both "Grade:" and "|"
+      const lines = pageText.split('\n');
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (trimmed.includes('Grade:') && trimmed.includes('|')) {
+          infoText = trimmed;
+          break;
+        }
+      }
+    }
+
+    // Parse the extracted text
+    if (infoText) {
+      console.log(`  -> Found info: "${infoText.substring(0, 100)}"`);
+
+      // Pattern: "41:1065, Grade: 2.8 | As Is/BOS ONLY"
+      // or: "Grade: 2.8 | As Is/BOS ONLY"
+      // or: "Grade: 2.8" (no announcements)
+      const gradeMatch = infoText.match(/Grade:\s*([\d.]+)/i);
+      if (gradeMatch) {
+        grade = parseFloat(gradeMatch[1]);
+      }
+
+      // Get announcements - everything after the pipe (if present)
+      const pipeIndex = infoText.indexOf('|');
+      if (pipeIndex !== -1) {
+        let announcementText = infoText.substring(pipeIndex + 1).trim();
+
+        // Clean up: remove any trailing data that's not part of announcement
+        // (e.g., mileage numbers, dates that might be on the same line)
+        announcementText = announcementText
+          .replace(/\d{1,3}(,\d{3})+\s*(miles?)?/gi, '') // Remove mileage like "146,895"
+          .replace(/\b(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b.*$/i, '') // Remove dates
+          .trim();
+
+        if (announcementText && announcementText.length > 0) {
+          // Split by semicolon if there are multiple announcements
+          announcements = announcementText
+            .split(/[;]/)
+            .map(a => a.trim())
+            .filter(a => a && a.length > 1);
+        }
+      }
+    } else {
+      // Strategy 3: Last resort - search for grade pattern in full page
+      const pageText = await page.textContent('body');
+
+      // Try to find "Grade: X.X | Announcement" pattern anywhere
+      const fullMatch = pageText.match(/Grade:\s*([\d.]+)\s*\|\s*([^|\n]+)/i);
+      if (fullMatch) {
+        grade = parseFloat(fullMatch[1]);
+        const announcementText = fullMatch[2].trim();
+        if (announcementText && announcementText.length > 1) {
+          announcements = [announcementText];
+        }
+        console.log(`  -> Found via full-page search: Grade ${grade} | ${announcementText}`);
+      } else {
+        // Even simpler fallback - just get the grade
+        const gradeMatch = pageText.match(/Grade:\s*([\d.]+)/i);
+        if (gradeMatch) {
+          grade = parseFloat(gradeMatch[1]);
+          console.log(`  -> Found grade only via fallback: ${grade}`);
+        }
+      }
+    }
+
+    // Debug: if nothing found, log what we see
+    if (!grade && !announcements.length) {
+      console.log(`  -> Warning: No grade/announcements found for ${vin}`);
+      // Take a screenshot for debugging (optional)
+      // await page.screenshot({ path: `/tmp/debug-${vin}.png` });
+    }
+
   } catch (err) {
     console.log(`  Warning: Could not extract data for ${vin}: ${err.message}`);
   }
 
   return {
     grade,
-    announcements,
-    laneRun
+    announcements
   };
 }
 
@@ -197,7 +282,10 @@ async function scrapeRunlist(csvPath, auctionName) {
         await storeVehicle(vin, auctionName, data.grade, rawAnnouncements);
 
         processed++;
-        console.log(`✓ ${vin} - Grade: ${data.grade || 'N/A'}, ${data.announcements.length} announcements found`);
+        const announcementPreview = data.announcements.length > 0
+          ? data.announcements.join('; ').substring(0, 50)
+          : 'none';
+        console.log(`✓ ${vin} - Grade: ${data.grade || 'N/A'} | ${announcementPreview}`);
 
       } catch (error) {
         errors++;
