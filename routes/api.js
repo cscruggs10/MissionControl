@@ -150,6 +150,51 @@ router.post('/migrate', async (req, res) => {
       if (err.code !== '42701') throw err;
     }
 
+    // Add review_action column to runlist_vehicles for workflow
+    try {
+      await pool.query(`ALTER TABLE runlist_vehicles ADD COLUMN review_action VARCHAR(20) CHECK (review_action IN ('interested', 'pass', 'watch'))`);
+    } catch (err) {
+      if (err.code !== '42701') throw err;
+    }
+    try {
+      await pool.query(`ALTER TABLE runlist_vehicles ADD COLUMN review_action_at TIMESTAMP`);
+    } catch (err) {
+      if (err.code !== '42701') throw err;
+    }
+
+    // Proxy bids workflow table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS proxy_bids (
+        id SERIAL PRIMARY KEY,
+        runlist_vehicle_id INT NOT NULL REFERENCES runlist_vehicles(id) ON DELETE CASCADE,
+        status VARCHAR(20) NOT NULL DEFAULT 'pending'
+          CHECK (status IN ('pending', 'proxy_set', 'skipped', 'needs_research')),
+        proxy_amount DECIMAL(10,2),
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(runlist_vehicle_id)
+      )
+    `);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_proxy_bids_status ON proxy_bids(status)`);
+
+    // Purchases table - what was actually bought at auction
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS purchases (
+        id SERIAL PRIMARY KEY,
+        vin VARCHAR(17) NOT NULL,
+        auction_name VARCHAR(255) NOT NULL,
+        auction_date DATE,
+        purchase_price DECIMAL(10,2),
+        runlist_vehicle_id INT REFERENCES runlist_vehicles(id) ON DELETE SET NULL,
+        proxy_bid_id INT REFERENCES proxy_bids(id) ON DELETE SET NULL,
+        purchased_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        notes TEXT,
+        UNIQUE(vin, auction_name, auction_date)
+      )
+    `);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_purchases_auction ON purchases(auction_name, auction_date)`);
+
     res.json({ success: true, message: 'Migration complete - all tables created' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -662,10 +707,12 @@ router.get('/calendar/week', async (req, res) => {
         r.uploaded_at,
         COUNT(rv.id) as vehicle_count,
         COUNT(CASE WHEN rv.matched THEN 1 END) as matched_count,
-        COUNT(CASE WHEN v.cr_score IS NOT NULL THEN 1 END) as enriched_count
+        COUNT(CASE WHEN v.cr_score IS NOT NULL THEN 1 END) as enriched_count,
+        COUNT(CASE WHEN rv.matched AND bl.id IS NOT NULL THEN 1 END) as actioned_count
       FROM runlists r
       LEFT JOIN runlist_vehicles rv ON r.id = rv.runlist_id
       LEFT JOIN vehicles v ON rv.vin = v.vin
+      LEFT JOIN bid_list bl ON rv.id = bl.vehicle_id
       WHERE r.auction_date >= $1 AND r.auction_date <= $2
       GROUP BY r.id, r.auction_name, r.auction_date, r.name, r.status, r.total_vehicles, r.uploaded_at
       ORDER BY r.auction_date, r.auction_name
@@ -701,7 +748,8 @@ router.get('/calendar/week', async (req, res) => {
           status: r.status,
           vehicleCount: parseInt(r.vehicle_count) || parseInt(r.total_vehicles) || 0,
           matchedCount: parseInt(r.matched_count) || 0,
-          enrichedCount: parseInt(r.enriched_count) || 0
+          enrichedCount: parseInt(r.enriched_count) || 0,
+          actionedCount: parseInt(r.actioned_count) || 0
         });
         days[dateStr].totalVehicles += parseInt(r.vehicle_count) || parseInt(r.total_vehicles) || 0;
         days[dateStr].totalSignals += parseInt(r.matched_count) || 0;

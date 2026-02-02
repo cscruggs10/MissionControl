@@ -119,6 +119,26 @@
     }
     .auction-card.enriched { border-left-color: #10b981; }
     .auction-card.processing { border-left-color: #f59e0b; }
+    .auction-card.reviewed {
+      border-left-color: #6b7280;
+      opacity: 0.7;
+      background: #f9fafb;
+    }
+    .reviewed-badge {
+      display: inline-block;
+      background: #6b7280;
+      color: white;
+      font-size: 0.65rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-top: 4px;
+      font-weight: 600;
+    }
+    .review-progress {
+      font-size: 0.7rem;
+      color: #6b7280;
+      margin-top: 4px;
+    }
     .auction-name {
       font-weight: 600;
       font-size: 0.85rem;
@@ -609,14 +629,17 @@
               const isEnriched = a.status === 'scraped' || (a.enrichedCount > 0 && a.enrichedCount >= a.matchedCount);
               const canEnrich = a.matchedCount > 0 && !isEnriched;
               const isQueued = queuedRunlists.has(a.id);
+              const isReviewed = a.matchedCount > 0 && a.actionedCount >= a.matchedCount;
               return `
-              <div class="auction-card ${a.enrichedCount > 0 ? 'enriched' : ''} ${a.status === 'processing' ? 'processing' : ''}">
+              <div class="auction-card ${a.enrichedCount > 0 ? 'enriched' : ''} ${a.status === 'processing' ? 'processing' : ''} ${isReviewed ? 'reviewed' : ''}">
                 <div onclick="openAuction(${a.id}, '${a.auctionName.replace(/'/g, "\\'")}')">
                   <div class="auction-name">${a.auctionName}</div>
                   <div class="auction-meta">
                     <span class="vehicle-count">${a.vehicleCount} vehicles</span>
                     ${a.matchedCount > 0 ? `<span class="signal-badge ${a.matchedCount > 10 ? 'hot' : ''}">${a.matchedCount} matches</span>` : ''}
                   </div>
+                  ${isReviewed ? '<div class="reviewed-badge">Reviewed</div>' :
+                    (a.matchedCount > 0 && a.actionedCount > 0 ? `<div class="review-progress">${a.actionedCount}/${a.matchedCount} reviewed</div>` : '')}
                 </div>
                 <div class="auction-actions">
                   <button class="enrich-btn view" onclick="openAuction(${a.id}, '${a.auctionName.replace(/'/g, "\\'")}')">View</button>
