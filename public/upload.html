@@ -440,7 +440,7 @@
     let detectedColumns = [];
 
     const requiredFields = ['vin', 'year', 'make', 'model'];
-    const optionalFields = ['lane', 'lot', 'lane_run'];
+    const optionalFields = ['mileage', 'lane', 'lot', 'lane_run'];
 
     // Initialize
     auctionDate.valueAsDate = new Date();
@@ -825,6 +825,7 @@
         year: ['year', 'model_year', 'yr'],
         make: ['make', 'manufacturer'],
         model: ['model', 'vehicle_model'],
+        mileage: ['mileage', 'odometer', 'miles', 'odo'],
         lane: ['lane'],
         lot: ['lot']
       };
