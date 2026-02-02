@@ -859,6 +859,59 @@ router.post('/runlist/:id/scrape', async (req, res) => {
   }
 });
 
+// Reset scraped status to re-enrich a runlist
+router.post('/runlist/:id/reset-enrichment', async (req, res) => {
+  try {
+    const runlistId = req.params.id;
+
+    // Verify runlist exists
+    const runlist = await pool.query('SELECT * FROM runlists WHERE id = $1', [runlistId]);
+    if (runlist.rows.length === 0) {
+      return res.status(404).json({ error: 'Runlist not found' });
+    }
+
+    // Delete existing vehicle data for this runlist's VINs
+    const vins = await pool.query(
+      'SELECT vin FROM runlist_vehicles WHERE runlist_id = $1',
+      [runlistId]
+    );
+    const vinList = vins.rows.map(v => v.vin);
+
+    if (vinList.length > 0) {
+      await pool.query(
+        'DELETE FROM vehicles WHERE vin = ANY($1)',
+        [vinList]
+      );
+    }
+
+    // Reset scraped status on runlist vehicles
+    await pool.query(
+      'UPDATE runlist_vehicles SET scraped = false WHERE runlist_id = $1',
+      [runlistId]
+    );
+
+    // Update runlist status
+    await pool.query(
+      'UPDATE runlists SET status = $1 WHERE id = $2',
+      ['matched', runlistId]
+    );
+
+    // Remove from enrichment queue if present
+    await pool.query(
+      'DELETE FROM enrichment_queue WHERE runlist_id = $1',
+      [runlistId]
+    );
+
+    res.json({
+      success: true,
+      message: `Reset ${vinList.length} vehicles for re-enrichment`,
+      vehicleCount: vinList.length
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ============================================
 // Enrichment Queue Endpoints
 // ============================================
