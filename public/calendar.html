@@ -444,6 +444,8 @@
     .enrich-btn.queue { background: #667eea; color: white; }
     .enrich-btn.queue:hover { background: #764ba2; }
     .enrich-btn.queue:disabled { background: #9ca3af; cursor: not-allowed; }
+    .enrich-btn.completed { background: #10b981; color: white; cursor: default; }
+    .enrich-btn.completed:disabled { background: #10b981; opacity: 0.8; }
     .enrich-btn.view { background: #e5e7eb; color: #374151; }
     .enrich-btn.view:hover { background: #d1d5db; }
     /* Filter toggle styles */
@@ -618,9 +620,11 @@
                 </div>
                 <div class="auction-actions">
                   <button class="enrich-btn view" onclick="openAuction(${a.id}, '${a.auctionName.replace(/'/g, "\\'")}')">View</button>
-                  ${canEnrich ? `
-                    <button class="enrich-btn queue" onclick="event.stopPropagation(); queueEnrichment(${a.id})" ${isQueued ? 'disabled' : ''}>
-                      ${isQueued ? 'Queued' : 'Enrich'}
+                  ${a.matchedCount > 0 ? `
+                    <button class="enrich-btn ${isEnriched ? 'completed' : 'queue'}"
+                            onclick="event.stopPropagation(); ${!isEnriched && !isQueued ? `queueEnrichment(${a.id})` : ''}"
+                            ${isEnriched || isQueued ? 'disabled' : ''}>
+                      ${isEnriched ? 'Completed' : isQueued ? 'Queued' : 'Enrich'}
                     </button>
                   ` : ''}
                 </div>
