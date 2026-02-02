@@ -540,6 +540,21 @@ router.post('/runlist/:id/rematch', async (req, res) => {
   }
 });
 
+// Debug endpoint - check table structure
+router.get('/debug/table-structure', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT column_name, data_type
+      FROM information_schema.columns
+      WHERE table_name = 'runlist_vehicles'
+      ORDER BY ordinal_position
+    `);
+    res.json({ columns: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Debug endpoint - compare data formats between historical_sales and runlist_vehicles
 router.get('/debug/data-formats', async (req, res) => {
   try {
