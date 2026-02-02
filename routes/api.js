@@ -315,11 +315,11 @@ router.post('/runlist/upload', upload.single('file'), async (req, res) => {
     for (const vehicle of vehicles) {
       await pool.query(`
         INSERT INTO runlist_vehicles (
-          runlist_id, vin, year, make, model, lane, lot
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+          runlist_id, vin, year, make, model, mileage, lane, lot
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       `, [
         runlistId, vehicle.vin, vehicle.year, vehicle.make, vehicle.model,
-        vehicle.lane, vehicle.lot
+        vehicle.mileage, vehicle.lane, vehicle.lot
       ]);
     }
     
