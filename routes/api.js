@@ -115,6 +115,25 @@ router.post('/migrate', async (req, res) => {
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_bid_list_bid_type ON bid_list(bid_type)`);
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_bid_list_vehicle ON bid_list(vehicle_id)`);
 
+    // Enrichment queue table for background processing
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS enrichment_queue (
+        id SERIAL PRIMARY KEY,
+        runlist_id INT NOT NULL REFERENCES runlists(id) ON DELETE CASCADE,
+        status VARCHAR(20) NOT NULL DEFAULT 'queued'
+          CHECK (status IN ('queued', 'processing', 'completed', 'failed', 'cancelled')),
+        total_vehicles INT DEFAULT 0,
+        processed_vehicles INT DEFAULT 0,
+        error_count INT DEFAULT 0,
+        queued_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        started_at TIMESTAMP,
+        completed_at TIMESTAMP,
+        last_error TEXT,
+        UNIQUE(runlist_id)
+      )
+    `);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_enrichment_queue_status ON enrichment_queue(status)`);
+
     // Add mileage column to runlist_vehicles if it doesn't exist
     try {
       await pool.query(`ALTER TABLE runlist_vehicles ADD COLUMN mileage INTEGER`);
@@ -838,6 +857,157 @@ router.post('/runlist/:id/scrape', async (req, res) => {
     console.error('Scrape error:', err);
     res.status(500).json({ error: err.message });
   }
+});
+
+// ============================================
+// Enrichment Queue Endpoints
+// ============================================
+
+// Queue a runlist for background enrichment
+router.post('/enrichment-queue/add', async (req, res) => {
+  try {
+    const { runlist_id } = req.body;
+
+    if (!runlist_id) {
+      return res.status(400).json({ error: 'runlist_id is required' });
+    }
+
+    const enrichmentQueue = req.app.locals.enrichmentQueue;
+    if (!enrichmentQueue) {
+      return res.status(500).json({ error: 'Enrichment queue not initialized' });
+    }
+
+    const job = await enrichmentQueue.enqueue(runlist_id);
+
+    res.json({
+      success: true,
+      job: {
+        id: job.id,
+        runlistId: job.runlist_id,
+        status: job.status,
+        totalVehicles: job.total_vehicles,
+        queuedAt: job.queued_at
+      },
+      message: `Runlist queued for enrichment (${job.total_vehicles} vehicles)`
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get enrichment queue status
+router.get('/enrichment-queue/status', async (req, res) => {
+  try {
+    const enrichmentQueue = req.app.locals.enrichmentQueue;
+    if (!enrichmentQueue) {
+      return res.status(500).json({ error: 'Enrichment queue not initialized' });
+    }
+
+    const jobs = await enrichmentQueue.getQueueStatus();
+    res.json({ jobs });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get all enrichment jobs (including history)
+router.get('/enrichment-queue/all', async (req, res) => {
+  try {
+    const enrichmentQueue = req.app.locals.enrichmentQueue;
+    if (!enrichmentQueue) {
+      return res.status(500).json({ error: 'Enrichment queue not initialized' });
+    }
+
+    const limit = parseInt(req.query.limit) || 20;
+    const jobs = await enrichmentQueue.getAllJobs(limit);
+    res.json({ jobs });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Cancel a queued job
+router.delete('/enrichment-queue/:id', async (req, res) => {
+  try {
+    const jobId = parseInt(req.params.id);
+
+    const enrichmentQueue = req.app.locals.enrichmentQueue;
+    if (!enrichmentQueue) {
+      return res.status(500).json({ error: 'Enrichment queue not initialized' });
+    }
+
+    await enrichmentQueue.cancel(jobId);
+    res.json({ success: true, message: 'Job cancelled' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// SSE endpoint for real-time queue updates
+router.get('/enrichment-queue/events', (req, res) => {
+  const enrichmentQueue = req.app.locals.enrichmentQueue;
+  if (!enrichmentQueue) {
+    return res.status(500).json({ error: 'Enrichment queue not initialized' });
+  }
+
+  // Set up SSE headers
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+
+  // Send initial status
+  enrichmentQueue.getQueueStatus().then(jobs => {
+    res.write(`data: ${JSON.stringify({ type: 'status', jobs })}\n\n`);
+  });
+
+  // Event handlers
+  const onProgress = (data) => {
+    res.write(`data: ${JSON.stringify({ type: 'progress', ...data })}\n\n`);
+  };
+
+  const onJobStarted = (data) => {
+    res.write(`data: ${JSON.stringify({ type: 'started', ...data })}\n\n`);
+  };
+
+  const onJobCompleted = (data) => {
+    res.write(`data: ${JSON.stringify({ type: 'completed', ...data })}\n\n`);
+  };
+
+  const onJobFailed = (data) => {
+    res.write(`data: ${JSON.stringify({ type: 'failed', ...data })}\n\n`);
+  };
+
+  const onJobAdded = (data) => {
+    res.write(`data: ${JSON.stringify({ type: 'added', ...data })}\n\n`);
+  };
+
+  const onJobCancelled = (data) => {
+    res.write(`data: ${JSON.stringify({ type: 'cancelled', ...data })}\n\n`);
+  };
+
+  // Subscribe to events
+  enrichmentQueue.on('progress', onProgress);
+  enrichmentQueue.on('jobStarted', onJobStarted);
+  enrichmentQueue.on('jobCompleted', onJobCompleted);
+  enrichmentQueue.on('jobFailed', onJobFailed);
+  enrichmentQueue.on('jobAdded', onJobAdded);
+  enrichmentQueue.on('jobCancelled', onJobCancelled);
+
+  // Heartbeat to keep connection alive
+  const heartbeat = setInterval(() => {
+    res.write(': heartbeat\n\n');
+  }, 30000);
+
+  // Clean up on close
+  req.on('close', () => {
+    clearInterval(heartbeat);
+    enrichmentQueue.off('progress', onProgress);
+    enrichmentQueue.off('jobStarted', onJobStarted);
+    enrichmentQueue.off('jobCompleted', onJobCompleted);
+    enrichmentQueue.off('jobFailed', onJobFailed);
+    enrichmentQueue.off('jobAdded', onJobAdded);
+    enrichmentQueue.off('jobCancelled', onJobCancelled);
+  });
 });
 
 module.exports = router;

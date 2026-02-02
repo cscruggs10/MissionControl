@@ -312,14 +312,167 @@
         grid-template-columns: repeat(2, 1fr);
       }
     }
+    /* Queue Panel Styles */
+    .queue-container {
+      position: relative;
+    }
+    .queue-btn {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+    .queue-btn:hover { background: rgba(255,255,255,0.3); }
+    .queue-badge {
+      background: #f59e0b;
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.125rem 0.375rem;
+      border-radius: 10px;
+      min-width: 18px;
+      text-align: center;
+    }
+    .queue-badge.empty { display: none; }
+    .queue-panel {
+      display: none;
+      position: absolute;
+      top: calc(100% + 0.5rem);
+      right: 0;
+      width: 320px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      z-index: 200;
+      overflow: hidden;
+    }
+    .queue-panel.active { display: block; }
+    .queue-header {
+      background: #f9fafb;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #e5e7eb;
+      font-weight: 600;
+      color: #374151;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .queue-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .queue-item {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .queue-item:last-child { border-bottom: none; }
+    .queue-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.25rem;
+    }
+    .queue-item-name {
+      font-weight: 500;
+      font-size: 0.85rem;
+      color: #374151;
+    }
+    .queue-item-status {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.125rem 0.375rem;
+      border-radius: 4px;
+    }
+    .queue-item-status.queued { background: #dbeafe; color: #1d4ed8; }
+    .queue-item-status.processing { background: #fef3c7; color: #d97706; }
+    .queue-item-status.completed { background: #d1fae5; color: #059669; }
+    .queue-item-status.failed { background: #fee2e2; color: #dc2626; }
+    .queue-progress {
+      height: 4px;
+      background: #e5e7eb;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+    .queue-progress-bar {
+      height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      transition: width 0.3s ease;
+    }
+    .queue-item-meta {
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-top: 0.25rem;
+    }
+    .queue-empty {
+      padding: 2rem 1rem;
+      text-align: center;
+      color: #9ca3af;
+    }
+    .queue-cancel-btn {
+      background: none;
+      border: none;
+      color: #9ca3af;
+      cursor: pointer;
+      font-size: 0.7rem;
+      padding: 0.125rem 0.25rem;
+    }
+    .queue-cancel-btn:hover { color: #ef4444; }
+    /* Enrich button on auction cards */
+    .auction-actions {
+      display: flex;
+      gap: 0.25rem;
+      margin-top: 0.5rem;
+    }
+    .enrich-btn {
+      flex: 1;
+      padding: 0.375rem 0.5rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .enrich-btn.queue { background: #667eea; color: white; }
+    .enrich-btn.queue:hover { background: #764ba2; }
+    .enrich-btn.queue:disabled { background: #9ca3af; cursor: not-allowed; }
+    .enrich-btn.view { background: #e5e7eb; color: #374151; }
+    .enrich-btn.view:hover { background: #d1d5db; }
   </style>
 </head>
 <body>
   <div class="header">
     <h1>AutoIntel Calendar</h1>
-    <div style="display: flex; gap: 1rem;">
+    <div style="display: flex; gap: 1rem; align-items: center;">
       <a href="/">Dashboard</a>
       <a href="/upload">Upload</a>
+      <div class="queue-container">
+        <button class="queue-btn" id="queueBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+            <line x1="12" y1="22.08" x2="12" y2="12"/>
+          </svg>
+          Queue
+          <span class="queue-badge empty" id="queueBadge">0</span>
+        </button>
+        <div class="queue-panel" id="queuePanel">
+          <div class="queue-header">
+            <span>Enrichment Queue</span>
+          </div>
+          <div class="queue-list" id="queueList">
+            <div class="queue-empty">No jobs in queue</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -354,6 +507,9 @@
 
   <script>
     let currentWeekStart = null;
+    let queuedRunlists = new Set(); // Track which runlists are queued
+    let queueJobs = []; // Current queue jobs
+    let eventSource = null;
 
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
@@ -371,6 +527,22 @@
 
       // View close
       document.getElementById('closeView').addEventListener('click', closeView);
+
+      // Queue panel toggle
+      document.getElementById('queueBtn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.getElementById('queuePanel').classList.toggle('active');
+      });
+
+      // Close queue panel on outside click
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.queue-container')) {
+          document.getElementById('queuePanel').classList.remove('active');
+        }
+      });
+
+      // Connect to queue SSE
+      connectQueueEvents();
     });
 
     async function loadWeek() {
@@ -404,16 +576,29 @@
       grid.innerHTML = days.map(day => {
         const isToday = day.date === today;
         const auctionsHtml = day.auctions.length > 0
-          ? day.auctions.map(a => `
-              <div class="auction-card ${a.enrichedCount > 0 ? 'enriched' : ''} ${a.status === 'processing' ? 'processing' : ''}"
-                   onclick="openAuction(${a.id}, '${a.auctionName}')">
-                <div class="auction-name">${a.auctionName}</div>
-                <div class="auction-meta">
-                  <span class="vehicle-count">${a.vehicleCount} vehicles</span>
-                  ${a.matchedCount > 0 ? `<span class="signal-badge ${a.matchedCount > 10 ? 'hot' : ''}">${a.matchedCount} matches</span>` : ''}
+          ? day.auctions.map(a => {
+              const isEnriched = a.enrichedCount > 0 && a.enrichedCount >= a.matchedCount;
+              const canEnrich = a.matchedCount > 0 && !isEnriched;
+              const isQueued = queuedRunlists.has(a.id);
+              return `
+              <div class="auction-card ${a.enrichedCount > 0 ? 'enriched' : ''} ${a.status === 'processing' ? 'processing' : ''}">
+                <div onclick="openAuction(${a.id}, '${a.auctionName.replace(/'/g, "\\'")}')">
+                  <div class="auction-name">${a.auctionName}</div>
+                  <div class="auction-meta">
+                    <span class="vehicle-count">${a.vehicleCount} vehicles</span>
+                    ${a.matchedCount > 0 ? `<span class="signal-badge ${a.matchedCount > 10 ? 'hot' : ''}">${a.matchedCount} matches</span>` : ''}
+                  </div>
+                </div>
+                <div class="auction-actions">
+                  <button class="enrich-btn view" onclick="openAuction(${a.id}, '${a.auctionName.replace(/'/g, "\\'")}')">View</button>
+                  ${canEnrich ? `
+                    <button class="enrich-btn queue" onclick="event.stopPropagation(); queueEnrichment(${a.id})" ${isQueued ? 'disabled' : ''}>
+                      ${isQueued ? 'Queued' : 'Enrich'}
+                    </button>
+                  ` : ''}
                 </div>
               </div>
-            `).join('')
+            `}).join('')
           : '<div class="no-auctions">No auctions</div>';
 
         return `
@@ -620,6 +805,161 @@
 
     function closeView() {
       document.getElementById('vehicleView').classList.remove('active');
+    }
+
+    // ============================================
+    // Enrichment Queue Functions
+    // ============================================
+
+    function connectQueueEvents() {
+      if (eventSource) {
+        eventSource.close();
+      }
+
+      eventSource = new EventSource('/api/enrichment-queue/events');
+
+      eventSource.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        handleQueueEvent(data);
+      };
+
+      eventSource.onerror = (err) => {
+        console.error('Queue SSE error:', err);
+        // Reconnect after 5 seconds
+        setTimeout(connectQueueEvents, 5000);
+      };
+    }
+
+    function handleQueueEvent(data) {
+      switch (data.type) {
+        case 'status':
+          queueJobs = data.jobs;
+          updateQueueUI();
+          break;
+        case 'added':
+          // Add to local state if not already there
+          if (!queueJobs.find(j => j.id === data.id)) {
+            queueJobs.push({
+              id: data.id,
+              runlistId: data.runlistId,
+              status: data.status || 'queued',
+              totalVehicles: data.totalVehicles,
+              processedVehicles: 0,
+              progress: 0,
+              auctionName: data.auctionName
+            });
+          }
+          updateQueueUI();
+          break;
+        case 'started':
+          const startedJob = queueJobs.find(j => j.id === data.id);
+          if (startedJob) {
+            startedJob.status = 'processing';
+          }
+          updateQueueUI();
+          break;
+        case 'progress':
+          const progressJob = queueJobs.find(j => j.id === data.id);
+          if (progressJob) {
+            progressJob.processed = data.processed;
+            progressJob.processedVehicles = data.processed;
+            progressJob.progress = data.progress;
+            progressJob.status = 'processing';
+          }
+          updateQueueUI();
+          break;
+        case 'completed':
+          queueJobs = queueJobs.filter(j => j.id !== data.id);
+          queuedRunlists.delete(data.runlistId);
+          updateQueueUI();
+          loadWeek(); // Refresh calendar to show enriched status
+          break;
+        case 'failed':
+          const failedJob = queueJobs.find(j => j.id === data.id);
+          if (failedJob) {
+            failedJob.status = 'failed';
+            failedJob.error = data.error;
+          }
+          updateQueueUI();
+          break;
+        case 'cancelled':
+          queueJobs = queueJobs.filter(j => j.id !== data.id);
+          updateQueueUI();
+          break;
+      }
+    }
+
+    function updateQueueUI() {
+      // Update badge
+      const activeJobs = queueJobs.filter(j => j.status === 'queued' || j.status === 'processing');
+      const badge = document.getElementById('queueBadge');
+      badge.textContent = activeJobs.length;
+      badge.classList.toggle('empty', activeJobs.length === 0);
+
+      // Update queued runlists set
+      queuedRunlists = new Set(activeJobs.map(j => j.runlistId));
+
+      // Update queue list
+      const listEl = document.getElementById('queueList');
+      if (activeJobs.length === 0) {
+        listEl.innerHTML = '<div class="queue-empty">No jobs in queue</div>';
+        return;
+      }
+
+      listEl.innerHTML = activeJobs.map(job => `
+        <div class="queue-item" id="queue-item-${job.id}">
+          <div class="queue-item-header">
+            <span class="queue-item-name">${job.auctionName || 'Runlist #' + job.runlistId}</span>
+            <span class="queue-item-status ${job.status}">${job.status}</span>
+          </div>
+          <div class="queue-item-meta">
+            ${job.processedVehicles || 0} / ${job.totalVehicles} vehicles
+            ${job.status === 'queued' ? `<button class="queue-cancel-btn" onclick="cancelQueueJob(${job.id})">Cancel</button>` : ''}
+          </div>
+          <div class="queue-progress">
+            <div class="queue-progress-bar" style="width: ${job.progress || 0}%"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function queueEnrichment(runlistId) {
+      try {
+        const response = await fetch('/api/enrichment-queue/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ runlist_id: runlistId })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          queuedRunlists.add(runlistId);
+          loadWeek(); // Refresh to update button states
+        } else {
+          alert('Failed to queue: ' + (data.error || 'Unknown error'));
+        }
+      } catch (err) {
+        console.error('Failed to queue enrichment:', err);
+        alert('Failed to queue enrichment: ' + err.message);
+      }
+    }
+
+    async function cancelQueueJob(jobId) {
+      try {
+        const response = await fetch(`/api/enrichment-queue/${jobId}`, {
+          method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (!data.success) {
+          alert('Failed to cancel: ' + (data.error || 'Unknown error'));
+        }
+      } catch (err) {
+        console.error('Failed to cancel job:', err);
+        alert('Failed to cancel job: ' + err.message);
+      }
     }
   </script>
 </body>

@@ -5,9 +5,11 @@ const multer = require('multer');
 const { spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs');
+const { Pool } = require('pg');
 
 const apiRoutes = require('./routes/api');
 const bidListRoutes = require('./routes/bid-list');
+const EnrichmentQueue = require('./lib/enrichment-queue');
 
 // Load journal routes if available (local only, not in repo)
 let journalRoutes;
@@ -190,8 +192,25 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: err.message });
 });
 
+// Initialize enrichment queue
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL
+});
+
+const enrichmentQueue = new EnrichmentQueue(pool);
+app.locals.enrichmentQueue = enrichmentQueue;
+
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`🚀 AutoIntel running on port ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+
+  // Resume any interrupted enrichment jobs and start worker
+  try {
+    await enrichmentQueue.resumeJobs();
+    enrichmentQueue.startWorker();
+    console.log('📦 Enrichment queue worker started');
+  } catch (err) {
+    console.error('Failed to start enrichment queue:', err);
+  }
 });
