@@ -123,6 +123,14 @@ router.post('/migrate', async (req, res) => {
       if (err.code !== '42701') throw err;
     }
 
+    // Add raw_csv_data column to store all original CSV columns
+    try {
+      await pool.query(`ALTER TABLE runlist_vehicles ADD COLUMN raw_csv_data JSONB DEFAULT '{}'`);
+    } catch (err) {
+      // Column already exists, ignore
+      if (err.code !== '42701') throw err;
+    }
+
     res.json({ success: true, message: 'Migration complete - all tables created' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -323,11 +331,11 @@ router.post('/runlist/upload', upload.single('file'), async (req, res) => {
     for (const vehicle of vehicles) {
       await pool.query(`
         INSERT INTO runlist_vehicles (
-          runlist_id, vin, year, make, model, mileage, lane, lot
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+          runlist_id, vin, year, make, model, mileage, lane, lot, raw_csv_data
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       `, [
         runlistId, vehicle.vin, vehicle.year, vehicle.make, vehicle.model,
-        vehicle.mileage, vehicle.lane, vehicle.lot
+        vehicle.mileage, vehicle.lane, vehicle.lot, JSON.stringify(vehicle.raw_csv_data || {})
       ]);
     }
     
@@ -409,7 +417,7 @@ router.get('/runlist/:id/enriched', async (req, res) => {
     const vehicles = await pool.query(`
       SELECT
         rv.id, rv.vin, rv.year, rv.make, rv.model, rv.mileage, rv.lane, rv.lot,
-        rv.matched, rv.match_count,
+        rv.matched, rv.match_count, rv.raw_csv_data,
         v.cr_score as grade,
         v.raw_announcements as announcements,
         v.scraped_at
@@ -435,9 +443,19 @@ router.get('/runlist/:id/enriched', async (req, res) => {
       return { ...v, flags };
     });
 
+    // Collect all unique CSV column names across all vehicles
+    const csvColumnsSet = new Set();
+    for (const v of vehicles.rows) {
+      if (v.raw_csv_data && typeof v.raw_csv_data === 'object') {
+        Object.keys(v.raw_csv_data).forEach(key => csvColumnsSet.add(key));
+      }
+    }
+    const csvColumns = Array.from(csvColumnsSet);
+
     res.json({
       runlist: runlist.rows[0],
       vehicles: enrichedVehicles,
+      csvColumns,
       stats: {
         total: vehicles.rows.length,
         enriched: vehicles.rows.filter(v => v.grade !== null).length,

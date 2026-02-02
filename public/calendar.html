@@ -441,7 +441,7 @@
       currentAuctionId = id;
       document.getElementById('viewTitle').textContent = name;
       document.getElementById('vehicleView').classList.add('active');
-      document.getElementById('tableBody').innerHTML = '<tr><td colspan="10" style="text-align:center;padding:2rem;">Loading...</td></tr>';
+      document.getElementById('tableBody').innerHTML = '<tr><td colspan="20" style="text-align:center;padding:2rem;">Loading...</td></tr>';
 
       try {
         // Load vehicles and existing bids in parallel
@@ -470,21 +470,30 @@
           <div class="stat-box yellow"><strong id="proxyCount">0</strong> proxy</div>
         `;
 
-        // Render table header
-        document.getElementById('tableHeader').innerHTML = `
-          <tr>
-            <th>Lane</th>
-            <th>Lot</th>
-            <th>VIN</th>
-            <th>Year</th>
-            <th>Make</th>
-            <th>Model</th>
-            <th>Mileage</th>
-            <th>Grade</th>
-            <th>Announcements</th>
-            <th>Action</th>
-          </tr>
-        `;
+        // Build dynamic columns from CSV data
+        const csvColumns = data.csvColumns || [];
+
+        // Define priority columns to show first (if they exist in CSV)
+        const priorityColumns = ['Lane', 'Lot', 'Run', 'VIN', 'Vin', 'Year', 'Make', 'Model', 'Trim', 'Color', 'Mileage', 'Miles'];
+
+        // Sort columns: priority first, then alphabetically
+        const sortedCsvColumns = [...csvColumns].sort((a, b) => {
+          const aIndex = priorityColumns.findIndex(p => a.toLowerCase().includes(p.toLowerCase()));
+          const bIndex = priorityColumns.findIndex(p => b.toLowerCase().includes(p.toLowerCase()));
+          if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+          if (aIndex !== -1) return -1;
+          if (bIndex !== -1) return 1;
+          return a.localeCompare(b);
+        });
+
+        // Render table header dynamically
+        let headerHtml = '<tr>';
+        for (const col of sortedCsvColumns) {
+          headerHtml += `<th>${col}</th>`;
+        }
+        // Add enriched columns at the end
+        headerHtml += '<th>Grade</th><th>Announcements</th><th>Action</th></tr>';
+        document.getElementById('tableHeader').innerHTML = headerHtml;
 
         // Render table body
         const vehicles = data.vehicles;
@@ -496,27 +505,39 @@
           const bid = currentBids[v.id];
           const bidType = bid ? bid.bid_type : null;
           const announcements = (v.announcements || '').replace(/\|/g, ' | ');
+          const rawData = v.raw_csv_data || {};
 
+          bodyHtml += `<tr class="${isFlagged ? 'flagged' : ''}" id="row-${v.id}">`;
+
+          // Add CSV columns dynamically
+          for (const col of sortedCsvColumns) {
+            let cellValue = rawData[col] || '-';
+            const colLower = col.toLowerCase();
+
+            // Format mileage numbers
+            if ((colLower.includes('mile') || colLower.includes('odometer')) && cellValue !== '-') {
+              const numVal = parseInt(String(cellValue).replace(/[^0-9]/g, ''));
+              if (!isNaN(numVal)) cellValue = numVal.toLocaleString();
+            }
+
+            // Special styling for VIN
+            const cellClass = colLower.includes('vin') ? 'vin-cell' : '';
+
+            bodyHtml += `<td class="${cellClass}">${cellValue}</td>`;
+          }
+
+          // Add enriched columns
           bodyHtml += `
-            <tr class="${isFlagged ? 'flagged' : ''}" id="row-${v.id}">
-              <td><strong>${v.lane || '-'}</strong></td>
-              <td>${v.lot || '-'}</td>
-              <td class="vin-cell">${v.vin}</td>
-              <td>${v.year || '-'}</td>
-              <td>${v.make || '-'}</td>
-              <td>${v.model || '-'}</td>
-              <td class="mileage-cell">${v.mileage ? v.mileage.toLocaleString() : '-'}</td>
-              <td>${v.grade ? `<span class="grade-badge ${gradeClass}">${v.grade}</span>` : '-'}</td>
-              <td class="announcements-cell" title="${announcements}">${announcements || '-'}</td>
-              <td>
-                <div class="bid-actions">
-                  <button class="bid-btn in-lane ${bidType === 'in-lane' ? 'active' : ''}" onclick="setBid(${v.id}, 'in-lane')">In-Lane</button>
-                  <button class="bid-btn proxy ${bidType === 'proxy' ? 'active' : ''}" onclick="setBid(${v.id}, 'proxy')">Proxy</button>
-                  <button class="bid-btn pass ${bidType === 'pass' ? 'active' : ''}" onclick="setBid(${v.id}, 'pass')">Pass</button>
-                </div>
-              </td>
-            </tr>
-          `;
+            <td>${v.grade ? `<span class="grade-badge ${gradeClass}">${v.grade}</span>` : '-'}</td>
+            <td class="announcements-cell" title="${announcements}">${announcements || '-'}</td>
+            <td>
+              <div class="bid-actions">
+                <button class="bid-btn in-lane ${bidType === 'in-lane' ? 'active' : ''}" onclick="setBid(${v.id}, 'in-lane')">In-Lane</button>
+                <button class="bid-btn proxy ${bidType === 'proxy' ? 'active' : ''}" onclick="setBid(${v.id}, 'proxy')">Proxy</button>
+                <button class="bid-btn pass ${bidType === 'pass' ? 'active' : ''}" onclick="setBid(${v.id}, 'pass')">Pass</button>
+              </div>
+            </td>
+          </tr>`;
         }
 
         document.getElementById('tableBody').innerHTML = bodyHtml;
@@ -529,7 +550,7 @@
 
         updateBidCounts();
       } catch (err) {
-        document.getElementById('tableBody').innerHTML = `<tr><td colspan="10" style="color:#ef4444;padding:2rem;">Error: ${err.message}</td></tr>`;
+        document.getElementById('tableBody').innerHTML = `<tr><td colspan="20" style="color:#ef4444;padding:2rem;">Error: ${err.message}</td></tr>`;
       }
     }
 
