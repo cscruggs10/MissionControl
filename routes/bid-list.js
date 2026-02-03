@@ -133,6 +133,7 @@ router.get('/in-lane-dashboard', async (req, res) => {
         rv.year,
         rv.make,
         rv.model,
+        rv.mileage,
         rv.lane,
         rv.lot,
         v.cr_score as grade,
@@ -169,6 +170,7 @@ router.get('/in-lane-dashboard', async (req, res) => {
         year: row.year,
         make: row.make,
         model: row.model,
+        mileage: row.mileage,
         lane: row.lane || '-',
         lot: row.lot || '-',
         grade: row.grade || null,
@@ -204,12 +206,14 @@ router.get('/proxy-dashboard', async (req, res) => {
         rv.year,
         rv.make,
         rv.model,
+        rv.mileage,
         rv.lane,
         rv.lot,
         v.cr_score as grade,
         v.raw_announcements as announcements,
         bl.id as bid_id,
         bl.max_bid,
+        bl.proxy_status,
         bl.created_at as added_at,
         u.name as added_by
       FROM bid_list bl
@@ -217,7 +221,7 @@ router.get('/proxy-dashboard', async (req, res) => {
       JOIN runlists r ON bl.auction_id = r.id
       JOIN users u ON bl.created_by = u.id
       LEFT JOIN vehicles v ON rv.vin = v.vin
-      WHERE bl.user_id = $1 AND bl.bid_type = 'proxy'
+      WHERE bl.user_id = $1 AND bl.bid_type = 'proxy' AND (bl.proxy_status IS NULL OR bl.proxy_status = 'pending')
       ORDER BY r.auction_date, r.auction_name, rv.lane, rv.lot
     `, [user_id]);
 
@@ -241,11 +245,13 @@ router.get('/proxy-dashboard', async (req, res) => {
         year: row.year,
         make: row.make,
         model: row.model,
+        mileage: row.mileage,
         lane: row.lane || '-',
         lot: row.lot || '-',
         grade: row.grade || null,
         announcements: row.announcements || '',
         max_bid: row.max_bid,
+        proxy_status: row.proxy_status || 'pending',
         added_by: row.added_by,
         added_at: row.added_at
       });
@@ -257,6 +263,40 @@ router.get('/proxy-dashboard', async (req, res) => {
     });
   } catch (err) {
     console.error('Proxy dashboard error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Update proxy status (set_proxy or skipped)
+router.post('/proxy-status/:bid_id', async (req, res) => {
+  try {
+    const bid_id = req.params.bid_id;
+    const { status } = req.body;
+    const user_id = getUserId(req);
+
+    if (!['pending', 'set_proxy', 'skipped'].includes(status)) {
+      return res.status(400).json({
+        error: 'status must be one of: pending, set_proxy, skipped'
+      });
+    }
+
+    const result = await pool.query(`
+      UPDATE bid_list
+      SET proxy_status = $1, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $2 AND user_id = $3 AND bid_type = 'proxy'
+      RETURNING *
+    `, [status, bid_id, user_id]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Proxy bid not found' });
+    }
+
+    res.json({
+      success: true,
+      bid: result.rows[0]
+    });
+  } catch (err) {
+    console.error('Update proxy status error:', err);
     res.status(500).json({ error: err.message });
   }
 });

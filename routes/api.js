@@ -115,6 +115,13 @@ router.post('/migrate', async (req, res) => {
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_bid_list_bid_type ON bid_list(bid_type)`);
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_bid_list_vehicle ON bid_list(vehicle_id)`);
 
+    // Add proxy_status column for workflow tracking
+    try {
+      await pool.query(`ALTER TABLE bid_list ADD COLUMN proxy_status VARCHAR(20) DEFAULT 'pending' CHECK (proxy_status IN ('pending', 'set_proxy', 'skipped'))`);
+    } catch (err) {
+      if (err.code !== '42701') throw err;
+    }
+
     // Enrichment queue table for background processing
     await pool.query(`
       CREATE TABLE IF NOT EXISTS enrichment_queue (
