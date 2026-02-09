@@ -1,0 +1,38 @@
+{
+  "name": "mission-control",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "convex": "convex dev",
+    "daemon": "node daemon/notification-daemon.js",
+    "daemon:pm2": "pm2 start daemon/notification-daemon.js --name notification-daemon",
+    "daemon:stop": "pm2 stop notification-daemon",
+    "daemon:logs": "pm2 logs notification-daemon",
+    "standup": "node scripts/daily-standup.js",
+    "task:create": "node scripts/create-task-from-telegram.ts"
+  },
+  "dependencies": {
+    "autoprefixer": "^10.4.24",
+    "convex": "^1.17.5",
+    "dotenv": "^17.2.4",
+    "next": "15.1.5",
+    "node-fetch": "^2.7.0",
+    "postcss": "^8.5.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^4.1.18"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.1.5",
+    "typescript": "^5"
+  }
+}
