@@ -1,0 +1,11 @@
+[phases.setup]
+nixPkgs = ["nodejs_20"]
+
+[phases.install]
+cmds = ["cd mission-control && npm ci"]
+
+[phases.build]
+cmds = ["cd mission-control && npm run build"]
+
+[start]
+cmd = "cd mission-control && npm start"
