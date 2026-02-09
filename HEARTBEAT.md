@@ -1,4 +1,11 @@
 # HEARTBEAT.md
 
-# Keep this file empty (or with only comments) to skip heartbeat API calls.
-# Add tasks below when you want the agent to check something periodically.
+## On Wake
+- [ ] Check memory/WORKING.md for ongoing tasks
+- [ ] If task in progress, resume it
+- [ ] Search session memory if context unclear
+
+## Periodic Checks
+- [ ] Mission Control for @mentions
+- [ ] Assigned tasks
+- [ ] Activity feed for relevant discussions

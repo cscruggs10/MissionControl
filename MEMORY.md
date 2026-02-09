@@ -63,6 +63,53 @@
 - **Memory:** `/root/clawd/memory/YYYY-MM-DD.md` (daily logs)
 - **Business context:** `BUSINESS_CONTEXT.md`
 
+## Multi-Agent System (Mission Control)
+
+**Architecture:** Full Convex-backed task management system
+
+**Core Components:**
+1. **Convex Database** (mission-control/convex/)
+   - agents, tasks, messages, documents, activities, notifications, subscriptions
+   - Full schema deployed to kindly-hyena-65.convex.cloud
+
+2. **Memory System** (memory/)
+   - `WORKING.md` - Current task state (read FIRST on wake)
+   - `YYYY-MM-DD.md` - Daily timestamped logs
+   - `MEMORY.md` - Long-term curated learnings
+
+3. **Heartbeat System**
+   - Agents wake every 15min via cron (staggered by 2min)
+   - Check HEARTBEAT.md for checklist
+   - Load WORKING.md → Check @mentions → Check assigned tasks → Act or HEARTBEAT_OK
+
+4. **Notification System** (mission-control/daemon/)
+   - Daemon polls Convex every 2s for undelivered notifications
+   - Delivers via sessions.send() API
+   - @mention support (@agentname, @all)
+   - Thread subscriptions (auto-subscribe on comment/mention/assign)
+
+5. **Daily Standup** (mission-control/scripts/)
+   - Cron fires daily at 11:30 PM IST (18:00 UTC)
+   - Generates summary: Completed, In Progress, Blocked, Needs Review
+   - Delivers to Telegram
+
+**Current Squad:**
+- **Iris** 🌸 (Interface & Coordinator) — session: `agent:main:main`
+- **Optimus Prime** 🤖 (Squad Lead) — session: `agent:optimus-prime:main`
+- **Jazz** 🎨 (Designer) — session: `agent:designer:main`
+
+**Heartbeat Schedule (Staggered):**
+- :00, :15, :30, :45 → Optimus Prime
+- :02, :17, :32, :47 → Jazz
+- (2-minute stagger to distribute load)
+
+**Location:** `/root/clawd/mission-control/` and `/root/clawd/agents/`
+
+**Docs:**
+- mission-control/NOTIFICATION_SYSTEM.md
+- mission-control/DAILY_STANDUP.md
+- mission-control/daemon/README.md
+
 ## Recent Context (Last 3 Days)
 
 **Jan 29:**
