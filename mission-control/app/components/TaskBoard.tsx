@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { Doc } from "../../convex/_generated/dataModel";
-import { TaskCard } from "./TaskCard";
+import TaskCard from "./TaskCard";
 import { TaskDetail } from "./TaskDetail";
 
 type TasksByStatus = {

@@ -36,17 +36,18 @@ export const create = mutation({
 
     // Auto-subscribe the commenter
     if (args.fromAgentId) {
+      const agentId = args.fromAgentId;
       const existingSub = await ctx.db
         .query("subscriptions")
         .withIndex("by_task_agent", (q) =>
-          q.eq("taskId", args.taskId).eq("agentId", args.fromAgentId)
+          q.eq("taskId", args.taskId).eq("agentId", agentId)
         )
         .first();
       
       if (!existingSub) {
         await ctx.db.insert("subscriptions", {
           taskId: args.taskId,
-          agentId: args.fromAgentId,
+          agentId: agentId,
           subscribedAt: now,
         });
       }

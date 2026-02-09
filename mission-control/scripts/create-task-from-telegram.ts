@@ -18,7 +18,7 @@ if (!CONVEX_URL) {
 
 const client = new ConvexHttpClient(CONVEX_URL);
 
-function parseTaskFromMessage(message) {
+function parseTaskFromMessage(message: string) {
   const lowerMessage = message.toLowerCase().trim();
   
   // Check for task creation keywords
@@ -63,7 +63,7 @@ function parseTaskFromMessage(message) {
   };
 }
 
-async function createTask(message) {
+async function createTask(message: string) {
   const parsed = parseTaskFromMessage(message);
   
   if (!parsed.isTask) {

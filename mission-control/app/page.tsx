@@ -8,8 +8,8 @@ import AddTaskModal from "./components/AddTaskModal";
 
 export default function Home() {
   const [showAddTask, setShowAddTask] = useState(false);
-  const tasks = useQuery(api.tasks.list);
-  const agents = useQuery(api.agents.list);
+  const tasks = useQuery(api.tasks.list, {});
+  const agents = useQuery(api.agents.list, {});
 
   if (!tasks || !agents) {
     return (

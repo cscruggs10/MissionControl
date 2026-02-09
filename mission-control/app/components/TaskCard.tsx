@@ -24,9 +24,10 @@ interface Agent {
 interface TaskCardProps {
   task: Task;
   agents: Agent[];
+  onClick?: () => void;
 }
 
-export default function TaskCard({ task, agents }: TaskCardProps) {
+export default function TaskCard({ task, agents, onClick }: TaskCardProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const assignedAgents = agents.filter((a) => task.assigneeIds.includes(a._id));
@@ -52,7 +53,7 @@ export default function TaskCard({ task, agents }: TaskCardProps) {
   return (
     <>
       <div
-        onClick={() => setIsOpen(true)}
+        onClick={onClick || (() => setIsOpen(true))}
         className="bg-gray-900 rounded-lg p-4 border border-gray-800 hover:border-gray-700 cursor-pointer transition-all hover:shadow-lg"
       >
         <div className="mb-3">

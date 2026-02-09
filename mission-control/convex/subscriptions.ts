@@ -8,15 +8,17 @@ export const list = query({
   },
   handler: async (ctx, args) => {
     if (args.taskId) {
+      const taskId = args.taskId;
       return await ctx.db
         .query("subscriptions")
-        .withIndex("by_task", (q) => q.eq("taskId", args.taskId))
+        .withIndex("by_task", (q) => q.eq("taskId", taskId))
         .collect();
     }
     if (args.agentId) {
+      const agentId = args.agentId;
       return await ctx.db
         .query("subscriptions")
-        .withIndex("by_agent", (q) => q.eq("agentId", args.agentId))
+        .withIndex("by_agent", (q) => q.eq("agentId", agentId))
         .collect();
     }
     return [];
