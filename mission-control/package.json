@@ -13,7 +13,8 @@
     "daemon:stop": "pm2 stop notification-daemon",
     "daemon:logs": "pm2 logs notification-daemon",
     "standup": "node scripts/daily-standup.js",
-    "task:create": "node scripts/create-task-from-telegram.ts"
+    "task:create": "node scripts/create-task-from-telegram.ts",
+    "comment": "node scripts/post-comment.js"
   },
   "dependencies": {
     "autoprefixer": "^10.4.24",
