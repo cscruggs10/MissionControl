@@ -33,11 +33,17 @@ export default function TaskModal({ task, agents, onClose }: TaskModalProps) {
   const [selectedAgents, setSelectedAgents] = useState<Id<"agents">[]>(task.assigneeIds);
   const [commentText, setCommentText] = useState("");
   const [selectedCommentAgent, setSelectedCommentAgent] = useState<string>("");
+  const [showAgentPicker, setShowAgentPicker] = useState(false);
+  const [cursorPosition, setCursorPosition] = useState(0);
 
   const messages = useQuery(api.messages.listByTask, { taskId: task._id });
+  const subscriptions = useQuery(api.subscriptions.list, { taskId: task._id });
   const updateStatus = useMutation(api.tasks.updateStatus);
   const assign = useMutation(api.tasks.assign);
   const createMessage = useMutation(api.messages.create);
+
+  const subscribedAgentIds = subscriptions?.map(s => s.agentId) || [];
+  const subscribedAgents = agents.filter(a => subscribedAgentIds.includes(a._id));
 
   const statuses = [
     { value: "inbox", label: "Inbox", icon: "📥" },
@@ -79,6 +85,38 @@ export default function TaskModal({ task, agents, onClose }: TaskModalProps) {
     }
   };
 
+  const handleAgentMention = (agentName: string) => {
+    const beforeCursor = commentText.slice(0, cursorPosition);
+    const afterCursor = commentText.slice(cursorPosition);
+    const lastAtIndex = beforeCursor.lastIndexOf('@');
+    
+    if (lastAtIndex !== -1) {
+      const newText = 
+        beforeCursor.slice(0, lastAtIndex) + 
+        `@${agentName.toLowerCase()} ` + 
+        afterCursor;
+      setCommentText(newText);
+      setCursorPosition(lastAtIndex + agentName.length + 2);
+    } else {
+      setCommentText(commentText + `@${agentName.toLowerCase()} `);
+      setCursorPosition(commentText.length + agentName.length + 2);
+    }
+    setShowAgentPicker(false);
+  };
+
+  const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newText = e.target.value;
+    const newCursor = e.target.selectionStart || 0;
+    setCommentText(newText);
+    setCursorPosition(newCursor);
+    
+    // Show agent picker if @ is typed
+    const beforeCursor = newText.slice(0, newCursor);
+    const lastAtIndex = beforeCursor.lastIndexOf('@');
+    const hasSpaceAfterAt = lastAtIndex !== -1 && beforeCursor.slice(lastAtIndex).includes(' ');
+    setShowAgentPicker(lastAtIndex !== -1 && !hasSpaceAfterAt && lastAtIndex === newCursor - 1);
+  };
+
   const handleSendComment = async () => {
     if (!commentText.trim()) return;
 
@@ -95,6 +133,7 @@ export default function TaskModal({ task, agents, onClose }: TaskModalProps) {
       });
       setCommentText("");
       setSelectedCommentAgent("");
+      setShowAgentPicker(false);
     } catch (error) {
       console.error("Failed to send comment:", error);
     }
@@ -168,9 +207,23 @@ export default function TaskModal({ task, agents, onClose }: TaskModalProps) {
 
           {/* Comments & Output */}
           <div className="mb-6">
-            <h3 className="text-sm font-semibold text-gray-400 mb-3">
-              Comments & Output
-            </h3>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-gray-400">
+                Comments & Output
+              </h3>
+              {subscribedAgents.length > 0 && (
+                <div className="flex items-center gap-2 text-xs text-gray-500">
+                  <span>🔔 Subscribed:</span>
+                  <div className="flex gap-1">
+                    {subscribedAgents.map((agent) => (
+                      <span key={agent._id} className="bg-gray-800 px-2 py-0.5 rounded">
+                        {agent.emoji || "👤"} {agent.name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
             <div className="bg-gray-850 rounded-lg p-4 mb-3 min-h-[100px] max-h-[200px] overflow-y-auto">
               {!messages || messages.length === 0 ? (
                 <p className="text-gray-500 text-center py-4">No comments yet</p>
@@ -188,7 +241,12 @@ export default function TaskModal({ task, agents, onClose }: TaskModalProps) {
               )}
             </div>
 
-            <div className="flex gap-2">
+            <div className="mb-2 text-xs text-gray-500">
+              💡 Type <span className="bg-gray-800 px-1 rounded">@agentname</span> to mention, or{" "}
+              <span className="bg-gray-800 px-1 rounded">@all</span> to notify everyone
+            </div>
+
+            <div className="flex gap-2 relative">
               <select
                 value={selectedCommentAgent}
                 onChange={(e) => setSelectedCommentAgent(e.target.value)}
@@ -202,14 +260,46 @@ export default function TaskModal({ task, agents, onClose }: TaskModalProps) {
                 ))}
               </select>
 
-              <input
-                type="text"
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleSendComment()}
-                placeholder="Add a comment..."
-                className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-sm text-gray-300 placeholder-gray-500 focus:outline-none focus:border-blue-500"
-              />
+              <div className="flex-1 relative">
+                <input
+                  type="text"
+                  value={commentText}
+                  onChange={handleCommentChange}
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter" && !showAgentPicker) {
+                      handleSendComment();
+                    }
+                  }}
+                  placeholder="Add a comment... (type @ to mention)"
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-sm text-gray-300 placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                />
+                
+                {showAgentPicker && (
+                  <div className="absolute bottom-full left-0 mb-1 bg-gray-800 border border-gray-700 rounded-lg shadow-lg max-h-48 overflow-y-auto z-10 w-64">
+                    <div className="p-2 space-y-1">
+                      <button
+                        onClick={() => handleAgentMention("all")}
+                        className="w-full text-left px-3 py-2 hover:bg-gray-700 rounded text-sm text-gray-300"
+                      >
+                        <span className="font-semibold">@all</span> - Notify everyone
+                      </button>
+                      {agents.map((agent) => (
+                        <button
+                          key={agent._id}
+                          onClick={() => handleAgentMention(agent.name)}
+                          className="w-full text-left px-3 py-2 hover:bg-gray-700 rounded text-sm"
+                        >
+                          <span className="mr-2">{agent.emoji || "👤"}</span>
+                          <span className="font-semibold text-blue-400">
+                            @{agent.name.toLowerCase()}
+                          </span>
+                          <span className="text-gray-500 ml-2">- {agent.role}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
 
               <button
                 onClick={handleSendComment}
