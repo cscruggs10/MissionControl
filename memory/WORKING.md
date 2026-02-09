@@ -1,9 +1,15 @@
 # WORKING.md
 
 ## Current Task
-Instant Wake System [COMPLETE]
+None - awaiting next assignment
 
 ## Status
+✅ **Mission Control @Mention UI** [COMPLETE] 04:00-04:05 UTC:
+- Added comment form to TaskDetail modal
+- Users can @mention agents directly in Mission Control
+- Works alongside Telegram commenting option
+- Pushed to github.com:cscruggs10/MissionControl.git
+
 ✅ Built instant wake + Telegram commenting system 03:45-04:00 UTC:
 
 **Feature 1: Instant Wake on @mentions**
@@ -33,10 +39,18 @@ Instant Wake System [COMPLETE]
 - Ajax Partners Traffic Strategy
 
 ## Active Assignments
+
+### Jazz 🎨 (Designer)
+1. **Design: Social media intro for Ajax Partners** (BLOCKED - awaiting brand assets)
+   - Need: Logo, brand colors, typography preferences
+   - Will deliver: 1080×1080 Instagram + 1200×675 Twitter/LinkedIn posts
+   - Status: Awaiting assets from Corey
+
+### Optimus Prime (Research)
 1. Research competitor pricing models (BLOCKED - awaiting Brave API config)
 2. Ajax Partners Traffic Strategy (COMPLETE - awaiting review)
 
 ## Next Steps
-1. Test instant wake system with Jazz
-2. Await feedback on Ajax Partners strategy
-3. Resume competitor research when unblocked
+1. Jazz: Await brand guidelines for Ajax Partners design
+2. Optimus: Resume competitor research when Brave API configured
+3. Test instant wake system with Corey

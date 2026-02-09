@@ -1,9 +1,9 @@
 "use client";
 
+import React, { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
-import { useState } from "react";
 
 export function TaskDetail({
   task,
@@ -17,6 +17,11 @@ export function TaskDetail({
   const messages = useQuery(api.messages.listByTask, { taskId: task._id });
   const createMessage = useMutation(api.messages.create);
   const [comment, setComment] = useState("");
+  const [showMentions, setShowMentions] = useState(false);
+  const [mentionSearch, setMentionSearch] = useState("");
+  const [mentionPosition, setMentionPosition] = useState(0);
+  const [selectedMentionIndex, setSelectedMentionIndex] = useState(0);
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
   const assignedAgents = agents.filter((a) =>
     task.assigneeIds.includes(a._id as Id<"agents">)
@@ -44,6 +49,73 @@ export function TaskDetail({
     blocked: "bg-red-100 text-red-800",
   };
 
+  // Filter agents based on mention search
+  const filteredAgents = agents.filter((agent) =>
+    agent.name.toLowerCase().includes(mentionSearch.toLowerCase())
+  );
+
+  const handleCommentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    const cursorPos = e.target.selectionStart;
+    setComment(value);
+
+    // Check if we're typing an @ mention
+    const textBeforeCursor = value.slice(0, cursorPos);
+    const lastAtIndex = textBeforeCursor.lastIndexOf("@");
+
+    if (lastAtIndex !== -1) {
+      const textAfterAt = textBeforeCursor.slice(lastAtIndex + 1);
+      // Only show mentions if @ is at start or after whitespace, and no space after @
+      const charBeforeAt = lastAtIndex > 0 ? textBeforeCursor[lastAtIndex - 1] : " ";
+      if ((charBeforeAt === " " || charBeforeAt === "\n" || lastAtIndex === 0) && !textAfterAt.includes(" ")) {
+        setShowMentions(true);
+        setMentionSearch(textAfterAt);
+        setMentionPosition(lastAtIndex);
+        setSelectedMentionIndex(0);
+        return;
+      }
+    }
+
+    setShowMentions(false);
+  };
+
+  const insertMention = (agentName: string) => {
+    const beforeMention = comment.slice(0, mentionPosition);
+    const afterMention = comment.slice(textareaRef.current?.selectionStart || comment.length);
+    const newComment = beforeMention + "@" + agentName.toLowerCase() + " " + afterMention;
+    setComment(newComment);
+    setShowMentions(false);
+    setMentionSearch("");
+    
+    // Focus textarea and move cursor after the mention
+    setTimeout(() => {
+      if (textareaRef.current) {
+        const newCursorPos = mentionPosition + agentName.length + 2; // +2 for @ and space
+        textareaRef.current.focus();
+        textareaRef.current.setSelectionRange(newCursorPos, newCursorPos);
+      }
+    }, 0);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (!showMentions) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setSelectedMentionIndex((prev) => 
+        prev < filteredAgents.length - 1 ? prev + 1 : prev
+      );
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setSelectedMentionIndex((prev) => (prev > 0 ? prev - 1 : 0));
+    } else if (e.key === "Enter" && filteredAgents.length > 0) {
+      e.preventDefault();
+      insertMention(filteredAgents[selectedMentionIndex].name);
+    } else if (e.key === "Escape") {
+      setShowMentions(false);
+    }
+  };
+
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!comment.trim()) return;
@@ -55,6 +127,7 @@ export function TaskDetail({
         fromUser: "Corey", // TODO: Get from auth context
       });
       setComment("");
+      setShowMentions(false);
     } catch (error) {
       console.error("Failed to post comment:", error);
     }
@@ -178,16 +251,43 @@ export function TaskDetail({
         {/* Comment Form */}
         <div className="border-t border-amber-200 p-4">
           <form onSubmit={handleCommentSubmit} className="space-y-2">
-            <textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              placeholder="Add a comment... (use @agentname to mention)"
-              className="w-full px-3 py-2 border border-amber-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-amber-900 placeholder-amber-400"
-              rows={3}
-            />
+            <div className="relative">
+              <textarea
+                ref={textareaRef}
+                value={comment}
+                onChange={handleCommentChange}
+                onKeyDown={handleKeyDown}
+                placeholder="Add a comment... (type @ to mention agents)"
+                className="w-full px-3 py-2 border border-amber-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-amber-900 placeholder-amber-400"
+                rows={3}
+              />
+              
+              {/* Mention Autocomplete Dropdown */}
+              {showMentions && filteredAgents.length > 0 && (
+                <div className="absolute bottom-full left-0 mb-1 w-64 bg-white border border-amber-200 rounded-lg shadow-lg overflow-hidden z-10">
+                  {filteredAgents.map((agent, index) => (
+                    <button
+                      key={agent._id}
+                      type="button"
+                      onClick={() => insertMention(agent.name)}
+                      className={`w-full px-3 py-2 text-left flex items-center gap-2 hover:bg-amber-50 transition-colors ${
+                        index === selectedMentionIndex ? "bg-amber-100" : ""
+                      }`}
+                    >
+                      <span className="text-lg">{agent.emoji || "🤖"}</span>
+                      <div>
+                        <div className="font-medium text-amber-900">{agent.name}</div>
+                        <div className="text-xs text-amber-600">{agent.role}</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            
             <div className="flex items-center justify-between">
               <p className="text-xs text-amber-600">
-                💡 Tip: Use @agentname to notify agents instantly
+                💡 Tip: Type <strong>@</strong> to mention agents (instant wake)
               </p>
               <button
                 type="submit"
