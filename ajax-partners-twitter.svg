@@ -1,0 +1,50 @@
+<svg width="1200" height="675" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1200" height="675" fill="#0B3D91"/>
+  
+  <!-- Left side: Headline -->
+  <text x="80" y="120" font-family="Arial, sans-serif" font-size="68" font-weight="bold" fill="white">
+    Reinsurance
+  </text>
+  
+  <text x="80" y="200" font-family="Arial, sans-serif" font-size="68" font-weight="bold" fill="#4A90E2">
+    Strategy.
+  </text>
+  
+  <text x="80" y="280" font-family="Arial, sans-serif" font-size="68" font-weight="bold" fill="white">
+    Tax Savings.
+  </text>
+  
+  <text x="80" y="360" font-family="Arial, sans-serif" font-size="68" font-weight="bold" fill="#4A90E2">
+    Simplified.
+  </text>
+  
+  <!-- Right side: Metrics -->
+  
+  <!-- Metric 1: 50K+ Tax Savings -->
+  <text x="1100" y="140" font-family="Arial, sans-serif" font-size="56" font-weight="bold" fill="#D4AF37" text-anchor="end">
+    50K+
+  </text>
+  <text x="1100" y="195" font-family="Arial, sans-serif" font-size="40" fill="#F5F5F5" text-anchor="end">
+    Tax Savings
+  </text>
+  
+  <!-- Metric 2: 500+ Clients -->
+  <text x="1100" y="310" font-family="Arial, sans-serif" font-size="56" font-weight="bold" fill="#D4AF37" text-anchor="end">
+    500+
+  </text>
+  <text x="1100" y="365" font-family="Arial, sans-serif" font-size="40" fill="#F5F5F5" text-anchor="end">
+    Clients
+  </text>
+  
+  <!-- Metric 3: 30+ Years -->
+  <text x="1100" y="480" font-family="Arial, sans-serif" font-size="56" font-weight="bold" fill="#D4AF37" text-anchor="end">
+    30+
+  </text>
+  <text x="1100" y="535" font-family="Arial, sans-serif" font-size="40" fill="#F5F5F5" text-anchor="end">
+    Years
+  </text>
+  
+  <!-- Divider line -->
+  <line x1="600" y1="0" x2="600" y2="675" stroke="#4A90E2" stroke-width="2" opacity="0.3"/>
+</svg>

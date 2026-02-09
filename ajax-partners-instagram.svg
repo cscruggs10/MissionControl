@@ -1,0 +1,46 @@
+<svg width="1080" height="1080" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1080" height="1080" fill="#0B3D91"/>
+  
+  <!-- Title -->
+  <text x="540" y="280" font-family="Arial, sans-serif" font-size="72" font-weight="bold" fill="white" text-anchor="middle">
+    Reinsurance Strategy
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="540" y="380" font-family="Arial, sans-serif" font-size="48" fill="#4A90E2" text-anchor="middle">
+    Tax Savings. Simplified.
+  </text>
+  
+  <!-- Benefit Circle 1: Lower Taxes -->
+  <circle cx="540" cy="600" r="60" fill="#4A90E2" stroke="white" stroke-width="3"/>
+  <text x="540" y="615" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#0B3D91" text-anchor="middle">
+    Lower
+  </text>
+  <text x="540" y="648" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#0B3D91" text-anchor="middle">
+    Taxes
+  </text>
+  
+  <!-- Benefit Circle 2: Better Control -->
+  <circle cx="540" cy="750" r="60" fill="#4A90E2" stroke="white" stroke-width="3"/>
+  <text x="540" y="765" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#0B3D91" text-anchor="middle">
+    Better
+  </text>
+  <text x="540" y="798" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#0B3D91" text-anchor="middle">
+    Control
+  </text>
+  
+  <!-- Benefit Circle 3: Asset Protection -->
+  <circle cx="540" cy="900" r="60" fill="#4A90E2" stroke="white" stroke-width="3"/>
+  <text x="540" y="908" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#0B3D91" text-anchor="middle">
+    Asset
+  </text>
+  <text x="540" y="936" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#0B3D91" text-anchor="middle">
+    Protection
+  </text>
+  
+  <!-- Footer -->
+  <text x="540" y="1030" font-family="Arial, sans-serif" font-size="28" fill="#F5F5F5" text-anchor="middle">
+    Ajax Partners — 30+ Years Expertise
+  </text>
+</svg>

@@ -1,56 +1,54 @@
 # WORKING.md
 
 ## Current Task
-None - awaiting next assignment
+Fixing Mission Control UI Issues (Assigned by Corey 05:00 UTC, going to sleep)
 
 ## Status
-✅ **Mission Control @Mention UI** [COMPLETE] 04:00-04:05 UTC:
-- Added comment form to TaskDetail modal
-- Users can @mention agents directly in Mission Control
-- Works alongside Telegram commenting option
-- Pushed to github.com:cscruggs10/MissionControl.git
+IN PROGRESS - Working on 4 critical fixes:
 
-✅ Built instant wake + Telegram commenting system 03:45-04:00 UTC:
+1. ✅ **Instant agent wake on @mention** - ALREADY COMPLETE (built 03:45-04:05 UTC)
+   - Notifications created on @mention
+   - Agents check for new notifications via daemon
+   - Need to verify integration is working
 
-**Feature 1: Instant Wake on @mentions**
-- Enhanced notification daemon to detect NEW @mentions
-- Agents wake immediately (seconds, not 15 min)
-- Falls back to heartbeat if agent offline
-- Jazz will now see Corey's responses instantly
+2. ⏳ **Status change dropdown** - NEXT UP
+   - Currently can only VIEW task status
+   - Need dropdown/buttons to change status (blocked → assigned, etc.)
+   - Critical: Corey needs this to unblock Jazz
 
-**Feature 2: Telegram → Task Comments**
-- New script: `mission-control/scripts/post-comment.js`
-- Corey can reply via Telegram: "@jazz here are the files"
-- Iris posts to task thread automatically
-- Agent gets instant notification
+3. ⏳ **Mobile @ autocomplete**
+   - Desktop works fine with keyboard (ArrowUp/Down, Enter)
+   - Mobile needs touch-friendly selection
+   - Currently broken on Corey's primary interface (Telegram mobile)
 
-**Documentation:**
-- mission-control/INSTANT_WAKE.md (full architecture)
-- TOOLS.md updated with workflows
-- npm run comment shortcut added
+4. ⏳ **Agent "working" status tracking**
+   - Current: idle/active/blocked states only
+   - Need: "working" state when agent is actively on a task
+   - Display in AgentRoster sidebar
 
-**Committed to:** MissionControl repo (verified correct repo)
+## Plan
+1. Add status dropdown to TaskDetail.tsx
+2. Make @ mentions work on mobile (tap to select)
+3. Add "working" agent status tracking
+4. Test, commit, push
+5. Update morning brief with summary
+
+## Timeline
+- Start: 06:32 UTC
+- Target completion: Before Corey wakes (12:00 UTC)
+- Morning brief delivery: ~12:00-13:00 UTC
 
 ---
 
-✅ Previous completed work:
-- Mission Control UI fixes (Tailwind, layout, BLOCKED column)
-- Optimus Prime assignment authority
-- Ajax Partners Traffic Strategy
+## Background Context
 
-## Active Assignments
+### Jazz 🎨 (Designer) - BLOCKED
+**Task:** Design social media intro for Ajax Partners
+**Blocker:** Needs brand assets (logo, colors, typography)
+**Reported:** 4x in heartbeats (over-reporting, coached to stop)
 
-### Jazz 🎨 (Designer)
-1. **Design: Social media intro for Ajax Partners** (BLOCKED - awaiting brand assets)
-   - Need: Logo, brand colors, typography preferences
-   - Will deliver: 1080×1080 Instagram + 1200×675 Twitter/LinkedIn posts
-   - Status: Awaiting assets from Corey
-
-### Optimus Prime (Research)
-1. Research competitor pricing models (BLOCKED - awaiting Brave API config)
-2. Ajax Partners Traffic Strategy (COMPLETE - awaiting review)
-
-## Next Steps
-1. Jazz: Await brand guidelines for Ajax Partners design
-2. Optimus: Resume competitor research when Brave API configured
-3. Test instant wake system with Corey
+### Completed This Session
+- Mission Control @Mention UI (comment form in TaskDetail)
+- Instant wake system + notification daemon
+- Telegram → Task commenting integration
+- Documentation (INSTANT_WAKE.md, TOOLS.md updates)

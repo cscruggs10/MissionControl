@@ -7,6 +7,8 @@
  * NEW: Immediately wakes agents when @mentioned (instant response).
  */
 
+require('dotenv').config({ path: require('path').join(__dirname, '..', '.env.local') });
+
 const { ConvexHttpClient } = require("convex/browser");
 const fetch = require("node-fetch");
 
@@ -26,8 +28,12 @@ const client = new ConvexHttpClient(CONVEX_URL);
 // Track last notification check to detect NEW mentions
 let lastNotificationCount = 0;
 
-async function sendToAgent(sessionKey, message) {
-  const url = `${GATEWAY_URL}/api/sessions/send`;
+async function sendWakeEvent(sessionKey) {
+  /**
+   * Send wake event via Clawdbot's cron API
+   * This triggers an immediate heartbeat check for the agent
+   */
+  const url = `${GATEWAY_URL}/api/cron/wake`;
   const response = await fetch(url, {
     method: "POST",
     headers: {
@@ -35,15 +41,14 @@ async function sendToAgent(sessionKey, message) {
       ...(GATEWAY_TOKEN && { Authorization: `Bearer ${GATEWAY_TOKEN}` }),
     },
     body: JSON.stringify({
+      text: `Check Mission Control for new @mentions`,
       sessionKey,
-      message,
-      timeoutSeconds: 5,
     }),
   });
 
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(`Failed to send: ${response.status} ${text}`);
+    throw new Error(`Failed to wake: ${response.status} ${text}`);
   }
 
   return await response.json();
@@ -51,19 +56,19 @@ async function sendToAgent(sessionKey, message) {
 
 async function wakeAgent(sessionKey, agentName, content) {
   /**
-   * Immediately wake an agent with the @mention content.
-   * This bypasses the heartbeat wait - agent responds NOW.
+   * Immediately wake an agent with a wake event.
+   * Agent will check Mission Control and see the new @mention.
    */
   try {
     console.log(`🚨 INSTANT WAKE: ${agentName} (${sessionKey})`);
-    console.log(`   Content: ${content.substring(0, 100)}...`);
+    console.log(`   Mention: ${content.substring(0, 80)}...`);
     
-    await sendToAgent(sessionKey, content);
+    await sendWakeEvent(sessionKey);
     
-    console.log(`✓ ${agentName} woken and notified`);
+    console.log(`✓ ${agentName} wake event sent`);
     return true;
   } catch (error) {
-    console.log(`⏸  ${agentName} unavailable for instant wake: ${error.message}`);
+    console.log(`⏸  ${agentName} wake failed: ${error.message}`);
     return false;
   }
 }
@@ -95,24 +100,19 @@ async function processNotifications() {
       try {
         // Attempt instant wake if this is a new notification batch
         if (isNewBatch) {
-          await wakeAgent(notification.sessionKey, notification.agentName, notification.content);
-        } else {
-          // Regular delivery (retry from previous failed attempt)
-          await sendToAgent(notification.sessionKey, notification.content);
+          const woken = await wakeAgent(notification.sessionKey, notification.agentName, notification.content);
+          if (woken) {
+            // Agent woken - they'll pick up notification from Convex on their next heartbeat check
+            // Don't mark as delivered yet - let agent mark it when they actually read it
+            console.log(`⚡ Wake sent to ${notification.agentName}`);
+          }
         }
         
-        // Mark as delivered
-        await client.mutation("notifications:markDelivered", {
-          id: notification._id,
-        });
-
-        console.log(`✓ Delivered to ${notification.agentName}`);
+        // Don't auto-mark as delivered - let agents mark notifications as read
+        // This way notifications persist until agent actually processes them
       } catch (error) {
-        // Agent might be asleep - notification stays queued
-        if (!isNewBatch) {
-          // Only log retries if not first attempt
-          console.log(`⏸  ${notification.agentName} unavailable (will retry): ${error.message}`);
-        }
+        // Agent might be asleep - notification stays queued for next heartbeat
+        console.log(`⏸  ${notification.agentName} wake attempt failed: ${error.message}`);
       }
     }
   } catch (error) {

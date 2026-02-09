@@ -39,6 +39,7 @@ export const updateStatus = mutation({
     status: v.union(
       v.literal("idle"),
       v.literal("active"),
+      v.literal("working"),
       v.literal("blocked")
     ),
     currentTaskId: v.optional(v.id("tasks")),
@@ -48,6 +49,15 @@ export const updateStatus = mutation({
       status: args.status,
       currentTaskId: args.currentTaskId,
       lastHeartbeat: Date.now(),
+    });
+
+    // Log activity
+    await ctx.db.insert("activities", {
+      type: "agent_heartbeat",
+      agentId: args.id,
+      taskId: args.currentTaskId,
+      message: `Agent status: ${args.status}`,
+      createdAt: Date.now(),
     });
   },
 });

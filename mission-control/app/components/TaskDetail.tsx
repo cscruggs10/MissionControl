@@ -16,6 +16,7 @@ export function TaskDetail({
 }) {
   const messages = useQuery(api.messages.listByTask, { taskId: task._id });
   const createMessage = useMutation(api.messages.create);
+  const updateStatus = useMutation(api.tasks.updateStatus);
   const [comment, setComment] = useState("");
   const [showMentions, setShowMentions] = useState(false);
   const [mentionSearch, setMentionSearch] = useState("");
@@ -157,13 +158,25 @@ export function TaskDetail({
           </div>
 
           <div className="flex items-center gap-3 flex-wrap">
-            <span
-              className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${
+            <select
+              value={task.status}
+              onChange={(e) => {
+                updateStatus({
+                  id: task._id,
+                  status: e.target.value as any,
+                });
+              }}
+              className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide border-2 cursor-pointer transition-colors ${
                 statusColors[task.status]
-              }`}
+              } hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-amber-500`}
             >
-              {task.status.replace("_", " ")}
-            </span>
+              <option value="inbox">Inbox</option>
+              <option value="assigned">Assigned</option>
+              <option value="in_progress">In Progress</option>
+              <option value="review">Review</option>
+              <option value="blocked">Blocked</option>
+              <option value="done">Done</option>
+            </select>
 
             {assignedAgents.length > 0 && (
               <div className="flex items-center gap-2">
@@ -264,20 +277,24 @@ export function TaskDetail({
               
               {/* Mention Autocomplete Dropdown */}
               {showMentions && filteredAgents.length > 0 && (
-                <div className="absolute bottom-full left-0 mb-1 w-64 bg-white border border-amber-200 rounded-lg shadow-lg overflow-hidden z-10">
+                <div className="absolute bottom-full left-0 mb-1 w-full md:w-64 bg-white border border-amber-200 rounded-lg shadow-lg overflow-hidden z-10 max-h-60 overflow-y-auto">
                   {filteredAgents.map((agent, index) => (
                     <button
                       key={agent._id}
                       type="button"
                       onClick={() => insertMention(agent.name)}
-                      className={`w-full px-3 py-2 text-left flex items-center gap-2 hover:bg-amber-50 transition-colors ${
+                      onTouchEnd={(e) => {
+                        e.preventDefault();
+                        insertMention(agent.name);
+                      }}
+                      className={`w-full px-3 py-3 text-left flex items-center gap-2 hover:bg-amber-50 active:bg-amber-100 transition-colors touch-manipulation ${
                         index === selectedMentionIndex ? "bg-amber-100" : ""
                       }`}
                     >
-                      <span className="text-lg">{agent.emoji || "🤖"}</span>
-                      <div>
+                      <span className="text-lg flex-shrink-0">{agent.emoji || "🤖"}</span>
+                      <div className="flex-1 min-w-0">
                         <div className="font-medium text-amber-900">{agent.name}</div>
-                        <div className="text-xs text-amber-600">{agent.role}</div>
+                        <div className="text-xs text-amber-600 truncate">{agent.role}</div>
                       </div>
                     </button>
                   ))}

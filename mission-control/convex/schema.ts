@@ -8,6 +8,7 @@ export default defineSchema({
     status: v.union(
       v.literal("idle"),
       v.literal("active"),
+      v.literal("working"),
       v.literal("blocked")
     ),
     currentTaskId: v.optional(v.id("tasks")),
