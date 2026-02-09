@@ -33,12 +33,12 @@ export default function TaskCard({ task, agents, onClick }: TaskCardProps) {
   const assignedAgents = agents.filter((a) => task.assigneeIds.includes(a._id));
 
   const statusColors = {
-    inbox: "bg-blue-600",
-    assigned: "bg-purple-600",
-    in_progress: "bg-yellow-600",
-    review: "bg-orange-600",
-    done: "bg-green-600",
-    blocked: "bg-red-600",
+    inbox: "bg-blue-100 text-blue-800 border-blue-200",
+    assigned: "bg-purple-100 text-purple-800 border-purple-200",
+    in_progress: "bg-yellow-100 text-yellow-800 border-yellow-200",
+    review: "bg-orange-100 text-orange-800 border-orange-200",
+    done: "bg-green-100 text-green-800 border-green-200",
+    blocked: "bg-red-100 text-red-800 border-red-200",
   };
 
   const statusLabels = {
@@ -54,11 +54,11 @@ export default function TaskCard({ task, agents, onClick }: TaskCardProps) {
     <>
       <div
         onClick={onClick || (() => setIsOpen(true))}
-        className="bg-gray-900 rounded-lg p-4 border border-gray-800 hover:border-gray-700 cursor-pointer transition-all hover:shadow-lg"
+        className="bg-white rounded-lg p-3 md:p-4 border border-amber-200 hover:border-amber-400 cursor-pointer transition-all hover:shadow-md"
       >
-        <div className="mb-3">
+        <div className="mb-2">
           <span
-            className={`text-xs px-2 py-1 rounded ${
+            className={`text-xs px-2 py-1 rounded border font-medium uppercase tracking-wide ${
               statusColors[task.status as keyof typeof statusColors]
             }`}
           >
@@ -66,20 +66,23 @@ export default function TaskCard({ task, agents, onClick }: TaskCardProps) {
           </span>
         </div>
 
-        <h3 className="font-semibold mb-2 line-clamp-2">{task.title}</h3>
-        <p className="text-sm text-gray-400 line-clamp-3 mb-4">
+        <h3 className="font-bold text-amber-900 mb-2 line-clamp-2 text-sm md:text-base">
+          {task.title}
+        </h3>
+        
+        <p className="text-xs md:text-sm text-amber-700 line-clamp-2 md:line-clamp-3 mb-3">
           {task.description}
         </p>
 
         {assignedAgents.length > 0 && (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-1.5">
             {assignedAgents.map((agent) => (
               <div
                 key={agent._id}
-                className="flex items-center gap-1 text-xs bg-gray-800 rounded-full px-2 py-1"
+                className="flex items-center gap-1 text-xs bg-amber-100 text-amber-900 rounded-full px-2 py-1 border border-amber-200"
               >
-                <span>{agent.emoji || "👤"}</span>
-                <span>{agent.name}</span>
+                <span className="text-sm">{agent.emoji || "👤"}</span>
+                <span className="font-medium">{agent.name}</span>
               </div>
             ))}
           </div>
