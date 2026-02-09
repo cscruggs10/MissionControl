@@ -214,7 +214,18 @@ This file tells agents what to check. Agents follow this checklist strictly:
 Default heartbeat prompt:
 `Read HEARTBEAT.md if it exists (workspace context). Follow it strictly. Do not infer or repeat old tasks from prior chats. If nothing needs attention, reply HEARTBEAT_OK.`
 
-**Key rule:** Never invent work. Only respond to actual signals (mentions, assignments, activity). If nothing needs attention, reply `HEARTBEAT_OK` and go back to sleep.
+**Key rule:** Never invent work. Only respond to actual signals (mentions, assignments, activity).
+
+**If you have assigned tasks:**
+- Move to "in_progress" and start working
+- OR move to "blocked" with comment explaining why
+- DO NOT just report HEARTBEAT_OK - assigned work requires action
+
+**Only reply HEARTBEAT_OK when:**
+- No assigned tasks
+- No @mentions  
+- No ongoing work in WORKING.md
+- Nothing actionable in activity feed
 
 ### For Personal Assistant Agents (Iris-type)
 
