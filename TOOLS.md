@@ -2,7 +2,7 @@
 
 Skills define *how* tools work. This file is for *your* specifics — the stuff that's unique to your setup.
 
-## Mission Control - Task Creation
+## Mission Control - Task Management
 
 ### When Corey Sends a Task via Telegram
 
@@ -39,6 +39,44 @@ npx convex run tasks:assign '{
 ```
 
 This automatically moves the task from Inbox → Assigned.
+
+---
+
+### When Corey Wants to Comment on a Task
+
+**Patterns to recognize:**
+- "@jazz here are the brand assets: [link]"
+- "comment on task: [content]"
+- Reply to agent status update with additional info
+- Any message that's clearly responding to an agent about a task
+
+**How to handle:**
+1. Ask which task (if not clear from context)
+2. Post the comment to that task:
+
+```bash
+cd /root/clawd/mission-control
+node scripts/post-comment.js "TASK_ID" "@jazz Here are the brand guidelines: https://..."
+```
+
+**Response format:**
+> ✅ Comment posted to task!
+> 
+> @jazz will see it immediately (instant wake notification)
+
+**What happens:**
+- Comment gets added to task thread
+- If @mention is used, agent gets notified instantly (doesn't wait for heartbeat)
+- Agent wakes up and responds within seconds
+
+**Finding task IDs:**
+```bash
+# List recent tasks
+npx convex run tasks:list '{}'
+
+# Search by keyword
+npx convex run tasks:list '{}' | grep -i "social media"
+```
 
 ### Alternative Methods
 
