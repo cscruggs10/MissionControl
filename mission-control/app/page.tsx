@@ -7,11 +7,13 @@ import { Header } from "./components/Header";
 import { AgentRoster } from "./components/AgentRoster";
 import { TaskBoard } from "./components/TaskBoard";
 import { ActivityFeed } from "./components/ActivityFeed";
+import AddTaskModal from "./components/AddTaskModal";
 
 type MobileView = "tasks" | "agents" | "activity";
 
 export default function Home() {
   const [mobileView, setMobileView] = useState<MobileView>("tasks");
+  const [showAddTask, setShowAddTask] = useState(false);
   const tasks = useQuery(api.tasks.list, {});
   const agents = useQuery(api.agents.list, {});
   const activities = useQuery(api.activities.list, { limit: 50 });
@@ -121,6 +123,20 @@ export default function Home() {
           </div>
         </nav>
       </div>
+
+      {/* Floating Add Task Button */}
+      <button
+        onClick={() => setShowAddTask(true)}
+        className="fixed bottom-20 right-6 lg:bottom-6 bg-amber-900 hover:bg-amber-800 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg hover:shadow-xl transition-all z-50"
+        aria-label="Add Task"
+      >
+        <span className="text-2xl font-bold">+</span>
+      </button>
+
+      {/* Add Task Modal */}
+      {showAddTask && (
+        <AddTaskModal agents={agents} onClose={() => setShowAddTask(false)} />
+      )}
     </div>
   );
 }
