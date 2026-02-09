@@ -1,8 +1,9 @@
 "use client";
 
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
+import { useState } from "react";
 
 export function TaskDetail({
   task,
@@ -14,6 +15,8 @@ export function TaskDetail({
   onClose: () => void;
 }) {
   const messages = useQuery(api.messages.listByTask, { taskId: task._id });
+  const createMessage = useMutation(api.messages.create);
+  const [comment, setComment] = useState("");
 
   const assignedAgents = agents.filter((a) =>
     task.assigneeIds.includes(a._id as Id<"agents">)
@@ -39,6 +42,22 @@ export function TaskDetail({
     review: "bg-orange-100 text-orange-800",
     done: "bg-green-100 text-green-800",
     blocked: "bg-red-100 text-red-800",
+  };
+
+  const handleCommentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!comment.trim()) return;
+
+    try {
+      await createMessage({
+        taskId: task._id,
+        content: comment,
+        fromUser: "Corey", // TODO: Get from auth context
+      });
+      setComment("");
+    } catch (error) {
+      console.error("Failed to post comment:", error);
+    }
   };
 
   return (
@@ -154,6 +173,31 @@ export function TaskDetail({
               </p>
             )}
           </div>
+        </div>
+
+        {/* Comment Form */}
+        <div className="border-t border-amber-200 p-4">
+          <form onSubmit={handleCommentSubmit} className="space-y-2">
+            <textarea
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              placeholder="Add a comment... (use @agentname to mention)"
+              className="w-full px-3 py-2 border border-amber-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-amber-900 placeholder-amber-400"
+              rows={3}
+            />
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-amber-600">
+                💡 Tip: Use @agentname to notify agents instantly
+              </p>
+              <button
+                type="submit"
+                disabled={!comment.trim()}
+                className="px-4 py-2 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-200 text-white rounded-lg font-medium transition-colors"
+              >
+                Post Comment
+              </button>
+            </div>
+          </form>
         </div>
 
         {/* Footer */}
