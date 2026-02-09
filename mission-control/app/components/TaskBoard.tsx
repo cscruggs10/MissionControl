@@ -10,6 +10,7 @@ type TasksByStatus = {
   assigned: Doc<"tasks">[];
   in_progress: Doc<"tasks">[];
   review: Doc<"tasks">[];
+  blocked: Doc<"tasks">[];
   done: Doc<"tasks">[];
 };
 
@@ -54,6 +55,14 @@ export function TaskBoard({
       tasks: tasksByStatus.review,
       color: "bg-orange-50 border-orange-200",
       headerColor: "bg-orange-100",
+    },
+    {
+      id: "blocked",
+      title: "BLOCKED",
+      icon: "🚫",
+      tasks: tasksByStatus.blocked,
+      color: "bg-red-50 border-red-200",
+      headerColor: "bg-red-100",
     },
     {
       id: "done",

@@ -30,6 +30,7 @@ export default function Home() {
     assigned: tasks.filter((t) => t.status === "assigned"),
     in_progress: tasks.filter((t) => t.status === "in_progress"),
     review: tasks.filter((t) => t.status === "review"),
+    blocked: tasks.filter((t) => t.status === "blocked"),
     done: tasks.filter((t) => t.status === "done"),
   };
 
