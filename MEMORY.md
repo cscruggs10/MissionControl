@@ -49,9 +49,20 @@
 - Action-biased — do first, flag only when necessary
 
 ## Git/Version Control Rules
+- **VERIFY REPO BEFORE PUSHING** — Always check `git remote -v` first
+- **Correct repo:** `git@github.com:cscruggs10/MissionControl.git`
+- **NEVER push to:** AutoIntel repo (that's a separate project)
 - **ALWAYS push to git repo** — Never keep work local only
 - Commit and push changes immediately after completing work
 - This workspace is version-controlled, keep everything synced
+
+**Pre-push checklist:**
+```bash
+cd /root/clawd
+git remote -v  # Should show MissionControl.git, NOT AutoIntel.git
+git status
+git push origin main
+```
 
 ## System Structure
 - **Journal system:** `/root/clawd/journal/` (digital bullet journal)
