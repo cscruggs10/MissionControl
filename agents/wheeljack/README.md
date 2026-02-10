@@ -10,7 +10,7 @@ Fast-moving B2B marketing for Deal Machine's wholesale auto business. High-volum
 
 ## Model Strategy
 
-- **Heartbeat checks:** Claude Haiku 4.5 (fast, cheap, efficient for scanning)
+- **Heartbeat checks:** Google Gemini Flash (fast, cheap, efficient for scanning)
 - **Strategic work:** Claude Sonnet 4.5 (deeper reasoning for GTM, campaigns, analysis)
 
 ## Heartbeat Schedule
