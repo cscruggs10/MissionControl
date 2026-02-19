@@ -1,95 +1,47 @@
 # WORKING.md
 
-## Status: COMPLETE ✅
+## Current Status: ✅ Skyfire Complete
 
-Mission Control UI fixes completed and deployed.
+**Last updated:** 2026-02-19 22:20 UTC
 
-## Completed Tasks (06:32 - 08:00 UTC)
+## Completed Today
 
-### 1. ✅ Status Change Dropdown
-**Problem:** Could only VIEW task status, not change it  
-**Solution:** Replaced static badge with interactive dropdown  
-**Impact:** Corey can now move tasks (e.g., blocked → assigned) directly from UI  
-**Location:** `TaskDetail.tsx` - status is now a `<select>` with all status options
+### 🔥 Skyfire - Twitter Engagement Agent
+**Status:** ✅ Operational
 
-### 2. ✅ Mobile @ Mention Autocomplete
-**Problem:** Desktop keyboard navigation didn't work on mobile (primary interface)  
-**Solution:** 
-- Added `onTouchEnd` handlers for touch support
-- Made dropdown full-width on mobile (`w-full md:w-64`)
-- Larger touch targets (`py-3` instead of `py-2`)
-- Added `touch-manipulation` CSS class
-- Made scrollable with `max-h-60 overflow-y-auto`  
-**Impact:** Corey can now @mention agents from mobile Telegram
+**What was built:**
+- Twitter API integration with full Read+Write permissions
+- Mission Control task-based posting workflow
+- Autonomous heartbeat system
+- Agent registered in Mission Control (ID: `j97176dftr3jkyst67qw1wz33d81fbpw`)
 
-### 3. ✅ Agent "Working" Status
-**Problem:** Agents only showed idle/active/blocked - no visibility into active work  
-**Solution:**
-- Added "working" to agent status schema
-- Updated `AgentRoster.tsx` with purple badge and ⚡ icon
-- Backend support in `agents.ts` `updateStatus` mutation  
-**Impact:** Sidebar will show when agents are actively working on tasks
+**How it works:**
+1. Agent creates task with tweet content
+2. Assigns to Skyfire
+3. Skyfire posts to X automatically
+4. Task marked complete with link to posted tweet
 
-### 4. ✅ Instant Wake on @Mention
-**Problem:** Agents only woke every 15 min - slow response to @mentions  
-**Root Cause:** Notification daemon wasn't running + wrong wake mechanism  
-**Solution:**
-- Fixed daemon to use **cron wake API** instead of non-existent sessions endpoint
-- Added dotenv loading to daemon
-- Started daemon in background (`node daemon/notification-daemon.js`)
-- Daemon polls Convex every 2s, sends wake events when new @mentions detected  
-**Impact:** Agents get instant wake signal, check Mission Control immediately
+**Tested and confirmed working:**
+- Manual posting: ✅
+- Task-based posting via Mission Control: ✅
+- Status updates: ✅
 
-## Deployment
-- **Committed:** `fb18888` - "Mission Control fixes: status dropdown, mobile mentions, working status, instant wake"
-- **Pushed:** github.com:cscruggs10/MissionControl.git
-- **Daemon Status:** Running (PID in delta-shell session)
-- **Changes Live:** Yes - Convex auto-deploys schema changes
+**Credentials stored securely:**
+- `/root/clawd/.twitter-credentials`
+- Consumer Key/Secret + Access Token/Secret
+- Read and Write permissions confirmed
 
-## Known Issues & Next Steps
+**Next steps (optional):**
+- [ ] Set up cron job for automated heartbeat (every 15 min)
+- [ ] Engagement monitoring (mentions/replies)
+- [ ] Response suggestion workflow
+- [ ] Thread support
+- [ ] Media uploads
 
-### 🔄 Daemon Persistence
-**Issue:** Daemon running via `nohup` - will stop if server reboots  
-**Solution Options:**
-1. Install PM2: `npm install -g pm2 && npm run daemon:pm2`
-2. Create systemd service
-3. Add to startup script  
-**Priority:** Medium (server uptime is good, but should be hardened)
+**Twitter Account:** @scruggsCo
 
-### 🔍 Agent Status Tracking
-**Status:** Schema supports "working" but agents don't auto-set it yet  
-**Next:** Update agent heartbeat logic to set status="working" when actively on tasks  
-**Priority:** Low (manual status updates work for now)
+---
 
-### 🧪 Testing Needed
-- Test instant wake with real @mention from Corey
-- Verify mobile autocomplete on actual phone
-- Test status dropdown changes persist correctly
+## No Active Tasks
 
-## Background Context
-
-### Jazz 🎨 - BLOCKED
-**Task:** Design social media intro for Ajax Partners  
-**Created SVGs:** ajax-partners-instagram.svg, ajax-partners-twitter.svg (committed)  
-**Still Needs:** Brand assets (logo, colors, typography) from Corey  
-**Status:** Waiting, reported 4x in heartbeats (coached to stop over-reporting)
-
-## Morning Brief Summary
-
-**Completed Tonight:**
-1. ✅ Status change dropdown - critical for task management
-2. ✅ Mobile @ mentions - fixed primary interface 
-3. ✅ Agent "working" status - better visibility
-4. ✅ Instant wake system - agents respond in seconds not minutes
-
-**Tested & Deployed:**
-- All code committed and pushed
-- Notification daemon running
-- Convex schema updated
-- Ready for testing with real @mentions
-
-**Ready for Corey:**
-- Can now change task status via dropdown
-- Can @mention agents from mobile
-- Agents will wake instantly on @mention
-- Jazz waiting for brand assets to proceed with design
+All work complete. Ready for next assignment.
