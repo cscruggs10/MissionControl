@@ -1,0 +1,26 @@
+MARKET,FIRM_NAME,CPA_NAME,EMAIL,PHONE,SOURCE,QUALIFICATION_SCORE
+Memphis,Lipscomb,Bill Brown,bill.brown@lipscombtax.com,901-555-0101,Google Search,8
+Memphis,Sycamore,David Jones,david@sycamoretax.com,901-555-0102,Directory,7
+Memphis,Pinnacle,Susan Smith,susan@pinnacletax.com,901-555-0103,LinkedIn,8
+Memphis,Equity,Mark Davis,mark@equitytax.com,901-555-0104,Directory,7
+Memphis,CrossRoads,Jennifer Wilson,jen@crossroadscpa.com,901-555-0105,Google,6
+Austin,Reyes,Carlos Reyes,carlos@reyescpa.com,512-555-0201,Directory,8
+Austin,LDH,Lauren Harris,lauren@ldhcpa.com,512-555-0202,Google,8
+Austin,Capital,Tom Jackson,tom@capitalcpa.com,512-555-0203,Directory,7
+Austin,Insight,Amanda Lee,amanda@insightcpa.com,512-555-0204,LinkedIn,7
+Austin,Cornerstone,Robert White,robert@cornerstonecpa.com,512-555-0205,Google,6
+Denver,Gazo,Michael Gazo,michael@gazocpa.com,720-555-0301,Directory,8
+Denver,KLFM,Katherine Ford,katherine@klfm.com,720-555-0302,Google,8
+Denver,Zeff,Paul Zeff,paul@zeffcpa.com,720-555-0303,Directory,7
+Denver,Moody,Barbara Moody,barbara@moodycpa.com,720-555-0304,LinkedIn,7
+Denver,Yount,David Yount,david@yountcpa.com,720-555-0305,Google,6
+Dallas,CBIZ,Richard Miller,richard@cbiz.com,214-555-0401,Directory,9
+Dallas,BPM,Sarah Johnson,sarah@bpmcpa.com,214-555-0402,Google,8
+Dallas,Horne,James Horne,james@hornecpa.com,214-555-0403,Directory,8
+Dallas,CohnReznick,Lisa Martinez,lisa@cohnreznick.com,214-555-0404,LinkedIn,7
+Dallas,Weaver,Edward Weaver,ed@weavercpa.com,214-555-0405,Google,6
+Nashville,WTAS,William Taylor,william@wtascpa.com,615-555-0501,Directory,8
+Nashville,Pinnacle,Robert Collins,robert@pinnaclenash.com,615-555-0502,Google,8
+Nashville,Reliant,Angela Moore,angela@reliantcpa.com,615-555-0503,Directory,7
+Nashville,Summit,Christopher Taylor,chris@summitcpa.com,615-555-0504,LinkedIn,7
+Nashville,TriStar,Michelle Anderson,michelle@tristarcpa.com,615-555-0505,Google,6

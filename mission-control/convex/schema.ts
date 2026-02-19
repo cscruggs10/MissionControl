@@ -99,4 +99,56 @@ export default defineSchema({
     .index("by_task", ["taskId"])
     .index("by_agent", ["agentId"])
     .index("by_task_agent", ["taskId", "agentId"]),
+
+  // Cost Tracking Tables
+  apiCalls: defineTable({
+    sessionId: v.string(),
+    timestamp: v.string(),
+    model: v.string(),
+    provider: v.string(),
+    usage: v.object({
+      input: v.number(),
+      output: v.number(),
+      cacheRead: v.optional(v.number()),
+      cacheWrite: v.optional(v.number()),
+      totalTokens: v.number(),
+    }),
+    cost: v.object({
+      input: v.number(),
+      output: v.number(),
+      cacheRead: v.optional(v.number()),
+      cacheWrite: v.optional(v.number()),
+      total: v.number(),
+    }),
+    createdAt: v.number(),
+  })
+    .index("by_session", ["sessionId"])
+    .index("by_timestamp", ["timestamp"])
+    .index("by_created", ["createdAt"]),
+
+  dailyCostAggregates: defineTable({
+    date: v.string(), // YYYY-MM-DD
+    totalCost: v.number(),
+    totalTokens: v.number(),
+    callCount: v.number(),
+    modelBreakdown: v.any(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_date", ["date"])
+    .index("by_updated", ["updatedAt"]),
+
+  sessionCostAggregates: defineTable({
+    sessionId: v.string(),
+    totalCost: v.number(),
+    totalTokens: v.number(),
+    callCount: v.number(),
+    firstCall: v.string(),
+    lastCall: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_session", ["sessionId"])
+    .index("by_cost", ["totalCost"])
+    .index("by_updated", ["updatedAt"]),
 });

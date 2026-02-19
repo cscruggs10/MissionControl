@@ -1,14 +1,18 @@
 # HEARTBEAT.md
 
-## On Wake
-- [ ] Check memory/WORKING.md for ongoing tasks
-- [ ] If task in progress, resume it
-- [ ] Search session memory if context unclear
+## On Wake (Do in Order)
 
-## Periodic Checks
-- [ ] Mission Control for @mentions
-- [ ] **Assigned tasks** - If you have assigned tasks, START WORKING or mark as BLOCKED
-- [ ] Activity feed for relevant discussions
+1. **Check Mission Control first** (lightweight):
+   - Check for @mentions
+   - Check for assigned tasks
+   - Check activity feed
+
+2. **Only if you find work**, then read memory/WORKING.md:
+   - Check for ongoing task context
+   - Resume work in progress
+   - Search session memory if context unclear
+
+3. **If nothing in Mission Control AND nothing in WORKING.md**, report HEARTBEAT_OK immediately
 
 ## Action Rules
 

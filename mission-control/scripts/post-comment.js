@@ -45,15 +45,16 @@ async function postComment(taskId, content, fromAgentId = null) {
 const args = process.argv.slice(2);
 
 if (args.length < 2) {
-  console.log("Usage: node post-comment.js <taskId> \"Your comment text\"");
+  console.log("Usage: node post-comment.js <taskId> \"Your comment text\" [fromAgentId]");
   console.log("");
   console.log("Example:");
   console.log('  node post-comment.js "j12345..." "@jazz Here are the brand assets: [link]"');
+  console.log('  node post-comment.js "j12345..." "Update from agent" "j978..."');
   process.exit(1);
 }
 
-const [taskId, content] = args;
+const [taskId, content, fromAgentId] = args;
 
-postComment(taskId, content).then(() => {
+postComment(taskId, content, fromAgentId || null).then(() => {
   process.exit(0);
 });

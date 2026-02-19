@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export function Header({
   agentsCount,
   tasksInQueue,
@@ -10,12 +12,21 @@ export function Header({
       {/* Mobile: Stack vertically */}
       <div className="md:hidden">
         <div className="flex items-center justify-between mb-3">
-          <h1 className="text-xl font-bold text-amber-900">
-            🎯 MISSION CONTROL
-          </h1>
-          <span className="text-xs text-amber-600 font-medium px-2 py-1 bg-amber-100 rounded-full">
-            LIVE
-          </span>
+          <Link href="/">
+            <h1 className="text-xl font-bold text-amber-900 cursor-pointer hover:text-amber-700">
+              🎯 MISSION CONTROL
+            </h1>
+          </Link>
+          <div className="flex items-center gap-2">
+            <Link href="/costs">
+              <button className="text-xs text-amber-700 font-medium px-2 py-1 bg-amber-50 rounded hover:bg-amber-100">
+                💰 Costs
+              </button>
+            </Link>
+            <span className="text-xs text-amber-600 font-medium px-2 py-1 bg-amber-100 rounded-full">
+              LIVE
+            </span>
+          </div>
         </div>
 
         <div className="flex items-center justify-around">
@@ -58,9 +69,16 @@ export function Header({
       {/* Desktop: Horizontal layout */}
       <div className="hidden md:flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <h1 className="text-2xl font-bold text-amber-900">
-            🎯 MISSION CONTROL
-          </h1>
+          <Link href="/">
+            <h1 className="text-2xl font-bold text-amber-900 cursor-pointer hover:text-amber-700">
+              🎯 MISSION CONTROL
+            </h1>
+          </Link>
+          <Link href="/costs">
+            <button className="text-sm text-amber-700 font-medium px-3 py-1 bg-amber-50 rounded hover:bg-amber-100 transition">
+              💰 Costs
+            </button>
+          </Link>
           <span className="text-sm text-amber-600 font-medium px-3 py-1 bg-amber-100 rounded-full">
             LIVE
           </span>
