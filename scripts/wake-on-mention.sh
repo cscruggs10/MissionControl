@@ -16,6 +16,7 @@ check_agent() {
     echo "🔔 $SESSION_KEY has $NOTIF_COUNT undelivered notification(s), waking..."
     cd /root/clawd && clawdbot session send \
       --session="$SESSION_KEY" \
+      --model="anthropic/claude-haiku-4-5" \
       --message="🔔 You were @mentioned. Read HEARTBEAT.md and check Mission Control for assigned tasks or @mentions." \
       >> /root/clawd/logs/mention-wake.log 2>&1
   fi
