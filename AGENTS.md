@@ -163,13 +163,13 @@ Skills provide your tools. When you need one, check its `SKILL.md`. Keep local n
 
 **The Problem:** Always-on agents burn API credits doing nothing. But always-off agents can't respond to work.
 
-**The Solution:** Each agent wakes up every 15 minutes via cron job, staggered by 2 minutes:
+**The Solution:** Each agent wakes up every 30 minutes via cron job, staggered by 6 minutes:
 
 ```
-:00 → Pepper wakes up
-:02 → Shuri wakes up  
-:04 → Friday wakes up
-:06 → Next agent...
+:00, :30 → Prowl wakes up
+:06, :36 → Soundwave wakes up  
+:12, :42 → Blaster wakes up
+:18, :48 → Skyfire wakes up
 ```
 
 ### What Happens During a Heartbeat
