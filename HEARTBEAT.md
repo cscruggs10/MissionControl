@@ -4,7 +4,7 @@
 
 1. **Check Mission Control first** (lightweight):
    - Check for @mentions
-   - Check for assigned tasks
+   - Check for assigned tasks (YOU MUST: Get your agent ID first via `agents:list`, then filter tasks where YOUR ID is in `assigneeIds`)
    - Check activity feed
 
 2. **Only if you find work**, then read memory/WORKING.md:

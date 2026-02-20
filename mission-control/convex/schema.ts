@@ -33,10 +33,29 @@ export default defineSchema({
     assigneeIds: v.array(v.id("agents")),
     createdAt: v.number(),
     updatedAt: v.number(),
+    dueDate: v.optional(v.number()), // Unix timestamp in milliseconds
     createdBy: v.optional(v.id("agents")),
   })
     .index("by_status", ["status"])
-    .index("by_updated", ["updatedAt"]),
+    .index("by_updated", ["updatedAt"])
+    .index("by_due", ["dueDate"]),
+
+  steps: defineTable({
+    taskId: v.id("tasks"),
+    title: v.string(),
+    description: v.optional(v.string()),
+    assigneeId: v.optional(v.id("agents")), // Single agent per step
+    status: v.union(
+      v.literal("pending"),
+      v.literal("in_progress"),
+      v.literal("done")
+    ),
+    order: v.number(), // For sequencing steps
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_task", ["taskId"])
+    .index("by_task_order", ["taskId", "order"]),
 
   messages: defineTable({
     taskId: v.id("tasks"),

@@ -28,6 +28,12 @@ export const create = mutation({
     description: v.string(),
     assigneeIds: v.optional(v.array(v.id("agents"))),
     createdBy: v.optional(v.id("agents")),
+    dueDate: v.optional(v.number()), // Unix timestamp in milliseconds
+    steps: v.optional(v.array(v.object({
+      title: v.string(),
+      description: v.optional(v.string()),
+      assigneeId: v.optional(v.id("agents")),
+    }))),
   },
   handler: async (ctx, args) => {
     const now = Date.now();
@@ -38,8 +44,26 @@ export const create = mutation({
       assigneeIds: args.assigneeIds || [],
       createdAt: now,
       updatedAt: now,
+      dueDate: args.dueDate,
       createdBy: args.createdBy,
     });
+
+    // Create steps if provided
+    if (args.steps && args.steps.length > 0) {
+      for (let i = 0; i < args.steps.length; i++) {
+        const step = args.steps[i];
+        await ctx.db.insert("steps", {
+          taskId,
+          title: step.title,
+          description: step.description,
+          assigneeId: step.assigneeId,
+          status: "pending",
+          order: i,
+          createdAt: now,
+          updatedAt: now,
+        });
+      }
+    }
 
     // Log activity
     await ctx.db.insert("activities", {
@@ -126,5 +150,35 @@ export const assign = mutation({
       message: `Task assigned: ${task.title}`,
       createdAt: now,
     });
+  },
+});
+
+export const updateDueDate = mutation({
+  args: {
+    id: v.id("tasks"),
+    dueDate: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const task = await ctx.db.get(args.id);
+    if (!task) throw new Error("Task not found");
+
+    await ctx.db.patch(args.id, {
+      dueDate: args.dueDate,
+      updatedAt: Date.now(),
+    });
+  },
+});
+
+export const listOverdue = query({
+  args: {},
+  handler: async (ctx) => {
+    const now = Date.now();
+    const allTasks = await ctx.db.query("tasks").collect();
+    
+    return allTasks.filter(task => 
+      task.dueDate && 
+      task.dueDate < now && 
+      task.status !== "done"
+    );
   },
 });

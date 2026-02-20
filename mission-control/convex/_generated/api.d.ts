@@ -14,6 +14,7 @@ import type * as costTracking from "../costTracking.js";
 import type * as documents from "../documents.js";
 import type * as messages from "../messages.js";
 import type * as notifications from "../notifications.js";
+import type * as steps from "../steps.js";
 import type * as subscriptions from "../subscriptions.js";
 import type * as tasks from "../tasks.js";
 
@@ -30,6 +31,7 @@ declare const fullApi: ApiFromModules<{
   documents: typeof documents;
   messages: typeof messages;
   notifications: typeof notifications;
+  steps: typeof steps;
   subscriptions: typeof subscriptions;
   tasks: typeof tasks;
 }>;

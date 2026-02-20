@@ -11,6 +11,7 @@ Skills define *how* tools work. This file is for *your* specifics — the stuff 
 - "create task: [description]"
 - "new task: [description]"
 - "add task: [description]"
+- "due [date]: [description]" or "deadline [date]: [description]"
 
 **Create the task:**
 ```bash
@@ -18,8 +19,33 @@ cd /root/clawd/mission-control
 npm run task:create "task: research competitor pricing models"
 ```
 
+**Create task WITH due date:**
+```bash
+cd /root/clawd/mission-control
+
+# Get timestamp for due date (e.g., Feb 25, 2026 at 5pm UTC)
+DUE_DATE=$(date -d "2026-02-25 17:00:00 UTC" +%s)000  # Add 000 for milliseconds
+
+npx convex run tasks:create '{
+  "title": "Complete GTM Strategy",
+  "description": "Finish the go-to-market plan for Ajax Partners",
+  "dueDate": '$DUE_DATE'
+}'
+```
+
+**Quick date conversions:**
+```bash
+# Tomorrow at 5pm UTC
+date -d "tomorrow 17:00 UTC" +%s
+# Friday at EOD
+date -d "friday 23:59 UTC" +%s
+# In 3 days
+date -d "+3 days" +%s
+```
+
 **Response format:**
 > ✅ Task created! Added to Mission Control inbox.
+> Due: Feb 25, 2026 at 5:00 PM UTC
 > 
 > 📋 View at http://134.199.192.218:3000
 
@@ -39,6 +65,15 @@ npx convex run tasks:assign '{
 ```
 
 This automatically moves the task from Inbox → Assigned.
+
+**Update due date on existing task:**
+```bash
+DUE_DATE=$(date -d "2026-03-01 17:00 UTC" +%s)000
+npx convex run tasks:updateDueDate '{
+  "id": "js723rp880he5xyafd05xgrjhs80v3c0",
+  "dueDate": '$DUE_DATE'
+}'
+```
 
 ---
 
