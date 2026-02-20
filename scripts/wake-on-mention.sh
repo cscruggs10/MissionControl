@@ -10,9 +10,9 @@ check_agent() {
   SESSION_KEY=$2
   
   # Query Convex for undelivered notifications for this agent
-  NOTIF_COUNT=$(npx convex run notifications:list "{\"agentId\": \"$AGENT_ID\", \"undeliveredOnly\": true}" 2>/dev/null | jq 'length')
+  NOTIF_COUNT=$(npx convex run notifications:list "{\"agentId\": \"$AGENT_ID\", \"undeliveredOnly\": true}" 2>/dev/null | jq 'length' 2>/dev/null || echo "0")
   
-  if [ "$NOTIF_COUNT" -gt 0 ]; then
+  if [ "$NOTIF_COUNT" -gt 0 ] 2>/dev/null; then
     echo "🔔 $SESSION_KEY has $NOTIF_COUNT undelivered notification(s), waking..."
     cd /root/clawd && clawdbot session send \
       --session="$SESSION_KEY" \
