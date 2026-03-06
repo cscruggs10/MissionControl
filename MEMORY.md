@@ -84,6 +84,14 @@ git push origin main
 - `npx convex dev` running in background (session: gentle-valley)
 - All 8 agents operational and accessible
 
+**📧 Gmail Access (March 6, 2026)**
+- Email: iris@ifinancememphis.com
+- OAuth credentials stored: `.credentials/gmail-oauth.json`
+- Access token saved: `.credentials/gmail-token.json`
+- Scopes: gmail.readonly, gmail.send, gmail.modify
+- Status: ✅ Authenticated and tested (8 messages, 6 threads)
+- Auth script: `scripts/gmail-auth.js`
+
 **Architecture:** Full Convex-backed task management system
 
 **Core Components:**
