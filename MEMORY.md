@@ -58,23 +58,31 @@
 
 **Pre-push checklist:**
 ```bash
-cd /root/clawd
+cd /Users/coreyscruggs/clawd
 git remote -v  # Should show MissionControl.git, NOT AutoIntel.git
 git status
 git push origin main
 ```
 
 ## System Structure
-- **Journal system:** `/root/clawd/journal/` (digital bullet journal)
+- **Journal system:** `/Users/coreyscruggs/clawd/journal/` (digital bullet journal)
   - `goals/` - Quarterly outcome goals (EOS-style rocks)
   - `weeks/` - Weekly planning
   - `days/` - Daily execution
   - `habits/tracker.md` - Habit tracking
   - `reviews/` - Weekly review templates
-- **Memory:** `/root/clawd/memory/YYYY-MM-DD.md` (daily logs)
+- **Memory:** `/Users/coreyscruggs/clawd/memory/YYYY-MM-DD.md` (daily logs)
 - **Business context:** `BUSINESS_CONTEXT.md`
 
 ## Multi-Agent System (Mission Control)
+
+**⚡ NEW: Mac mini Setup (March 6, 2026)**
+- Fresh macOS installation on Corey's Mac mini
+- Workspace: `/Users/coreyscruggs/clawd` (previously `/root/clawd`)
+- Convex re-authenticated: `kindly-hyena-65.convex.cloud`
+- All dependencies reinstalled for macOS ARM64
+- `npx convex dev` running in background (session: gentle-valley)
+- All 8 agents operational and accessible
 
 **Architecture:** Full Convex-backed task management system
 
@@ -104,17 +112,22 @@ git push origin main
    - Generates summary: Completed, In Progress, Blocked, Needs Review
    - Delivers to Telegram
 
-**Current Squad:**
+**Current Squad (8 Agents):**
 - **Iris** 🌸 (Interface & Coordinator) — session: `agent:main:main`
 - **Optimus Prime** 🤖 (Squad Lead) — session: `agent:optimus-prime:main`
 - **Jazz** 🎨 (Designer) — session: `agent:designer:main`
+- **Wheeljack** 🔧 (CMO - Deal Machine) — session: `agent:cmo:dealmachine`
+- **Prowl** ⚖️ (CMO - Ajax Partners) — session: `agent:cmo:ajaxpartners`
+- **Skyfire** 🔥 (Social Media Engagement) — session: `agent:skyfire:main`
+- **Blaster** 🎯 (Content Strategist & Copywriter) — session: `agent:copywriter:main`
+- **Soundwave** 🎧 (Research & Content Intelligence) — session: `agent:research:main`
 
 **Heartbeat Schedule (Staggered):**
 - :00, :15, :30, :45 → Optimus Prime
 - :02, :17, :32, :47 → Jazz
 - (2-minute stagger to distribute load)
 
-**Location:** `/root/clawd/mission-control/` and `/root/clawd/agents/`
+**Location:** `/Users/coreyscruggs/clawd/mission-control/` and `/Users/coreyscruggs/clawd/agents/`
 
 **Docs:**
 - mission-control/NOTIFICATION_SYSTEM.md
