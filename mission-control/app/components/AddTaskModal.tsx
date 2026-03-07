@@ -14,6 +14,7 @@ interface Agent {
 
 interface AddTaskModalProps {
   agents: Agent[];
+  channelId?: Id<"channels">;
   onClose: () => void;
 }
 
@@ -23,7 +24,7 @@ interface Step {
   assigneeId: Id<"agents"> | null;
 }
 
-export default function AddTaskModal({ agents, onClose }: AddTaskModalProps) {
+export default function AddTaskModal({ agents, channelId, onClose }: AddTaskModalProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
@@ -101,6 +102,7 @@ export default function AddTaskModal({ agents, onClose }: AddTaskModalProps) {
       const taskId = await createTask({
         title: title.trim(),
         description: description.trim(),
+        channelId: channelId,
         dueDate: dueDateTimestamp,
         steps: stepsData.length > 0 ? stepsData : undefined,
       });
