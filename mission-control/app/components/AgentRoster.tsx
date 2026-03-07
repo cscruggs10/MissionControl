@@ -29,7 +29,7 @@ export function AgentRoster({ agents }: { agents: Doc<"agents">[] }) {
         {agents.map((agent) => (
           <div
             key={agent._id}
-            className="p-3 rounded-lg border border-amber-200 bg-white hover:border-amber-400 hover:shadow-sm transition-all"
+            className="p-3 rounded-lg border border-amber-200 bg-nebula-surface hover:border-amber-400 hover:shadow-sm transition-all"
           >
             <div className="flex items-start gap-3">
               <span className="text-2xl flex-shrink-0">{agent.emoji || "🤖"}</span>

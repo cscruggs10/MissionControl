@@ -8,7 +8,7 @@ export function Header({
   tasksInQueue: number;
 }) {
   return (
-    <header className="border-b border-amber-200 bg-white px-4 md:px-6 py-3 md:py-4">
+    <header className="border-b border-amber-200 bg-nebula-surface px-4 md:px-6 py-3 md:py-4">
       {/* Mobile: Stack vertically */}
       <div className="md:hidden">
         <div className="flex items-center justify-between mb-3">

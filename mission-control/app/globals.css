@@ -33,5 +33,6 @@
 }
 
 body {
-  @apply bg-gray-950 text-white;
+  @apply bg-nebula-bg text-nebula-text dark:bg-nebula-dark-bg dark:text-nebula-dark-text;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }

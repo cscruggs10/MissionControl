@@ -180,11 +180,11 @@ export function ChannelView({ channelId, agents, onBack }: ChannelViewProps) {
 
   if (!channelId) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-stone-100 text-stone-500">
+      <div className="flex-1 flex items-center justify-center bg-nebula-bg text-nebula-text-muted">
         <div className="text-center">
           <div className="text-6xl mb-4">💬</div>
-          <h2 className="text-2xl font-bold mb-2 text-stone-700">Welcome to Mission Control</h2>
-          <p className="text-stone-400">Select a channel to start messaging</p>
+          <h2 className="text-2xl font-bold mb-2 text-nebula-text">Welcome to Mission Control</h2>
+          <p className="text-nebula-text-light">Select a channel to start messaging</p>
         </div>
       </div>
     );
@@ -192,34 +192,34 @@ export function ChannelView({ channelId, agents, onBack }: ChannelViewProps) {
 
   if (!channel || !messages) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-stone-100 text-stone-500">
+      <div className="flex-1 flex items-center justify-center bg-nebula-bg text-nebula-text-muted">
         <div>Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-white h-full">
+    <div className="flex-1 flex flex-col bg-nebula-surface h-full">
       {/* Channel Header */}
-      <div className="border-b border-stone-200 p-4 bg-stone-50">
+      <div className="border-b border-nebula-border p-4 bg-nebula-surface">
         <div className="flex items-center gap-3">
           {/* Back button for mobile */}
           {onBack && (
             <button
               onClick={onBack}
-              className="md:hidden p-2 hover:bg-stone-200 rounded-lg transition-colors"
+              className="md:hidden p-2 hover:bg-nebula-border-light rounded-lg transition-colors"
               aria-label="Back to channels"
             >
-              <svg className="w-6 h-6 text-stone-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 text-nebula-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
           )}
           <span className="text-2xl">{channel.emoji || "#"}</span>
           <div className="flex-1 min-w-0">
-            <h2 className="text-xl font-bold text-stone-900 truncate">{channel.name}</h2>
+            <h2 className="text-xl font-bold text-nebula-text truncate">{channel.name}</h2>
             {channel.description && (
-              <p className="text-sm text-stone-500 truncate hidden sm:block">{channel.description}</p>
+              <p className="text-sm text-nebula-text-muted truncate hidden sm:block">{channel.description}</p>
             )}
           </div>
         </div>
@@ -238,14 +238,14 @@ export function ChannelView({ channelId, agents, onBack }: ChannelViewProps) {
             {openLoops.map((loop) => (
               <div
                 key={loop._id}
-                className="bg-white border-l-4 border-amber-500 rounded-lg p-3 flex flex-col sm:flex-row sm:items-center gap-3 hover:shadow-sm transition-shadow"
+                className="bg-nebula-surface border-l-4 border-amber-500 rounded-lg p-3 flex flex-col sm:flex-row sm:items-center gap-3 hover:shadow-sm transition-shadow"
               >
                 <button
                   onClick={() => setSelectedLoopId(loop._id)}
-                  className="flex-1 min-w-0 text-left hover:bg-stone-50 -m-3 p-3 rounded-lg transition-colors"
+                  className="flex-1 min-w-0 text-left hover:bg-nebula-surface -m-3 p-3 rounded-lg transition-colors"
                 >
-                  <div className="font-medium text-stone-900 text-sm md:text-base">{loop.title}</div>
-                  <div className="text-xs text-stone-500 mt-1">
+                  <div className="font-medium text-nebula-text text-sm md:text-base">{loop.title}</div>
+                  <div className="text-xs text-nebula-text-muted mt-1">
                     Created {formatTime(loop.createdAt)}
                     {loop.assigneeIds.length > 0 && (
                       <span className="hidden sm:inline ml-2">
@@ -259,7 +259,7 @@ export function ChannelView({ channelId, agents, onBack }: ChannelViewProps) {
                     e.stopPropagation();
                     handleCloseLoop(loop._id);
                   }}
-                  className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white text-sm rounded-md font-medium transition-colors whitespace-nowrap"
+                  className="px-4 py-2 bg-nebula-accent hover:bg-nebula-accent active:bg-nebula-accent text-white text-sm rounded-md font-medium transition-colors whitespace-nowrap"
                 >
                   ✓ Close
                 </button>
@@ -271,10 +271,10 @@ export function ChannelView({ channelId, agents, onBack }: ChannelViewProps) {
 
       {/* Closed Loops Toggle */}
       {closedLoops && closedLoops.length > 0 && (
-        <div className="border-b border-stone-200 bg-stone-50 px-4 py-2">
+        <div className="border-b border-nebula-border bg-nebula-surface px-4 py-2">
           <button
             onClick={() => setShowClosedLoops(!showClosedLoops)}
-            className="text-sm text-stone-600 hover:text-stone-900 flex items-center gap-2"
+            className="text-sm text-nebula-text-muted hover:text-nebula-text flex items-center gap-2"
           >
             <span>{showClosedLoops ? "▼" : "▶"}</span>
             <span>✅ {closedLoops.length} Closed Loop(s)</span>
@@ -284,10 +284,10 @@ export function ChannelView({ channelId, agents, onBack }: ChannelViewProps) {
               {closedLoops.map((loop) => (
                 <div
                   key={loop._id}
-                  className="bg-white border-l-4 border-emerald-500 rounded-lg p-3 opacity-60"
+                  className="bg-nebula-surface border-l-4 border-emerald-500 rounded-lg p-3 opacity-60"
                 >
-                  <div className="font-medium text-stone-900">{loop.title}</div>
-                  <div className="text-xs text-stone-500 mt-1">
+                  <div className="font-medium text-nebula-text">{loop.title}</div>
+                  <div className="text-xs text-nebula-text-muted mt-1">
                     Closed {loop.closedAt ? formatTime(loop.closedAt) : ""}
                     {loop.closedBy && ` by ${loop.closedBy}`}
                   </div>
@@ -301,7 +301,7 @@ export function ChannelView({ channelId, agents, onBack }: ChannelViewProps) {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-3 md:p-4 space-y-3 md:space-y-4">
         {messages.length === 0 ? (
-          <div className="text-center text-stone-400 py-8">
+          <div className="text-center text-nebula-text-light py-8">
             <div className="text-4xl mb-2">👋</div>
             <p className="text-sm md:text-base">No messages yet. Start the conversation!</p>
           </div>
@@ -314,22 +314,22 @@ export function ChannelView({ channelId, agents, onBack }: ChannelViewProps) {
             const emoji = author?.emoji || "👤";
 
             return (
-              <div key={msg._id} className="flex gap-2 md:gap-3 hover:bg-stone-50 -mx-2 px-2 py-2 rounded-lg transition-colors">
+              <div key={msg._id} className="flex gap-2 md:gap-3 hover:bg-nebula-surface -mx-2 px-2 py-2 rounded-lg transition-colors">
                 {/* Avatar */}
-                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-stone-200 flex items-center justify-center text-lg md:text-xl flex-shrink-0">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-nebula-border-light flex items-center justify-center text-lg md:text-xl flex-shrink-0">
                   {emoji}
                 </div>
 
                 {/* Message Content */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline gap-2 mb-1 flex-wrap">
-                    <span className="font-semibold text-stone-900 text-sm md:text-base">{displayName}</span>
-                    <span className="text-xs text-stone-400">
+                    <span className="font-semibold text-nebula-text text-sm md:text-base">{displayName}</span>
+                    <span className="text-xs text-nebula-text-light">
                       {formatTime(msg.createdAt)}
                     </span>
                   </div>
 
-                  <p className="text-stone-700 text-sm md:text-base whitespace-pre-wrap break-words">
+                  <p className="text-nebula-text text-sm md:text-base whitespace-pre-wrap break-words">
                     {msg.content}
                   </p>
 
@@ -338,7 +338,7 @@ export function ChannelView({ channelId, agents, onBack }: ChannelViewProps) {
                     <div className="mt-2 md:mt-3 max-w-full md:max-w-2xl">
                       <video
                         controls
-                        className="w-full rounded-lg border border-stone-200 shadow-sm"
+                        className="w-full rounded-lg border border-nebula-border shadow-sm"
                         preload="metadata"
                         playsInline
                       >
@@ -353,7 +353,7 @@ export function ChannelView({ channelId, agents, onBack }: ChannelViewProps) {
                       <img
                         src={msg.mediaUrl}
                         alt="Uploaded image"
-                        className="w-full rounded-lg border border-stone-200 shadow-sm"
+                        className="w-full rounded-lg border border-nebula-border shadow-sm"
                       />
                     </div>
                   )}
@@ -365,7 +365,7 @@ export function ChannelView({ channelId, agents, onBack }: ChannelViewProps) {
       </div>
 
       {/* Message Input */}
-      <div className="border-t border-stone-200 p-3 md:p-4 bg-stone-50 safe-bottom">
+      <div className="border-t border-nebula-border p-3 md:p-4 bg-nebula-surface safe-bottom">
         <form onSubmit={handleSendMessage} className="space-y-2 md:space-y-3">
           {/* Loop Creation Toggle */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
@@ -375,7 +375,7 @@ export function ChannelView({ channelId, agents, onBack }: ChannelViewProps) {
               className={`flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                 isCreatingLoop
                   ? "bg-amber-500 text-white"
-                  : "bg-stone-200 text-stone-700 hover:bg-stone-300 active:bg-stone-400"
+                  : "bg-nebula-border-light text-nebula-text hover:bg-nebula-border active:bg-nebula-border"
               }`}
             >
               <span>🔴</span>
@@ -387,7 +387,7 @@ export function ChannelView({ channelId, agents, onBack }: ChannelViewProps) {
                 value={loopTitle}
                 onChange={(e) => setLoopTitle(e.target.value)}
                 placeholder="Loop title..."
-                className="flex-1 px-3 py-2 bg-white border border-amber-300 rounded-md text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                className="flex-1 px-3 py-2 bg-nebula-surface border border-amber-300 rounded-md text-sm text-nebula-text placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400"
               />
             )}
           </div>
@@ -398,7 +398,7 @@ export function ChannelView({ channelId, agents, onBack }: ChannelViewProps) {
               value={messageText}
               onChange={(e) => setMessageText(e.target.value)}
               placeholder={`Message #${channel.name}`}
-              className="flex-1 px-4 py-3 bg-white border border-stone-200 rounded-lg text-base text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+              className="flex-1 px-4 py-3 bg-nebula-surface border border-nebula-border rounded-lg text-base text-nebula-text placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
               disabled={uploading}
             />
             <input
@@ -412,7 +412,7 @@ export function ChannelView({ channelId, agents, onBack }: ChannelViewProps) {
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading}
-              className="px-3 md:px-4 py-3 bg-stone-200 hover:bg-stone-300 active:bg-stone-400 disabled:bg-stone-100 text-stone-700 rounded-lg font-medium transition-colors flex items-center gap-2"
+              className="px-3 md:px-4 py-3 bg-nebula-border-light hover:bg-nebula-border active:bg-nebula-border disabled:bg-nebula-bg text-nebula-text rounded-lg font-medium transition-colors flex items-center gap-2"
               title="Upload Media"
             >
               {uploading ? (
@@ -429,12 +429,12 @@ export function ChannelView({ channelId, agents, onBack }: ChannelViewProps) {
             <button
               type="submit"
               disabled={!messageText.trim() || uploading}
-              className="px-4 md:px-6 py-3 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 disabled:bg-stone-200 disabled:text-stone-400 text-white rounded-lg font-medium transition-colors"
+              className="px-4 md:px-6 py-3 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 disabled:bg-nebula-border-light disabled:text-nebula-text-light text-white rounded-lg font-medium transition-colors"
             >
               Send
             </button>
           </div>
-          <p className="text-xs text-stone-400 hidden sm:block">
+          <p className="text-xs text-nebula-text-light hidden sm:block">
             💡 Agents in this channel will see your messages and respond
           </p>
         </form>

@@ -80,7 +80,7 @@ export function TaskBoard({
   return (
     <div className="h-full flex flex-col">
       {/* Mobile: Tab Navigation */}
-      <div className="md:hidden border-b border-amber-200 bg-white overflow-x-auto">
+      <div className="md:hidden border-b border-amber-200 bg-nebula-surface overflow-x-auto">
         <div className="flex min-w-max">
           {columns.map((column, index) => (
             <button
@@ -149,7 +149,7 @@ export function TaskBoard({
                       {column.title}
                     </span>
                   </div>
-                  <span className="bg-white text-amber-900 text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
+                  <span className="bg-nebula-surface text-amber-900 text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
                     {column.tasks.length}
                   </span>
                 </div>

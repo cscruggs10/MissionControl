@@ -1,6 +1,10 @@
 import "./globals.css";
 import { ConvexClientProvider } from "./ConvexClientProvider";
+import { ThemeProvider } from "./components/ThemeProvider";
 import type { Metadata, Viewport } from 'next';
+import { Inter } from 'next/font/google';
+
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: "Mission Control",
@@ -27,8 +31,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
-        <ConvexClientProvider>{children}</ConvexClientProvider>
+      <body className={inter.className}>
+        <ThemeProvider>
+          <ConvexClientProvider>{children}</ConvexClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

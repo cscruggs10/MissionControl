@@ -196,7 +196,7 @@ export function TaskDetail({
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-lg shadow-2xl max-w-3xl w-full max-h-[95vh] md:max-h-[90vh] overflow-hidden flex flex-col"
+        className="bg-nebula-surface rounded-lg shadow-2xl max-w-3xl w-full max-h-[95vh] md:max-h-[90vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -358,7 +358,7 @@ export function TaskDetail({
               
               {/* Mention Autocomplete Dropdown */}
               {showMentions && filteredAgents.length > 0 && (
-                <div className="absolute bottom-full left-0 mb-1 w-full md:w-64 bg-white border border-amber-200 rounded-lg shadow-lg overflow-hidden z-10 max-h-60 overflow-y-auto">
+                <div className="absolute bottom-full left-0 mb-1 w-full md:w-64 bg-nebula-surface border border-amber-200 rounded-lg shadow-lg overflow-hidden z-10 max-h-60 overflow-y-auto">
                   {filteredAgents.map((agent, index) => (
                     <button
                       key={agent._id}

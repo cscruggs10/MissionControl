@@ -18,14 +18,14 @@ export default function Home() {
 
   if (!agents) {
     return (
-      <div className="min-h-screen bg-stone-100 flex items-center justify-center">
-        <div className="text-stone-500">Loading Mission Control...</div>
+      <div className="min-h-screen bg-nebula-bg flex items-center justify-center">
+        <div className="text-nebula-text-muted">Loading Mission Control...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-stone-100 flex h-screen overflow-hidden">
+    <div className="min-h-screen bg-nebula-bg flex h-screen overflow-hidden">
       {/* Channel Sidebar - Hidden on mobile when channel selected */}
       <div className={`${selectedChannelId ? 'hidden md:flex' : 'flex'}`}>
         <ChannelSidebar
@@ -45,12 +45,12 @@ export default function Home() {
 
       {/* Right Sidebar - Agents (optional, can toggle) */}
       {showAgents && (
-        <aside className="w-80 border-l border-stone-200 bg-stone-50 overflow-y-auto">
-          <div className="p-4 border-b border-stone-200 flex items-center justify-between">
-            <h2 className="text-stone-900 font-bold">Agents</h2>
+        <aside className="w-80 border-l border-nebula-border bg-nebula-surface overflow-y-auto">
+          <div className="p-4 border-b border-nebula-border flex items-center justify-between">
+            <h2 className="text-nebula-text font-semibold">Agents</h2>
             <button
               onClick={() => setShowAgents(false)}
-              className="text-stone-400 hover:text-stone-600"
+              className="text-nebula-text-light hover:text-nebula-text-muted"
             >
               ✕
             </button>
@@ -63,7 +63,7 @@ export default function Home() {
       {!showAgents && (
         <button
           onClick={() => setShowAgents(true)}
-          className="fixed bottom-6 right-6 bg-blue-500 hover:bg-blue-600 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg z-50"
+          className="fixed bottom-6 right-6 bg-nebula-blue hover:opacity-90 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg z-50"
           title="Show Agents"
         >
           <span className="text-xl">👥</span>

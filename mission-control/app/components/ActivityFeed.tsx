@@ -68,7 +68,7 @@ export function ActivityFeed({
           <div
             key={activity._id}
             className={`p-3 rounded-lg border ${
-              activityColors[activity.type] || "bg-white border-amber-200"
+              activityColors[activity.type] || "bg-nebula-surface border-amber-200"
             } hover:shadow-sm transition-all`}
           >
             <div className="flex items-start gap-2.5">

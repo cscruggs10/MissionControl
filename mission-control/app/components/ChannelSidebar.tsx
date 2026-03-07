@@ -5,6 +5,7 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useState } from "react";
 import CreateChannelModal from "./CreateChannelModal";
+import { ThemeToggle } from "./ThemeToggle";
 
 function ChannelLoopCount({ channelId }: { channelId: Id<"channels"> }) {
   const openCount = useQuery(api.loops.countOpenByChannel, { channelId });
@@ -12,7 +13,7 @@ function ChannelLoopCount({ channelId }: { channelId: Id<"channels"> }) {
   if (!openCount || openCount === 0) return null;
   
   return (
-    <span className="ml-auto bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+    <span className="ml-auto bg-nebula-accent text-white text-xs font-semibold px-2 py-0.5 rounded-full">
       {openCount}
     </span>
   );
@@ -33,22 +34,23 @@ export default function ChannelSidebar({
 
   return (
     <>
-      <div className="w-full md:w-64 bg-stone-50 border-r border-stone-200 flex flex-col h-full">
+      <div className="w-full md:w-64 bg-nebula-surface dark:bg-nebula-dark-surface border-r border-nebula-border dark:border-nebula-dark-border flex flex-col h-full">
         {/* Header */}
-        <div className="p-4 border-b border-stone-200">
-          <h1 className="text-lg md:text-xl font-bold text-stone-900">Mission Control</h1>
+        <div className="p-4 border-b border-nebula-border dark:border-nebula-dark-border flex items-center justify-between">
+          <h1 className="text-lg md:text-xl font-semibold text-nebula-text dark:text-nebula-dark-text">Mission Control</h1>
+          <ThemeToggle />
         </div>
 
         {/* Channels Section */}
         <div className="flex-1 overflow-y-auto">
           <div className="p-3">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="text-xs font-semibold text-stone-500 uppercase tracking-wider">
+              <h2 className="text-xs font-semibold text-nebula-text-muted uppercase tracking-wider">
                 Channels
               </h2>
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="text-stone-400 hover:text-stone-600 transition-colors"
+                className="text-nebula-text-light hover:text-nebula-text-muted transition-colors"
                 title="Create Channel"
               >
                 <svg
@@ -72,10 +74,10 @@ export default function ChannelSidebar({
               <button
                 key={channel._id}
                 onClick={() => onSelectChannel(channel._id)}
-                className={`w-full text-left px-4 py-3 rounded-md mb-1 transition-colors active:scale-95 ${
+                className={`w-full text-left px-4 py-3 rounded-lg mb-1 transition-colors active:scale-95 ${
                   selectedChannelId === channel._id
-                    ? "bg-blue-500 text-white"
-                    : "text-stone-700 hover:bg-stone-100 active:bg-stone-200"
+                    ? "bg-nebula-blue text-white"
+                    : "text-nebula-text hover:bg-nebula-bg active:bg-nebula-border-light"
                 }`}
               >
                 <span className="flex items-center gap-3 w-full">
@@ -89,29 +91,29 @@ export default function ChannelSidebar({
             ))}
 
             {channels?.length === 0 && (
-              <p className="text-stone-400 text-xs px-3 py-2">
+              <p className="text-nebula-text-light text-xs px-3 py-2">
                 No channels yet. Click + to create one.
               </p>
             )}
           </div>
 
           {/* Agents Section */}
-          <div className="p-3 border-t border-stone-200 mt-2">
-            <h2 className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2">
+          <div className="p-3 border-t border-nebula-border mt-2">
+            <h2 className="text-xs font-semibold text-nebula-text-muted uppercase tracking-wider mb-2">
               Your Agents
             </h2>
             {agents?.map((agent) => (
               <div
                 key={agent._id}
-                className="flex items-center gap-2 px-3 py-2 text-stone-700"
+                className="flex items-center gap-2 px-3 py-2 text-nebula-text"
               >
                 <span
                   className={`w-2 h-2 rounded-full ${
                     agent.status === "active" || agent.status === "working"
-                      ? "bg-emerald-500"
+                      ? "bg-nebula-accent"
                       : agent.status === "blocked"
                       ? "bg-red-500"
-                      : "bg-stone-300"
+                      : "bg-nebula-border"
                   }`}
                 />
                 <span className="text-lg">{agent.emoji || "🤖"}</span>

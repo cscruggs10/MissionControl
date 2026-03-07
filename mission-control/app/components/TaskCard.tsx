@@ -54,7 +54,7 @@ export default function TaskCard({ task, agents, onClick }: TaskCardProps) {
     <>
       <div
         onClick={onClick || (() => setIsOpen(true))}
-        className="bg-white rounded-lg p-3 md:p-4 border border-amber-200 hover:border-amber-400 cursor-pointer transition-all hover:shadow-md"
+        className="bg-nebula-surface rounded-lg p-3 md:p-4 border border-amber-200 hover:border-amber-400 cursor-pointer transition-all hover:shadow-md"
       >
         <div className="mb-2">
           <span
