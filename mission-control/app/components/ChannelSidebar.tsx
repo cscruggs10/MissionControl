@@ -6,6 +6,18 @@ import { Id } from "@/convex/_generated/dataModel";
 import { useState } from "react";
 import CreateChannelModal from "./CreateChannelModal";
 
+function ChannelLoopCount({ channelId }: { channelId: Id<"channels"> }) {
+  const openCount = useQuery(api.loops.countOpenByChannel, { channelId });
+  
+  if (!openCount || openCount === 0) return null;
+  
+  return (
+    <span className="ml-auto bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+      {openCount}
+    </span>
+  );
+}
+
 interface ChannelSidebarProps {
   selectedChannelId?: Id<"channels">;
   onSelectChannel: (channelId?: Id<"channels">) => void;
@@ -66,11 +78,12 @@ export default function ChannelSidebar({
                     : "text-stone-700 hover:bg-stone-100"
                 }`}
               >
-                <span className="flex items-center gap-2">
+                <span className="flex items-center gap-2 w-full">
                   <span className="text-lg">
                     {channel.emoji || "#"}
                   </span>
-                  <span className="text-sm truncate">{channel.name}</span>
+                  <span className="text-sm truncate flex-1">{channel.name}</span>
+                  <ChannelLoopCount channelId={channel._id} />
                 </span>
               </button>
             ))}

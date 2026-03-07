@@ -189,4 +189,20 @@ export default defineSchema({
     .index("by_session", ["sessionId"])
     .index("by_cost", ["totalCost"])
     .index("by_updated", ["updatedAt"]),
+
+  loops: defineTable({
+    channelId: v.id("channels"),
+    messageId: v.id("messages"), // The original request message
+    title: v.string(),
+    status: v.union(v.literal("open"), v.literal("closed")),
+    assigneeIds: v.array(v.id("agents")),
+    createdBy: v.optional(v.string()),
+    createdAt: v.number(),
+    closedBy: v.optional(v.string()),
+    closedAt: v.optional(v.number()),
+  })
+    .index("by_channel", ["channelId"])
+    .index("by_status", ["status"])
+    .index("by_channel_status", ["channelId", "status"])
+    .index("by_message", ["messageId"]),
 });

@@ -13,6 +13,7 @@ import type * as agents from "../agents.js";
 import type * as channels from "../channels.js";
 import type * as costTracking from "../costTracking.js";
 import type * as documents from "../documents.js";
+import type * as loops from "../loops.js";
 import type * as messages from "../messages.js";
 import type * as notifications from "../notifications.js";
 import type * as steps from "../steps.js";
@@ -31,6 +32,7 @@ declare const fullApi: ApiFromModules<{
   channels: typeof channels;
   costTracking: typeof costTracking;
   documents: typeof documents;
+  loops: typeof loops;
   messages: typeof messages;
   notifications: typeof notifications;
   steps: typeof steps;

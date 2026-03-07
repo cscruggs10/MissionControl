@@ -20,10 +20,23 @@ export function ChannelView({ channelId, agents }: ChannelViewProps) {
     api.messages.listByChannel,
     channelId ? { channelId } : "skip"
   );
+  const openLoops = useQuery(
+    api.loops.listByChannel,
+    channelId ? { channelId, status: "open" } : "skip"
+  );
+  const closedLoops = useQuery(
+    api.loops.listByChannel,
+    channelId ? { channelId, status: "closed" } : "skip"
+  );
   const createMessage = useMutation(api.messages.createInChannel);
+  const createLoop = useMutation(api.loops.create);
+  const closeLoop = useMutation(api.loops.close);
 
   const [messageText, setMessageText] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [isCreatingLoop, setIsCreatingLoop] = useState(false);
+  const [loopTitle, setLoopTitle] = useState("");
+  const [showClosedLoops, setShowClosedLoops] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -31,14 +44,43 @@ export function ChannelView({ channelId, agents }: ChannelViewProps) {
     if (!messageText.trim() || !channelId) return;
 
     try {
-      await createMessage({
+      const messageId = await createMessage({
         channelId,
         content: messageText,
         fromUser: "Corey",
       });
+
+      // If creating a loop, create it linked to this message
+      if (isCreatingLoop && loopTitle.trim()) {
+        // Get agents assigned to this channel
+        const channelAgentIds = channel?.agentIds || [];
+        
+        await createLoop({
+          channelId,
+          messageId,
+          title: loopTitle,
+          assigneeIds: channelAgentIds,
+          createdBy: "Corey",
+        });
+        
+        setLoopTitle("");
+        setIsCreatingLoop(false);
+      }
+
       setMessageText("");
     } catch (error) {
       console.error("Failed to send message:", error);
+    }
+  };
+
+  const handleCloseLoop = async (loopId: Id<"loops">) => {
+    try {
+      await closeLoop({
+        id: loopId,
+        closedBy: "Corey",
+      });
+    } catch (error) {
+      console.error("Failed to close loop:", error);
     }
   };
 
@@ -140,6 +182,73 @@ export function ChannelView({ channelId, agents }: ChannelViewProps) {
         </div>
       </div>
 
+      {/* Open Loops */}
+      {openLoops && openLoops.length > 0 && (
+        <div className="border-b border-amber-200 bg-amber-50 p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-bold text-amber-900 flex items-center gap-2">
+              <span className="text-lg">🔴</span>
+              Open Loops ({openLoops.length})
+            </h3>
+          </div>
+          <div className="space-y-2">
+            {openLoops.map((loop) => (
+              <div
+                key={loop._id}
+                className="bg-white border-l-4 border-amber-500 rounded-lg p-3 flex items-center justify-between hover:shadow-sm transition-shadow"
+              >
+                <div className="flex-1">
+                  <div className="font-medium text-stone-900">{loop.title}</div>
+                  <div className="text-xs text-stone-500 mt-1">
+                    Created {formatTime(loop.createdAt)}
+                    {loop.assigneeIds.length > 0 && (
+                      <span className="ml-2">
+                        • Assigned to {loop.assigneeIds.length} agent(s)
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleCloseLoop(loop._id)}
+                  className="ml-4 px-3 py-1 bg-emerald-500 hover:bg-emerald-600 text-white text-sm rounded-md font-medium transition-colors"
+                >
+                  ✓ Close
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Closed Loops Toggle */}
+      {closedLoops && closedLoops.length > 0 && (
+        <div className="border-b border-stone-200 bg-stone-50 px-4 py-2">
+          <button
+            onClick={() => setShowClosedLoops(!showClosedLoops)}
+            className="text-sm text-stone-600 hover:text-stone-900 flex items-center gap-2"
+          >
+            <span>{showClosedLoops ? "▼" : "▶"}</span>
+            <span>✅ {closedLoops.length} Closed Loop(s)</span>
+          </button>
+          {showClosedLoops && (
+            <div className="mt-3 space-y-2">
+              {closedLoops.map((loop) => (
+                <div
+                  key={loop._id}
+                  className="bg-white border-l-4 border-emerald-500 rounded-lg p-3 opacity-60"
+                >
+                  <div className="font-medium text-stone-900">{loop.title}</div>
+                  <div className="text-xs text-stone-500 mt-1">
+                    Closed {loop.closedAt ? formatTime(loop.closedAt) : ""}
+                    {loop.closedBy && ` by ${loop.closedBy}`}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 ? (
@@ -208,6 +317,31 @@ export function ChannelView({ channelId, agents }: ChannelViewProps) {
       {/* Message Input */}
       <div className="border-t border-stone-200 p-4 bg-stone-50">
         <form onSubmit={handleSendMessage} className="space-y-3">
+          {/* Loop Creation Toggle */}
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setIsCreatingLoop(!isCreatingLoop)}
+              className={`flex items-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                isCreatingLoop
+                  ? "bg-amber-500 text-white"
+                  : "bg-stone-200 text-stone-700 hover:bg-stone-300"
+              }`}
+            >
+              <span>🔴</span>
+              {isCreatingLoop ? "Creating Loop" : "Create Loop"}
+            </button>
+            {isCreatingLoop && (
+              <input
+                type="text"
+                value={loopTitle}
+                onChange={(e) => setLoopTitle(e.target.value)}
+                placeholder="Loop title (e.g., Create listing for 2025 Malibu)"
+                className="flex-1 px-3 py-1 bg-white border border-amber-300 rounded-md text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400"
+              />
+            )}
+          </div>
+
           <div className="flex gap-2">
             <input
               type="text"
