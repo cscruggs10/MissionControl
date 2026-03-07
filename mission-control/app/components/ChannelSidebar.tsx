@@ -33,10 +33,10 @@ export default function ChannelSidebar({
 
   return (
     <>
-      <div className="w-64 bg-stone-50 border-r border-stone-200 flex flex-col h-full">
+      <div className="w-full md:w-64 bg-stone-50 border-r border-stone-200 flex flex-col h-full">
         {/* Header */}
         <div className="p-4 border-b border-stone-200">
-          <h1 className="text-xl font-bold text-stone-900">Mission Control</h1>
+          <h1 className="text-lg md:text-xl font-bold text-stone-900">Mission Control</h1>
         </div>
 
         {/* Channels Section */}
@@ -72,17 +72,17 @@ export default function ChannelSidebar({
               <button
                 key={channel._id}
                 onClick={() => onSelectChannel(channel._id)}
-                className={`w-full text-left px-3 py-2 rounded-md mb-1 transition-colors ${
+                className={`w-full text-left px-4 py-3 rounded-md mb-1 transition-colors active:scale-95 ${
                   selectedChannelId === channel._id
                     ? "bg-blue-500 text-white"
-                    : "text-stone-700 hover:bg-stone-100"
+                    : "text-stone-700 hover:bg-stone-100 active:bg-stone-200"
                 }`}
               >
-                <span className="flex items-center gap-2 w-full">
-                  <span className="text-lg">
+                <span className="flex items-center gap-3 w-full">
+                  <span className="text-xl">
                     {channel.emoji || "#"}
                   </span>
-                  <span className="text-sm truncate flex-1">{channel.name}</span>
+                  <span className="text-sm md:text-base truncate flex-1">{channel.name}</span>
                   <ChannelLoopCount channelId={channel._id} />
                 </span>
               </button>

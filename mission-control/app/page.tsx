@@ -26,14 +26,22 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-stone-100 flex h-screen overflow-hidden">
-      {/* Channel Sidebar */}
-      <ChannelSidebar
-        selectedChannelId={selectedChannelId}
-        onSelectChannel={setSelectedChannelId}
-      />
+      {/* Channel Sidebar - Hidden on mobile when channel selected */}
+      <div className={`${selectedChannelId ? 'hidden md:flex' : 'flex'}`}>
+        <ChannelSidebar
+          selectedChannelId={selectedChannelId}
+          onSelectChannel={setSelectedChannelId}
+        />
+      </div>
 
       {/* Main Channel View */}
-      <ChannelView channelId={selectedChannelId} agents={agents} />
+      <div className={`flex-1 ${selectedChannelId ? 'flex' : 'hidden md:flex'}`}>
+        <ChannelView 
+          channelId={selectedChannelId} 
+          agents={agents}
+          onBack={() => setSelectedChannelId(undefined)}
+        />
+      </div>
 
       {/* Right Sidebar - Agents (optional, can toggle) */}
       {showAgents && (
