@@ -40,6 +40,7 @@ export default function LoopCreatorPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [recentLoops, setRecentLoops] = useState<CreatedLoop[]>([]);
   const [showRecent, setShowRecent] = useState(false);
+  const [sessionId] = useState(() => `session-${Date.now()}`);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -99,6 +100,7 @@ export default function LoopCreatorPage() {
         body: JSON.stringify({ 
           message: input,
           files: uploadedFiles,
+          sessionId,
         }),
       });
 
@@ -188,6 +190,7 @@ export default function LoopCreatorPage() {
         body: JSON.stringify({ 
           message: option,
           files: uploadedFiles,
+          sessionId,
         }),
       });
 

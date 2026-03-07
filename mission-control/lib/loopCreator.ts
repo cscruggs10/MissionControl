@@ -96,6 +96,37 @@ export class LoopCreatorAgent {
   private handleIdle(message: string): ConversationResponse {
     const msg = message.trim().toLowerCase();
     
+    // Check for "Post [this/video/photo] to [channel]" pattern
+    const postMatch = message.match(/post\s+(?:this|video|photo|image)?\s*(?:to|in)\s+(.+)/i);
+    if (postMatch) {
+      const channelName = postMatch[1].trim();
+      const channel = this.findChannel(channelName);
+      
+      if (channel) {
+        this.session.channelId = channel._id;
+        this.session.channelName = channel.name;
+        this.session.state = "awaiting_title";
+        
+        return {
+          message: `Perfect! Posting to ${channel.emoji || "📂"} ${channel.name}\n\nWhat's the title?`,
+          state: "awaiting_title",
+          session: this.session,
+        };
+      } else {
+        // Channel not found, show available channels
+        const channelList = this.channels
+          .map((ch) => `• ${ch.emoji || "📂"} ${ch.name}`)
+          .join("\n");
+        
+        return {
+          message: `I don't see a channel called "${channelName}". Here are the available channels:\n\n${channelList}\n\nWhich one?`,
+          state: "idle",
+          session: this.session,
+          options: this.channels.map((ch) => ch.name),
+        };
+      }
+    }
+    
     // Check for quick create pattern: "Create loop in [channel]: [title]"
     const quickMatch = message.match(/create loop in (.+?):\s*(.+)/i);
     if (quickMatch) {
