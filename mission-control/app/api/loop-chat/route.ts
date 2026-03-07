@@ -35,11 +35,15 @@ export async function POST(request: NextRequest) {
     // Process message
     const response = await agent.processMessage(message);
 
-    // Merge files into session
+    // Merge files into session (deduplicate by filename)
     if (files.length > 0) {
+      const existingFiles = response.session.files || [];
+      const existingFilenames = new Set(existingFiles.map((f: any) => f.filename));
+      const newFiles = files.filter((f: any) => !existingFilenames.has(f.filename));
+      
       response.session.files = [
-        ...(response.session.files || []),
-        ...files,
+        ...existingFiles,
+        ...newFiles,
       ];
     }
 

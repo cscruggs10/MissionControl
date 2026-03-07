@@ -41,6 +41,7 @@ export default function LoopCreatorPage() {
   const [recentLoops, setRecentLoops] = useState<CreatedLoop[]>([]);
   const [showRecent, setShowRecent] = useState(false);
   const [sessionId] = useState(() => `session-${Date.now()}`);
+  const [filesSentToBackend, setFilesSentToBackend] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -91,6 +92,9 @@ export default function LoopCreatorPage() {
     setInput("");
     setIsLoading(true);
 
+    // Only send files if they haven't been sent yet
+    const filesToSend = filesSentToBackend ? [] : uploadedFiles;
+    
     try {
       const response = await fetch("/api/loop-chat", {
         method: "POST",
@@ -99,7 +103,7 @@ export default function LoopCreatorPage() {
         },
         body: JSON.stringify({ 
           message: input,
-          files: uploadedFiles,
+          files: filesToSend,
           sessionId,
         }),
       });
@@ -119,6 +123,11 @@ export default function LoopCreatorPage() {
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
+      
+      // Mark files as sent after first message
+      if (filesToSend.length > 0) {
+        setFilesSentToBackend(true);
+      }
 
       // If loop was created, celebrate!
       if (data.loopCreated) {
@@ -132,8 +141,9 @@ export default function LoopCreatorPage() {
         };
         saveRecentLoop(loopInfo);
         
-        // Clear uploaded files
+        // Clear uploaded files and reset sent flag
         setUploadedFiles([]);
+        setFilesSentToBackend(false);
         
         setTimeout(() => {
           const celebrationMessage: Message = {
@@ -181,6 +191,9 @@ export default function LoopCreatorPage() {
     setMessages((prev) => [...prev, userMessage]);
     setIsLoading(true);
 
+    // Only send files if they haven't been sent yet
+    const filesToSend = filesSentToBackend ? [] : uploadedFiles;
+
     try {
       const response = await fetch("/api/loop-chat", {
         method: "POST",
@@ -189,7 +202,7 @@ export default function LoopCreatorPage() {
         },
         body: JSON.stringify({ 
           message: option,
-          files: uploadedFiles,
+          files: filesToSend,
           sessionId,
         }),
       });
@@ -209,6 +222,11 @@ export default function LoopCreatorPage() {
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
+      
+      // Mark files as sent after first message
+      if (filesToSend.length > 0) {
+        setFilesSentToBackend(true);
+      }
 
       if (data.loopCreated) {
         // Save to recent loops
@@ -221,8 +239,9 @@ export default function LoopCreatorPage() {
         };
         saveRecentLoop(loopInfo);
         
-        // Clear uploaded files
+        // Clear uploaded files and reset sent flag
         setUploadedFiles([]);
+        setFilesSentToBackend(false);
         
         setTimeout(() => {
           const celebrationMessage: Message = {
@@ -279,6 +298,9 @@ export default function LoopCreatorPage() {
 
       const results = await Promise.all(uploadPromises);
       setUploadedFiles((prev) => [...prev, ...results]);
+      
+      // Reset sent flag when new files are added
+      setFilesSentToBackend(false);
 
       // Notify user
       const fileNames = results.map((f) => f.filename).join(", ");
