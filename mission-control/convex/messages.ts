@@ -15,11 +15,15 @@ export const listByTask = query({
 export const listByChannel = query({
   args: { channelId: v.id("channels") },
   handler: async (ctx, args) => {
-    return await ctx.db
+    // Get all messages for this channel
+    const allMessages = await ctx.db
       .query("messages")
       .withIndex("by_channel", (q) => q.eq("channelId", args.channelId))
       .order("asc")
       .collect();
+    
+    // Filter out messages that belong to loops (they show in loop detail view instead)
+    return allMessages.filter(msg => !msg.loopId);
   },
 });
 
@@ -31,6 +35,19 @@ export const listByLoop = query({
       .withIndex("by_loop", (q) => q.eq("loopId", args.loopId))
       .order("asc")
       .collect();
+  },
+});
+
+export const updateLoopId = mutation({
+  args: {
+    messageId: v.id("messages"),
+    loopId: v.id("loops"),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.messageId, {
+      loopId: args.loopId,
+    });
+    return args.messageId;
   },
 });
 

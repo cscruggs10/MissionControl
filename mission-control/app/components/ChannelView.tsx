@@ -31,6 +31,7 @@ export function ChannelView({ channelId, agents, onBack }: ChannelViewProps) {
     channelId ? { channelId, status: "closed" } : "skip"
   );
   const createMessage = useMutation(api.messages.createInChannel);
+  const updateMessageLoopId = useMutation(api.messages.updateLoopId);
   const createLoop = useMutation(api.loops.create);
   const closeLoop = useMutation(api.loops.close);
 
@@ -47,27 +48,42 @@ export function ChannelView({ channelId, agents, onBack }: ChannelViewProps) {
     if (!messageText.trim() || !channelId) return;
 
     try {
-      const messageId = await createMessage({
-        channelId,
-        content: messageText,
-        fromUser: "Corey",
-      });
-
-      // If creating a loop, create it linked to this message
+      // If creating a loop, create the loop first, then add message to it
       if (isCreatingLoop && loopTitle.trim()) {
         // Get agents assigned to this channel
         const channelAgentIds = channel?.agentIds || [];
         
-        await createLoop({
+        // Create the message first (it will be the first message in the loop)
+        const messageId = await createMessage({
           channelId,
-          messageId,
+          content: messageText,
+          fromUser: "Corey",
+        });
+        
+        // Create the loop and link it to the message
+        const loopId = await createLoop({
+          channelId,
+          messageId: messageId,
           title: loopTitle,
           assigneeIds: channelAgentIds,
           createdBy: "Corey",
         });
         
+        // Update the message to belong to this loop (moves it from channel to loop)
+        await updateMessageLoopId({
+          messageId: messageId,
+          loopId: loopId,
+        });
+        
         setLoopTitle("");
         setIsCreatingLoop(false);
+      } else {
+        // Normal message to channel (not in a loop)
+        await createMessage({
+          channelId,
+          content: messageText,
+          fromUser: "Corey",
+        });
       }
 
       setMessageText("");
