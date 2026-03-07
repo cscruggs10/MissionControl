@@ -10,6 +10,13 @@ interface Message {
   options?: string[];
 }
 
+interface UploadedFile {
+  filename: string;
+  url: string;
+  size: number;
+  type: string;
+}
+
 export default function LoopCreatorPage() {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -21,6 +28,8 @@ export default function LoopCreatorPage() {
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -52,7 +61,10 @@ export default function LoopCreatorPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message: input }),
+        body: JSON.stringify({ 
+          message: input,
+          files: uploadedFiles,
+        }),
       });
 
       if (!response.ok) {
@@ -73,6 +85,9 @@ export default function LoopCreatorPage() {
 
       // If loop was created, celebrate!
       if (data.loopCreated) {
+        // Clear uploaded files
+        setUploadedFiles([]);
+        
         setTimeout(() => {
           const celebrationMessage: Message = {
             id: (Date.now() + 2).toString(),
@@ -125,7 +140,10 @@ export default function LoopCreatorPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message: option }),
+        body: JSON.stringify({ 
+          message: option,
+          files: uploadedFiles,
+        }),
       });
 
       if (!response.ok) {
@@ -145,6 +163,9 @@ export default function LoopCreatorPage() {
       setMessages((prev) => [...prev, assistantMessage]);
 
       if (data.loopCreated) {
+        // Clear uploaded files
+        setUploadedFiles([]);
+        
         setTimeout(() => {
           const celebrationMessage: Message = {
             id: (Date.now() + 2).toString(),
@@ -175,11 +196,56 @@ export default function LoopCreatorPage() {
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files && files.length > 0) {
-      // TODO: Handle file upload
-      console.log("Files selected:", files);
+    if (!files || files.length === 0) return;
+
+    setIsUploading(true);
+
+    try {
+      const uploadPromises = Array.from(files).map(async (file) => {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await fetch("/api/upload-file", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to upload ${file.name}`);
+        }
+
+        return await response.json();
+      });
+
+      const results = await Promise.all(uploadPromises);
+      setUploadedFiles((prev) => [...prev, ...results]);
+
+      // Notify user
+      const fileNames = results.map((f) => f.filename).join(", ");
+      const confirmMessage: Message = {
+        id: Date.now().toString(),
+        role: "assistant",
+        content: `✅ Uploaded: ${fileNames}\n\nFiles will be attached to the loop when created.`,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, confirmMessage]);
+    } catch (error) {
+      console.error("Upload error:", error);
+      const errorMessage: Message = {
+        id: Date.now().toString(),
+        role: "assistant",
+        content: "Sorry, failed to upload files. Please try again.",
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
+      setIsUploading(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
 
@@ -277,25 +343,74 @@ export default function LoopCreatorPage() {
       {/* Input */}
       <div className="border-t border-nebula-border dark:border-nebula-dark-border bg-nebula-surface dark:bg-nebula-dark-surface p-4">
         <div className="max-w-2xl mx-auto">
+          {/* Uploaded Files Preview */}
+          {uploadedFiles.length > 0 && (
+            <div className="mb-3 flex flex-wrap gap-2">
+              {uploadedFiles.map((file, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-nebula-bg dark:bg-nebula-dark-bg border border-nebula-border dark:border-nebula-dark-border text-sm"
+                >
+                  <span className="text-nebula-text dark:text-nebula-dark-text">
+                    {file.type.startsWith("image/") ? "🖼️" : 
+                     file.type.startsWith("video/") ? "🎥" : "📄"}
+                  </span>
+                  <span className="text-nebula-text-muted dark:text-nebula-dark-text-muted truncate max-w-[150px]">
+                    {file.filename}
+                  </span>
+                  <button
+                    onClick={() => setUploadedFiles((prev) => prev.filter((_, i) => i !== idx))}
+                    className="text-nebula-text-light hover:text-nebula-text-muted"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          
           <div className="flex gap-2">
             <button
               onClick={handleFileUpload}
-              className="p-3 rounded-lg bg-nebula-bg dark:bg-nebula-dark-bg hover:bg-nebula-border dark:hover:bg-nebula-dark-border transition-colors"
+              disabled={isUploading}
+              className="p-3 rounded-lg bg-nebula-bg dark:bg-nebula-dark-bg hover:bg-nebula-border dark:hover:bg-nebula-dark-border transition-colors disabled:opacity-50"
               title="Attach files"
             >
-              <svg
-                className="w-5 h-5 text-nebula-text-muted dark:text-nebula-dark-text-muted"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
-                />
-              </svg>
+              {isUploading ? (
+                <svg
+                  className="w-5 h-5 text-nebula-text-muted dark:text-nebula-dark-text-muted animate-spin"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  className="w-5 h-5 text-nebula-text-muted dark:text-nebula-dark-text-muted"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+                  />
+                </svg>
+              )}
             </button>
 
             <input

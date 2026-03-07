@@ -12,6 +12,13 @@ export type ConversationState =
   | "awaiting_assignees"
   | "confirming";
 
+export interface UploadedFile {
+  filename: string;
+  url: string;
+  size: number;
+  type: string;
+}
+
 export interface LoopCreatorSession {
   state: ConversationState;
   userName?: string;
@@ -19,7 +26,7 @@ export interface LoopCreatorSession {
   channelName?: string;
   title?: string;
   description?: string;
-  files?: string[];
+  files?: UploadedFile[];
   assigneeIds?: string[];
   assigneeNames?: string[];
 }

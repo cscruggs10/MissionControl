@@ -13,7 +13,7 @@ const sessions = new Map<string, LoopCreatorSession>();
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, sessionId = "default" } = await request.json();
+    const { message, sessionId = "default", files = [] } = await request.json();
 
     if (!message || typeof message !== "string") {
       return NextResponse.json(
@@ -35,6 +35,14 @@ export async function POST(request: NextRequest) {
     // Process message
     const response = await agent.processMessage(message);
 
+    // Merge files into session
+    if (files.length > 0) {
+      response.session.files = [
+        ...(response.session.files || []),
+        ...files,
+      ];
+    }
+
     // Save session
     sessions.set(sessionId, response.session);
 
@@ -45,8 +53,10 @@ export async function POST(request: NextRequest) {
       // Clear session
       sessions.delete(sessionId);
 
+      const fileCount = response.session.files?.length || 0;
+      
       return NextResponse.json({
-        message: `✅ Loop created!\n\n📋 ${response.session.title}\n📂 Channel: ${response.session.channelName}\n${response.session.assigneeNames && response.session.assigneeNames.length > 0 ? `👥 Assigned: ${response.session.assigneeNames.join(", ")}\n` : ""}View at: ${process.env.NEXT_PUBLIC_BASE_URL || "http://134.199.192.218:3000"}`,
+        message: `✅ Loop created!\n\n📋 ${response.session.title}\n📂 Channel: ${response.session.channelName}\n${response.session.assigneeNames && response.session.assigneeNames.length > 0 ? `👥 Assigned: ${response.session.assigneeNames.join(", ")}\n` : ""}${fileCount > 0 ? `📎 ${fileCount} file${fileCount > 1 ? "s" : ""} attached\n` : ""}View at: ${process.env.NEXT_PUBLIC_BASE_URL || "http://134.199.192.218:3000"}`,
         timestamp: new Date().toISOString(),
         sessionId,
         loopCreated: true,
@@ -80,8 +90,15 @@ async function createLoop(session: LoopCreatorSession): Promise<string> {
 
   try {
     // Step 1: Create initial message in channel
-    const messageContent =
-      session.description || `Loop created: ${session.title}`;
+    let messageContent = session.description || `Loop created: ${session.title}`;
+    
+    // Add file references to message
+    if (session.files && session.files.length > 0) {
+      messageContent += "\n\n📎 Attached files:\n";
+      session.files.forEach((file) => {
+        messageContent += `• ${file.filename} (${(file.size / 1024).toFixed(1)}KB)\n`;
+      });
+    }
 
     const messageId = await convex.mutation(api.messages.createInChannel, {
       channelId: session.channelId as any,
