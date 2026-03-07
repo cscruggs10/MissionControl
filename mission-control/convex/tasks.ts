@@ -2,8 +2,27 @@ import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 
 export const list = query({
-  args: { status: v.optional(v.string()) },
+  args: { 
+    status: v.optional(v.string()),
+    channelId: v.optional(v.id("channels")),
+  },
   handler: async (ctx, args) => {
+    // Filter by channel first if provided
+    if (args.channelId) {
+      const tasks = await ctx.db
+        .query("tasks")
+        .withIndex("by_channel", (q) => q.eq("channelId", args.channelId))
+        .order("desc")
+        .collect();
+      
+      // Then filter by status if provided
+      if (args.status) {
+        return tasks.filter(t => t.status === args.status);
+      }
+      return tasks;
+    }
+    
+    // Original behavior: filter by status or return all
     if (args.status) {
       return await ctx.db
         .query("tasks")
@@ -26,6 +45,7 @@ export const create = mutation({
   args: {
     title: v.string(),
     description: v.string(),
+    channelId: v.optional(v.id("channels")),
     assigneeIds: v.optional(v.array(v.id("agents"))),
     createdBy: v.optional(v.id("agents")),
     dueDate: v.optional(v.number()), // Unix timestamp in milliseconds
@@ -41,6 +61,7 @@ export const create = mutation({
       title: args.title,
       description: args.description,
       status: "inbox",
+      channelId: args.channelId,
       assigneeIds: args.assigneeIds || [],
       createdAt: now,
       updatedAt: now,
@@ -180,5 +201,23 @@ export const listOverdue = query({
       task.dueDate < now && 
       task.status !== "done"
     );
+  },
+});
+
+export const moveToChannel = mutation({
+  args: {
+    id: v.id("tasks"),
+    channelId: v.optional(v.id("channels")),
+  },
+  handler: async (ctx, args) => {
+    const task = await ctx.db.get(args.id);
+    if (!task) throw new Error("Task not found");
+
+    await ctx.db.patch(args.id, {
+      channelId: args.channelId,
+      updatedAt: Date.now(),
+    });
+
+    return args.id;
   },
 });

@@ -19,6 +19,18 @@ export default defineSchema({
     .index("by_name", ["name"])
     .index("by_session", ["sessionKey"]),
 
+  channels: defineTable({
+    name: v.string(),
+    emoji: v.optional(v.string()),
+    description: v.optional(v.string()),
+    agentIds: v.array(v.id("agents")), // Agents assigned to this channel
+    createdAt: v.number(),
+    createdBy: v.optional(v.string()), // User who created it
+    archived: v.optional(v.boolean()),
+  })
+    .index("by_name", ["name"])
+    .index("by_created", ["createdAt"]),
+
   tasks: defineTable({
     title: v.string(),
     description: v.string(),
@@ -30,6 +42,7 @@ export default defineSchema({
       v.literal("done"),
       v.literal("blocked")
     ),
+    channelId: v.optional(v.id("channels")), // Link task to a channel
     assigneeIds: v.array(v.id("agents")),
     createdAt: v.number(),
     updatedAt: v.number(),
@@ -37,6 +50,7 @@ export default defineSchema({
     createdBy: v.optional(v.id("agents")),
   })
     .index("by_status", ["status"])
+    .index("by_channel", ["channelId"])
     .index("by_updated", ["updatedAt"])
     .index("by_due", ["dueDate"]),
 
