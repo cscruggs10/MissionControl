@@ -11,11 +11,14 @@
 ### Morning Brief (8:00 AM CT / 14:00 UTC)
 **Every morning**, lead with:
 1. Today's primary task (what matters most?)
-2. Context/why it matters
-3. Habit streak status
-4. Optional: weather, calendar highlights
+2. Today's meetings/reminders (from reminders.md)
+3. Context/why it matters
+4. Habit streak status
+5. Optional: weather, calendar highlights
 
 **DO NOT** start with "What's on your mind?" or generic greetings. Deliver the brief.
+
+**IMPORTANT:** Also send an iMessage notification when delivering morning brief so Corey doesn't miss it.
 
 ### End-of-Day Debrief (8:30 PM CT / 02:30 UTC)
 - Task completion check
@@ -91,6 +94,16 @@ git push origin main
 - Scopes: gmail.readonly, gmail.send, gmail.modify
 - Status: ✅ Authenticated and tested (8 messages, 6 threads)
 - Auth script: `scripts/gmail-auth.js`
+
+**📱 iMessage Notification System (March 6, 2026)**
+- Phone: +1 (901) 238-5803
+- Method: AppleScript via Messages app
+- Automation permission: ✅ Granted
+- Send script: `scripts/send-imessage-notification.sh`
+- Status: ✅ Tested and working
+- Smart notifications: Sends iMessage if no Telegram response in 3 minutes
+- Daemon: `scripts/notification-manager.js` (PID: running in background)
+- State file: `.notification-state.json`
 
 **Architecture:** Full Convex-backed task management system
 

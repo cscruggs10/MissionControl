@@ -5,6 +5,7 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useState, useRef } from "react";
 import type { Doc } from "@/convex/_generated/dataModel";
+import { LoopDetail } from "./LoopDetail";
 
 interface ChannelViewProps {
   channelId?: Id<"channels">;
@@ -38,6 +39,7 @@ export function ChannelView({ channelId, agents, onBack }: ChannelViewProps) {
   const [isCreatingLoop, setIsCreatingLoop] = useState(false);
   const [loopTitle, setLoopTitle] = useState("");
   const [showClosedLoops, setShowClosedLoops] = useState(false);
+  const [selectedLoopId, setSelectedLoopId] = useState<Id<"loops"> | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -148,6 +150,18 @@ export function ChannelView({ channelId, agents, onBack }: ChannelViewProps) {
     return agents.find((a) => a._id === id);
   };
 
+  // Show loop detail if a loop is selected
+  if (selectedLoopId) {
+    return (
+      <LoopDetail
+        loopId={selectedLoopId}
+        agents={agents}
+        onBack={() => setSelectedLoopId(null)}
+        onClose={() => setSelectedLoopId(null)}
+      />
+    );
+  }
+
   if (!channelId) {
     return (
       <div className="flex-1 flex items-center justify-center bg-stone-100 text-stone-500">
@@ -210,7 +224,10 @@ export function ChannelView({ channelId, agents, onBack }: ChannelViewProps) {
                 key={loop._id}
                 className="bg-white border-l-4 border-amber-500 rounded-lg p-3 flex flex-col sm:flex-row sm:items-center gap-3 hover:shadow-sm transition-shadow"
               >
-                <div className="flex-1 min-w-0">
+                <button
+                  onClick={() => setSelectedLoopId(loop._id)}
+                  className="flex-1 min-w-0 text-left hover:bg-stone-50 -m-3 p-3 rounded-lg transition-colors"
+                >
                   <div className="font-medium text-stone-900 text-sm md:text-base">{loop.title}</div>
                   <div className="text-xs text-stone-500 mt-1">
                     Created {formatTime(loop.createdAt)}
@@ -220,9 +237,12 @@ export function ChannelView({ channelId, agents, onBack }: ChannelViewProps) {
                       </span>
                     )}
                   </div>
-                </div>
+                </button>
                 <button
-                  onClick={() => handleCloseLoop(loop._id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCloseLoop(loop._id);
+                  }}
                   className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white text-sm rounded-md font-medium transition-colors whitespace-nowrap"
                 >
                   ✓ Close

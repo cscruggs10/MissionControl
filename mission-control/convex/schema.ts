@@ -74,6 +74,7 @@ export default defineSchema({
   messages: defineTable({
     taskId: v.optional(v.id("tasks")),
     channelId: v.optional(v.id("channels")),
+    loopId: v.optional(v.id("loops")),
     fromAgentId: v.optional(v.id("agents")),
     fromUser: v.optional(v.string()), // For human messages
     content: v.string(),
@@ -84,6 +85,7 @@ export default defineSchema({
   })
     .index("by_task", ["taskId"])
     .index("by_channel", ["channelId"])
+    .index("by_loop", ["loopId"])
     .index("by_created", ["createdAt"]),
 
   activities: defineTable({

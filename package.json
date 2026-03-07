@@ -70,6 +70,7 @@
     "get-proto": "^1.0.1",
     "glob": "^7.2.3",
     "glob-parent": "^5.1.2",
+    "googleapis": "^171.4.0",
     "gopd": "^1.2.0",
     "has-flag": "^3.0.0",
     "has-symbols": "^1.1.0",
@@ -182,7 +183,8 @@
     "wide-align": "^1.1.5",
     "wrappy": "^1.0.2",
     "xtend": "^4.0.2",
-    "yallist": "^4.0.0"
+    "yallist": "^4.0.0",
+    "youtube-transcript": "^1.2.1"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

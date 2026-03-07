@@ -23,6 +23,17 @@ export const listByChannel = query({
   },
 });
 
+export const listByLoop = query({
+  args: { loopId: v.id("loops") },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("messages")
+      .withIndex("by_loop", (q) => q.eq("loopId", args.loopId))
+      .order("asc")
+      .collect();
+  },
+});
+
 export const create = mutation({
   args: {
     taskId: v.id("tasks"),
@@ -152,6 +163,7 @@ export const create = mutation({
 export const createInChannel = mutation({
   args: {
     channelId: v.id("channels"),
+    loopId: v.optional(v.id("loops")),
     content: v.string(),
     fromAgentId: v.optional(v.id("agents")),
     fromUser: v.optional(v.string()),
@@ -162,6 +174,7 @@ export const createInChannel = mutation({
     const now = Date.now();
     const messageId = await ctx.db.insert("messages", {
       channelId: args.channelId,
+      loopId: args.loopId,
       fromAgentId: args.fromAgentId,
       fromUser: args.fromUser,
       content: args.content,

@@ -129,6 +129,18 @@ export const listByChannel = query({
 });
 
 /**
+ * Get loop by ID
+ */
+export const get = query({
+  args: {
+    id: v.id("loops"),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.id);
+  },
+});
+
+/**
  * Get loop by message ID
  */
 export const getByMessage = query({

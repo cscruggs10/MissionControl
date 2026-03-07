@@ -41,3 +41,30 @@ README-WEB-UI.md
 routes/journal.js
 public/journal.html
 .twitter-credentials
+WORKING.md
+.notification-state.json
+reminders.md
+
+# Large media files
+*.mp4
+*.mov
+*.avi
+*.vtt
+
+# Design work files
+designs/
+docs/imessage-notification-research.md
+docs/nebula-analysis.md
+docs/telegram-vs-imessage-notifications.md
+nebula-transcript-clean.txt
+
+# Scripts (keep local)
+scripts/get-youtube-transcript.js
+scripts/gmail-send.js
+scripts/notification-manager.js
+scripts/send-imessage-notification.js
+scripts/send-imessage-notification.sh
+scripts/send-meeting-reminder.sh
+
+# Nested repos
+NewDealMachineRepo/
