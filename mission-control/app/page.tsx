@@ -155,6 +155,7 @@ export default function Home() {
             onClose={() => setShowAddTask(false)}
           />
         )}
+      </div>
     </div>
   );
 }
