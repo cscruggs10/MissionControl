@@ -10,21 +10,37 @@ cloudinary.config({
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('[Upload] Starting upload...');
+    console.log('[Upload] Cloudinary config:', {
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY ? '***' : 'MISSING',
+      api_secret: process.env.CLOUDINARY_API_SECRET ? '***' : 'MISSING',
+    });
+
     const formData = await request.formData();
     const file = formData.get('file') as File;
     
     if (!file) {
+      console.error('[Upload] No file provided in form data');
       return NextResponse.json(
         { error: 'No file provided' },
         { status: 400 }
       );
     }
 
+    console.log('[Upload] File received:', {
+      name: file.name,
+      type: file.type,
+      size: file.size,
+    });
+
     // Convert file to buffer
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
+    console.log('[Upload] File converted to buffer:', buffer.length, 'bytes');
 
     // Upload to Cloudinary
+    console.log('[Upload] Starting Cloudinary upload...');
     const result = await new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
@@ -34,8 +50,17 @@ export async function POST(request: NextRequest) {
           // eager: [{ format: 'mp4', video_codec: 'h264' }],
         },
         (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
+          if (error) {
+            console.error('[Upload] Cloudinary error:', error);
+            reject(error);
+          } else {
+            console.log('[Upload] Cloudinary success:', {
+              secure_url: result?.secure_url,
+              public_id: result?.public_id,
+              bytes: result?.bytes,
+            });
+            resolve(result);
+          }
         }
       );
 
