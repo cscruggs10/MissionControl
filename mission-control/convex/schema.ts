@@ -72,14 +72,18 @@ export default defineSchema({
     .index("by_task_order", ["taskId", "order"]),
 
   messages: defineTable({
-    taskId: v.id("tasks"),
+    taskId: v.optional(v.id("tasks")),
+    channelId: v.optional(v.id("channels")),
     fromAgentId: v.optional(v.id("agents")),
     fromUser: v.optional(v.string()), // For human messages
     content: v.string(),
     attachments: v.optional(v.array(v.id("documents"))),
+    mediaUrl: v.optional(v.string()), // Cloudinary URL for images/videos
+    mediaType: v.optional(v.union(v.literal("image"), v.literal("video"))),
     createdAt: v.number(),
   })
     .index("by_task", ["taskId"])
+    .index("by_channel", ["channelId"])
     .index("by_created", ["createdAt"]),
 
   activities: defineTable({
@@ -118,6 +122,7 @@ export default defineSchema({
     content: v.string(),
     delivered: v.boolean(),
     taskId: v.optional(v.id("tasks")),
+    channelId: v.optional(v.id("channels")),
     messageId: v.optional(v.id("messages")),
     createdAt: v.number(),
   })

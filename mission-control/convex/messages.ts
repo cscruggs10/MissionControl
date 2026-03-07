@@ -12,12 +12,25 @@ export const listByTask = query({
   },
 });
 
+export const listByChannel = query({
+  args: { channelId: v.id("channels") },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("messages")
+      .withIndex("by_channel", (q) => q.eq("channelId", args.channelId))
+      .order("asc")
+      .collect();
+  },
+});
+
 export const create = mutation({
   args: {
     taskId: v.id("tasks"),
     content: v.string(),
     fromAgentId: v.optional(v.id("agents")),
     fromUser: v.optional(v.string()),
+    mediaUrl: v.optional(v.string()),
+    mediaType: v.optional(v.union(v.literal("image"), v.literal("video"))),
   },
   handler: async (ctx, args) => {
     const now = Date.now();
@@ -26,6 +39,8 @@ export const create = mutation({
       fromAgentId: args.fromAgentId,
       fromUser: args.fromUser,
       content: args.content,
+      mediaUrl: args.mediaUrl,
+      mediaType: args.mediaType,
       createdAt: now,
     });
 
@@ -127,6 +142,93 @@ export const create = mutation({
       agentId: args.fromAgentId,
       taskId: args.taskId,
       message: `${author} commented`,
+      createdAt: now,
+    });
+
+    return messageId;
+  },
+});
+
+export const createInChannel = mutation({
+  args: {
+    channelId: v.id("channels"),
+    content: v.string(),
+    fromAgentId: v.optional(v.id("agents")),
+    fromUser: v.optional(v.string()),
+    mediaUrl: v.optional(v.string()),
+    mediaType: v.optional(v.union(v.literal("image"), v.literal("video"))),
+  },
+  handler: async (ctx, args) => {
+    const now = Date.now();
+    const messageId = await ctx.db.insert("messages", {
+      channelId: args.channelId,
+      fromAgentId: args.fromAgentId,
+      fromUser: args.fromUser,
+      content: args.content,
+      mediaUrl: args.mediaUrl,
+      mediaType: args.mediaType,
+      createdAt: now,
+    });
+
+    // Parse @mentions
+    const mentionRegex = /@(\w+)/g;
+    const mentions = [...args.content.matchAll(mentionRegex)].map(m => m[1].toLowerCase());
+    
+    // Get all agents for lookup
+    const allAgents = await ctx.db.query("agents").collect();
+    const agentsByName = new Map(allAgents.map(a => [a.name.toLowerCase(), a]));
+    
+    // Get channel to see which agents are subscribed
+    const channel = await ctx.db.get(args.channelId);
+    const channelAgentIds = new Set(channel?.agentIds || []);
+    
+    // Collect agents to notify
+    const toNotify = new Set<string>();
+    
+    // Handle @mentions
+    for (const mention of mentions) {
+      if (mention === "all") {
+        // @all = notify all agents in this channel
+        channelAgentIds.forEach(id => toNotify.add(id));
+      } else {
+        const agent = agentsByName.get(mention);
+        if (agent && channelAgentIds.has(agent._id)) {
+          toNotify.add(agent._id);
+        }
+      }
+    }
+    
+    // If no specific mentions, notify all agents in the channel
+    if (mentions.length === 0) {
+      channelAgentIds.forEach(id => toNotify.add(id));
+    }
+    
+    // Don't notify the author
+    if (args.fromAgentId) {
+      toNotify.delete(args.fromAgentId);
+    }
+    
+    // Create notifications
+    const author = args.fromAgentId
+      ? (await ctx.db.get(args.fromAgentId))?.name
+      : args.fromUser || "Unknown";
+    
+    for (const agentId of toNotify) {
+      await ctx.db.insert("notifications", {
+        mentionedAgentId: agentId as any,
+        content: `💬 ${author} in #${channel?.name}:\n${args.content}`,
+        delivered: false,
+        channelId: args.channelId,
+        messageId,
+        createdAt: now,
+      });
+    }
+
+    // Log activity
+    await ctx.db.insert("activities", {
+      type: "message_sent",
+      agentId: args.fromAgentId,
+      message: `${author} posted in #${channel?.name}`,
       createdAt: now,
     });
 

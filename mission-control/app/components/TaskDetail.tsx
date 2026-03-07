@@ -22,7 +22,10 @@ export function TaskDetail({
   const [mentionSearch, setMentionSearch] = useState("");
   const [mentionPosition, setMentionPosition] = useState(0);
   const [selectedMentionIndex, setSelectedMentionIndex] = useState(0);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const assignedAgents = agents.filter((a) =>
     task.assigneeIds.includes(a._id as Id<"agents">)
@@ -114,6 +117,59 @@ export function TaskDetail({
       insertMention(filteredAgents[selectedMentionIndex].name);
     } else if (e.key === "Escape") {
       setShowMentions(false);
+    }
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check if it's a video
+    if (!file.type.startsWith("video/")) {
+      alert("Please select a video file");
+      return;
+    }
+
+    setUploading(true);
+    setUploadProgress(0);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/upload-video", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Upload failed");
+      }
+
+      const result = await response.json();
+
+      // Create message with video
+      await createMessage({
+        taskId: task._id,
+        content: comment.trim() || "Uploaded a video",
+        fromUser: "Corey",
+        mediaUrl: result.url,
+        mediaType: "video",
+      });
+
+      setComment("");
+      setShowMentions(false);
+      
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    } catch (error) {
+      console.error("Failed to upload video:", error);
+      alert("Failed to upload video. Please try again.");
+    } finally {
+      setUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -247,6 +303,31 @@ export function TaskDetail({
                           <p className="text-amber-800 whitespace-pre-wrap">
                             {msg.content}
                           </p>
+
+                          {/* Video Display */}
+                          {msg.mediaType === "video" && msg.mediaUrl && (
+                            <div className="mt-3">
+                              <video
+                                controls
+                                className="w-full max-w-2xl rounded-lg border border-amber-200"
+                                preload="metadata"
+                              >
+                                <source src={msg.mediaUrl} type="video/mp4" />
+                                Your browser does not support the video tag.
+                              </video>
+                            </div>
+                          )}
+
+                          {/* Image Display */}
+                          {msg.mediaType === "image" && msg.mediaUrl && (
+                            <div className="mt-3">
+                              <img
+                                src={msg.mediaUrl}
+                                alt="Uploaded image"
+                                className="w-full max-w-2xl rounded-lg border border-amber-200"
+                              />
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -302,18 +383,51 @@ export function TaskDetail({
               )}
             </div>
             
-            <div className="flex items-center justify-between">
-              <p className="text-xs text-amber-600">
-                💡 Tip: Type <strong>@</strong> to mention agents (instant wake)
-              </p>
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 flex-1">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="video/*"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="px-3 py-2 bg-purple-500 hover:bg-purple-600 disabled:bg-purple-200 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
+                  title="Upload Video"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  {uploading ? "Uploading..." : "Video"}
+                </button>
+                <p className="text-xs text-amber-600 hidden md:block">
+                  💡 Tip: Type <strong>@</strong> to mention agents (instant wake)
+                </p>
+              </div>
               <button
                 type="submit"
-                disabled={!comment.trim()}
+                disabled={!comment.trim() || uploading}
                 className="px-4 py-2 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-200 text-white rounded-lg font-medium transition-colors"
               >
                 Post Comment
               </button>
             </div>
+            
+            {uploading && (
+              <div className="mt-2">
+                <div className="w-full bg-amber-100 rounded-full h-2">
+                  <div
+                    className="bg-purple-500 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
+                <p className="text-xs text-amber-600 mt-1">Uploading video...</p>
+              </div>
+            )}
           </form>
         </div>
 
