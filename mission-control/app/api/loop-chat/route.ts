@@ -61,6 +61,8 @@ export async function POST(request: NextRequest) {
         sessionId,
         loopCreated: true,
         loopId,
+        loopTitle: response.session.title,
+        channelName: response.session.channelName,
       });
     }
 
