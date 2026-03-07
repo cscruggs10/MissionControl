@@ -36,9 +36,22 @@ export default function ChannelSidebar({
     <>
       <div className="w-full md:w-64 bg-nebula-surface dark:bg-nebula-dark-surface border-r border-nebula-border dark:border-nebula-dark-border flex flex-col h-full">
         {/* Header */}
-        <div className="p-4 border-b border-nebula-border dark:border-nebula-dark-border flex items-center justify-between">
-          <h1 className="text-lg md:text-xl font-semibold text-nebula-text dark:text-nebula-dark-text">Mission Control</h1>
-          <ThemeToggle />
+        <div className="p-4 border-b border-nebula-border dark:border-nebula-dark-border">
+          <div className="flex items-center justify-between mb-3">
+            <h1 className="text-lg md:text-xl font-semibold text-nebula-text dark:text-nebula-dark-text">Mission Control</h1>
+            <ThemeToggle />
+          </div>
+          
+          {/* Loop Creator Quick Link */}
+          <a
+            href="/loop-creator"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-nebula-blue hover:opacity-90 text-white text-sm font-medium transition-opacity"
+          >
+            <span>🔧</span>
+            <span>Create Loop</span>
+          </a>
         </div>
 
         {/* Channels Section */}

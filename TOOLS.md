@@ -127,6 +127,28 @@ npx convex run tasks:create '{
 **Via Mission Control UI:**
 Corey can click "Add Task" button at http://134.199.192.218:3000
 
+## Git Workflow
+
+### Before Pushing Code
+
+**ALWAYS confirm the repository with Corey before pushing:**
+
+```bash
+# Check current remote
+git remote -v
+```
+
+**Format:**
+> About to push to: `github.com:cscruggs10/MissionControl.git`
+> 
+> Confirm this is the right repo?
+
+Wait for explicit approval before running `git push`.
+
+**Exception:** If Corey explicitly says "push to [repo]" in the request, you can proceed directly.
+
+---
+
 ## What Goes Here
 
 Things like:
