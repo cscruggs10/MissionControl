@@ -87,13 +87,15 @@ git push origin main
 - `npx convex dev` running in background (session: gentle-valley)
 - All 8 agents operational and accessible
 
-**📧 Gmail Access (March 6, 2026)**
-- Email: iris@ifinancememphis.com
-- OAuth credentials stored: `.credentials/gmail-oauth.json`
-- Access token saved: `.credentials/gmail-token.json`
-- Scopes: gmail.readonly, gmail.send, gmail.modify
-- Status: ✅ Authenticated and tested (8 messages, 6 threads)
-- Auth script: `scripts/gmail-auth.js`
+**📧 Email Access**
+- **Primary Email:** iris@ifinancememphis.com
+- **Platform:** Google Cloud Console (configured for API access)
+- **OAuth credentials:** `.credentials/gmail-oauth.json`
+- **Access token:** `.credentials/gmail-token.json`
+- **Scopes:** gmail.readonly, gmail.send, gmail.modify
+- **Status:** ✅ Authenticated and tested (March 6, 2026)
+- **Auth script:** `scripts/gmail-auth.js`
+- **Use case:** Can receive files/videos via email for loop creation
 
 **📱 iMessage Notification System (March 6, 2026)**
 - Phone: +1 (901) 238-5803
