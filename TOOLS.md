@@ -2,7 +2,25 @@
 
 Skills define *how* tools work. This file is for *your* specifics — the stuff that's unique to your setup.
 
-## Mission Control - Task Management
+## Mission Control - Loop & Task Management
+
+### Creating Loops
+
+**Via Telegram (Corey only):**
+Just tell me what you need:
+- "Create loop: Post this car to Deal Machine"
+- "New loop in wholesale-vehicles: Instagram post for 3 vehicles"
+
+**Via Web Page (Field Workers):**
+- Open `/loop-creator` on mobile
+- Upload files if needed
+- Chat with me (Iris) to create the loop
+- I'll handle the conversation and create it
+
+**Behind the scenes:**
+- All loops are created by me (Iris)
+- I assign agents based on task type
+- I watch for patterns to suggest new skills
 
 ### When Corey Sends a Task via Telegram
 
