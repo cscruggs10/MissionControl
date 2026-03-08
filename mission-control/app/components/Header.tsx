@@ -18,6 +18,11 @@ export function Header({
             </h1>
           </Link>
           <div className="flex items-center gap-2">
+            <Link href="/deal-machine-upload">
+              <button className="text-xs text-blue-700 font-medium px-2 py-1 bg-blue-50 rounded hover:bg-blue-100">
+                🚗 Upload
+              </button>
+            </Link>
             <Link href="/costs">
               <button className="text-xs text-amber-700 font-medium px-2 py-1 bg-amber-50 rounded hover:bg-amber-100">
                 💰 Costs
@@ -73,6 +78,11 @@ export function Header({
             <h1 className="text-2xl font-bold text-amber-900 cursor-pointer hover:text-amber-700">
               🎯 MISSION CONTROL
             </h1>
+          </Link>
+          <Link href="/deal-machine-upload">
+            <button className="text-sm text-blue-700 font-medium px-3 py-1 bg-blue-50 rounded hover:bg-blue-100 transition">
+              🚗 Upload Vehicle
+            </button>
           </Link>
           <Link href="/costs">
             <button className="text-sm text-amber-700 font-medium px-3 py-1 bg-amber-50 rounded hover:bg-amber-100 transition">
