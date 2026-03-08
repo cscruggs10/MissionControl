@@ -109,7 +109,7 @@ async function createLoop(session: LoopCreatorSession): Promise<string> {
     const messageId = await convex.mutation(api.messages.createInChannel, {
       channelId: session.channelId as any,
       content: messageContent,
-      fromUser: session.userName || "Loop Creator",
+      fromUser: session.userName || "Iris",
     });
 
     // Step 2: Create loop and link message
@@ -118,7 +118,7 @@ async function createLoop(session: LoopCreatorSession): Promise<string> {
       messageId: messageId as any,
       title: session.title,
       assigneeIds: (session.assigneeIds || []) as any[],
-      createdBy: session.userName || "Loop Creator",
+      createdBy: session.userName || "Iris",
     });
 
     // Step 3: Update message to belong to loop

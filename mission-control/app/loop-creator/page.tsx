@@ -30,7 +30,7 @@ export default function LoopCreatorPage() {
     {
       id: "welcome",
       role: "assistant",
-      content: "Hey! I'm here to help you create loops. Want to create one now?",
+      content: "Hey! Ready to create a loop? Just tell me what you need or say 'create loop'.",
       timestamp: new Date(),
     },
   ]);
@@ -149,7 +149,7 @@ export default function LoopCreatorPage() {
           const celebrationMessage: Message = {
             id: (Date.now() + 2).toString(),
             role: "assistant",
-            content: "🎉 Want to create another loop?",
+            content: "✅ Loop created! Ready for another one?",
             timestamp: new Date(),
           };
           setMessages((prev) => [...prev, celebrationMessage]);
@@ -247,7 +247,7 @@ export default function LoopCreatorPage() {
           const celebrationMessage: Message = {
             id: (Date.now() + 2).toString(),
             role: "assistant",
-            content: "🎉 Want to create another loop?",
+            content: "✅ Loop created! Ready for another one?",
             timestamp: new Date(),
           };
           setMessages((prev) => [...prev, celebrationMessage]);
@@ -336,11 +336,11 @@ export default function LoopCreatorPage() {
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <div>
             <h1 className="text-xl font-semibold text-nebula-text dark:text-nebula-dark-text flex items-center gap-2">
-              <span>🔧</span>
-              <span>Loop Creator</span>
+              <span>💜</span>
+              <span>Iris</span>
             </h1>
             <p className="text-sm text-nebula-text-muted dark:text-nebula-dark-text-muted mt-1">
-              Create loops in Mission Control through simple conversation
+              Create loops in Mission Control
             </p>
           </div>
           {recentLoops.length > 0 && (
