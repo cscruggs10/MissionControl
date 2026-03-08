@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     const { videoUrl, videoPublicId, fileName, fileSizeMB } = await request.json();
 
     // Get #deal-machine channel
-    const channels = await convex.query(api.channels.list);
+    const channels = await convex.query(api.channels.list, {});
     const dealMachineChannel = channels.find((c: any) => c.name === "deal-machine");
 
     if (!dealMachineChannel) {
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get agent IDs
-    const agents = await convex.query(api.agents.list);
+    const agents = await convex.query(api.agents.list, {});
     const wheeljack = agents.find((a: any) => a.name === "Wheeljack"); // CMO Deal Machine
     const jazz = agents.find((a: any) => a.name === "Jazz"); // Designer
     const skyfire = agents.find((a: any) => a.name === "Skyfire"); // Social Media
