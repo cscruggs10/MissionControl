@@ -37,36 +37,36 @@ export async function POST(request: NextRequest) {
 
 All vehicle info (VIN, mileage, price, condition) is visible in the video.`;
 
-    const message = await convex.mutation(api.messages.create, {
+    const message = await convex.mutation(api.messages.createInChannel, {
       channelId: dealMachineChannel._id,
       content: messageContent,
       fromUser: "DM Upload Bot",
+      mediaUrl: videoUrl,
+      mediaType: "video" as const,
     });
 
     // Create loop
     const loop = await convex.mutation(api.loops.create, {
       channelId: dealMachineChannel._id,
-      messageId: message._id,
+      messageId: message,
       title: `Vehicle: ${fileName}`,
       createdBy: "DM Upload Bot",
       assigneeIds: [
         wheeljack?._id,
         jazz?._id,
         skyfire?._id,
-      ].filter(Boolean),
+      ].filter(Boolean) as any,
     });
 
     // Store video as document
-    if (wheeljack) {
-      await convex.mutation(api.documents.create, {
-        loopId: loop,
-        filename: fileName,
-        url: videoUrl,
-        mimeType: "video/mp4",
-        size: Math.round(fileSizeMB * 1024 * 1024),
-        uploadedBy: "DM Upload Bot",
-      });
-    }
+    await convex.mutation(api.documents.create, {
+      loopId: loop,
+      filename: fileName,
+      url: videoUrl,
+      mimeType: "video/mp4",
+      size: Math.round(fileSizeMB * 1024 * 1024),
+      uploadedBy: "DM Upload Bot",
+    });
 
     return NextResponse.json({
       success: true,
