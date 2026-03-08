@@ -61,3 +61,24 @@ export const updateStatus = mutation({
     });
   },
 });
+
+export const remove = mutation({
+  args: { id: v.id("agents") },
+  handler: async (ctx, args) => {
+    const agent = await ctx.db.get(args.id);
+    if (!agent) {
+      throw new Error("Agent not found");
+    }
+
+    await ctx.db.delete(args.id);
+
+    // Log activity
+    await ctx.db.insert("activities", {
+      type: "message_sent",
+      message: `Agent removed: ${agent.name}`,
+      createdAt: Date.now(),
+    });
+
+    return args.id;
+  },
+});
