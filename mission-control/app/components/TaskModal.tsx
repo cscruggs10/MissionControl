@@ -77,7 +77,7 @@ export default function TaskModal({ task, agents, onClose }: TaskModalProps) {
 
   const handleSave = async () => {
     try {
-      await updateStatus({ id: task._id, status: status as any });
+      await updateStatus({ id: task._id, status: status as "inbox" | "assigned" | "in_progress" | "blocked" | "done" });
       await assign({ id: task._id, agentIds: selectedAgents });
       onClose();
     } catch (error) {

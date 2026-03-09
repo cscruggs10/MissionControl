@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 import {
   LoopCreatorAgent,
   type LoopCreatorSession,
 } from "@/lib/loopCreator";
+
+interface UploadedFile {
+  filename: string;
+  size: number;
+  url?: string;
+}
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
@@ -38,8 +45,8 @@ export async function POST(request: NextRequest) {
     // Merge files into session (deduplicate by filename)
     if (files.length > 0) {
       const existingFiles = response.session.files || [];
-      const existingFilenames = new Set(existingFiles.map((f: any) => f.filename));
-      const newFiles = files.filter((f: any) => !existingFilenames.has(f.filename));
+      const existingFilenames = new Set(existingFiles.map((f: UploadedFile) => f.filename));
+      const newFiles = (files as UploadedFile[]).filter((f: UploadedFile) => !existingFilenames.has(f.filename));
       
       response.session.files = [
         ...existingFiles,
@@ -101,30 +108,30 @@ async function createLoop(session: LoopCreatorSession): Promise<string> {
     // Add file references to message
     if (session.files && session.files.length > 0) {
       messageContent += "\n\n📎 Attached files:\n";
-      session.files.forEach((file) => {
+      session.files.forEach((file: UploadedFile) => {
         messageContent += `• ${file.filename} (${(file.size / 1024).toFixed(1)}KB)\n`;
       });
     }
 
     const messageId = await convex.mutation(api.messages.createInChannel, {
-      channelId: session.channelId as any,
+      channelId: session.channelId as Id<"channels">,
       content: messageContent,
       fromUser: session.userName || "Iris",
     });
 
     // Step 2: Create loop and link message
     const loopId = await convex.mutation(api.loops.create, {
-      channelId: session.channelId as any,
-      messageId: messageId as any,
+      channelId: session.channelId as Id<"channels">,
+      messageId: messageId as Id<"messages">,
       title: session.title,
-      assigneeIds: (session.assigneeIds || []) as any[],
+      assigneeIds: (session.assigneeIds || []) as Id<"agents">[],
       createdBy: session.userName || "Iris",
     });
 
     // Step 3: Update message to belong to loop
     await convex.mutation(api.messages.updateLoopId, {
-      messageId: messageId as any,
-      loopId: loopId as any,
+      messageId: messageId as Id<"messages">,
+      loopId: loopId as Id<"loops">,
     });
 
     return loopId as string;

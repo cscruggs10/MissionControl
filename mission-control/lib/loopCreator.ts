@@ -19,6 +19,20 @@ export interface UploadedFile {
   type: string;
 }
 
+export interface Channel {
+  _id: string;
+  name: string;
+  emoji?: string;
+  description?: string;
+}
+
+export interface Agent {
+  _id: string;
+  name: string;
+  role?: string;
+  emoji?: string;
+}
+
 export interface LoopCreatorSession {
   state: ConversationState;
   userName?: string;
@@ -40,13 +54,13 @@ export interface ConversationResponse {
 
 export class LoopCreatorAgent {
   private session: LoopCreatorSession;
-  private channels: any[] = [];
-  private agents: any[] = [];
+  private channels: Channel[] = [];
+  private agents: Agent[] = [];
 
   constructor(
     initialSession?: LoopCreatorSession,
-    channels?: any[],
-    agents?: any[]
+    channels?: Channel[],
+    agents?: Agent[]
   ) {
     this.session = initialSession || { state: "idle" };
     this.channels = channels || [];
@@ -80,7 +94,7 @@ export class LoopCreatorAgent {
         return this.handleDescription(message);
       
       case "awaiting_files":
-        return this.handleFiles(message);
+        return this.handleFiles();
       
       case "awaiting_assignees":
         return this.handleAssignees(message);
@@ -237,7 +251,7 @@ export class LoopCreatorAgent {
     };
   }
 
-  private handleFiles(message: string): ConversationResponse {
+  private handleFiles(): ConversationResponse {
     // Files handled separately via upload
     this.session.state = "awaiting_assignees";
     return this.handleDescription("skip");
@@ -300,7 +314,7 @@ export class LoopCreatorAgent {
     return summary;
   }
 
-  private findChannel(query: string): any {
+  private findChannel(query: string): Channel | undefined {
     const q = query.trim().toLowerCase();
     return this.channels.find(
       (ch) =>
@@ -310,7 +324,7 @@ export class LoopCreatorAgent {
     );
   }
 
-  private findAgent(query: string): any {
+  private findAgent(query: string): Agent | undefined {
     const q = query.trim().toLowerCase();
     return this.agents.find(
       (a) =>
@@ -334,7 +348,7 @@ export class LoopCreatorAgent {
       return this.handleDescription("skip");
     }
     if (this.session.state === "awaiting_files") {
-      return this.handleFiles("skip");
+      return this.handleFiles();
     }
     if (this.session.state === "awaiting_assignees") {
       return this.handleAssignees("skip");

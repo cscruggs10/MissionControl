@@ -3,6 +3,29 @@
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 
+interface DailyCost {
+  date: string;
+  totalCost: number;
+  callCount: number;
+  totalTokens: number;
+  modelBreakdown?: Record<string, { cost: number; calls: number }>;
+}
+
+interface ModelBreakdown {
+  model: string;
+  cost: number;
+  calls: number;
+  tokens: number;
+}
+
+interface SessionCost {
+  sessionId: string;
+  totalCost: number;
+  callCount: number;
+  firstCall: number;
+  lastCall: number;
+}
+
 export default function CostsPage() {
   const summary = useQuery(api.costTracking.getSummaryStats);
   const dailyCosts = useQuery(api.costTracking.getDailyCosts, { days: 30 });
@@ -104,8 +127,8 @@ export default function CostsPage() {
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4">📈 Daily Breakdown (Last 30 Days)</h2>
           <div className="space-y-3">
-            {dailyCosts.slice(0, 15).map((day: any) => {
-              const models = Object.entries(day.modelBreakdown || {}) as [string, any][];
+            {dailyCosts.slice(0, 15).map((day: DailyCost) => {
+              const models = Object.entries(day.modelBreakdown || {}) as [string, { cost: number; calls: number }][];
               const topModel = models.sort((a, b) => b[1].cost - a[1].cost)[0];
               
               return (
@@ -134,7 +157,7 @@ export default function CostsPage() {
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">🤖 Model Breakdown (7 Days)</h2>
             <div className="space-y-3">
-              {modelBreakdown.map((model: any) => {
+              {modelBreakdown.map((model: ModelBreakdown) => {
                 const shortName = model.model
                   .replace('claude-', '')
                   .replace('gemini-', '')
@@ -160,7 +183,7 @@ export default function CostsPage() {
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">🔥 Top Sessions by Cost</h2>
             <div className="space-y-3">
-              {topSessions.map((session: any, idx: number) => {
+              {topSessions.map((session: SessionCost, idx: number) => {
                 const duration = new Date(session.lastCall).getTime() - new Date(session.firstCall).getTime();
                 const durationMin = Math.round(duration / 60000);
                 const durationHrs = (durationMin / 60).toFixed(1);

@@ -14,8 +14,6 @@ export interface ParsedTask {
 }
 
 export function parseTaskFromMessage(message: string): ParsedTask {
-  const lowerMessage = message.toLowerCase().trim();
-  
   // Check for task creation keywords
   const taskPatterns = [
     /^create task:?\s+(.+)/i,

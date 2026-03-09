@@ -1,16 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
+interface Channel {
+  _id: Id<"channels">;
+  name: string;
+}
+
+interface Agent {
+  _id: Id<"agents">;
+  name: string;
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const { videoUrl, videoPublicId, fileName, fileSizeMB } = await request.json();
+    const { videoUrl, fileName, fileSizeMB } = await request.json();
 
     // Get #deal-machine channel
     const channels = await convex.query(api.channels.list, {});
-    const dealMachineChannel = channels.find((c: any) => c.name === "deal-machine");
+    const dealMachineChannel = channels.find((c: Channel) => c.name === "deal-machine");
 
     if (!dealMachineChannel) {
       return NextResponse.json(
@@ -21,9 +32,9 @@ export async function POST(request: NextRequest) {
 
     // Get agent IDs
     const agents = await convex.query(api.agents.list, {});
-    const wheeljack = agents.find((a: any) => a.name === "Wheeljack"); // CMO Deal Machine
-    const jazz = agents.find((a: any) => a.name === "Jazz"); // Designer
-    const skyfire = agents.find((a: any) => a.name === "Skyfire"); // Social Media
+    const wheeljack = agents.find((a: Agent) => a.name === "Wheeljack"); // CMO Deal Machine
+    const jazz = agents.find((a: Agent) => a.name === "Jazz"); // Designer
+    const skyfire = agents.find((a: Agent) => a.name === "Skyfire"); // Social Media
 
     // Create initial message with video
     const messageContent = `📹 New vehicle video uploaded: ${fileName} (${fileSizeMB} MB)
@@ -55,7 +66,7 @@ All vehicle info (VIN, mileage, price, condition) is visible in the video.`;
         wheeljack?._id,
         jazz?._id,
         skyfire?._id,
-      ].filter(Boolean) as any,
+      ].filter((id): id is Id<"agents"> => id !== undefined),
     });
 
     // Store video as document

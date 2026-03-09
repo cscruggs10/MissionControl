@@ -64,7 +64,7 @@ export default function AddTaskModal({ agents, channelId, onClose }: AddTaskModa
     setSteps(steps.filter((_, i) => i !== index));
   };
 
-  const updateStep = (index: number, field: keyof Step, value: any) => {
+  const updateStep = (index: number, field: keyof Step, value: string | Id<"agents"> | null) => {
     const newSteps = [...steps];
     newSteps[index] = { ...newSteps[index], [field]: value };
     setSteps(newSteps);
@@ -197,7 +197,7 @@ export default function AddTaskModal({ agents, channelId, onClose }: AddTaskModa
 
               {steps.length === 0 && (
                 <p className="text-sm text-gray-500 text-center py-4">
-                  No steps added yet. Click "Add Step" to create a multi-step task.
+                  No steps added yet. Click &quot;Add Step&quot; to create a multi-step task.
                 </p>
               )}
 

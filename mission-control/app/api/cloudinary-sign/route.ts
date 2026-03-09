@@ -10,7 +10,7 @@ cloudinary.config({
 
 export async function POST(request: NextRequest) {
   try {
-    const { folder, resource_type } = await request.json();
+    const { folder } = await request.json();
 
     const timestamp = Math.round(Date.now() / 1000);
 

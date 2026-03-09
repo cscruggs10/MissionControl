@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v2 as cloudinary } from 'cloudinary';
 
+interface CloudinaryUploadResult {
+  secure_url: string;
+  public_id: string;
+  format: string;
+  duration?: number;
+  bytes: number;
+}
+
 // Configure Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -41,7 +49,7 @@ export async function POST(request: NextRequest) {
 
     // Upload to Cloudinary
     console.log('[Upload] Starting Cloudinary upload...');
-    const result = await new Promise((resolve, reject) => {
+    const result = await new Promise<CloudinaryUploadResult>((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
           resource_type: 'video',
@@ -59,7 +67,7 @@ export async function POST(request: NextRequest) {
               public_id: result?.public_id,
               bytes: result?.bytes,
             });
-            resolve(result);
+            resolve(result as CloudinaryUploadResult);
           }
         }
       );
@@ -69,11 +77,11 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      url: (result as any).secure_url,
-      publicId: (result as any).public_id,
-      format: (result as any).format,
-      duration: (result as any).duration,
-      bytes: (result as any).bytes,
+      url: result.secure_url,
+      publicId: result.public_id,
+      format: result.format,
+      duration: result.duration,
+      bytes: result.bytes,
     });
 
   } catch (error) {

@@ -2,12 +2,16 @@
 
 import { useState, useRef } from "react";
 
+interface CloudinaryUploadResult {
+  secure_url: string;
+  public_id: string;
+}
+
 export default function DealMachineUploadPage() {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = () => {
@@ -65,10 +69,10 @@ export default function DealMachineUploadPage() {
         }
       });
 
-      const uploadPromise = new Promise<any>((resolve, reject) => {
+      const uploadPromise = new Promise<CloudinaryUploadResult>((resolve, reject) => {
         xhr.onload = () => {
           if (xhr.status === 200) {
-            resolve(JSON.parse(xhr.responseText));
+            resolve(JSON.parse(xhr.responseText) as CloudinaryUploadResult);
           } else {
             reject(new Error('Upload failed'));
           }
@@ -81,8 +85,6 @@ export default function DealMachineUploadPage() {
 
       const uploadResult = await uploadPromise;
       console.log('Cloudinary upload result:', uploadResult);
-
-      setVideoUrl(uploadResult.secure_url);
 
       // Create loop in Mission Control with video
       const loopResponse = await fetch('/api/create-deal-machine-loop', {
@@ -111,7 +113,6 @@ export default function DealMachineUploadPage() {
         setSuccess(false);
         setUploading(false);
         setUploadProgress(0);
-        setVideoUrl(null);
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }
@@ -138,7 +139,7 @@ export default function DealMachineUploadPage() {
             🚗 Deal Machine Upload
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-300">
-            Upload your vehicle video and we'll handle the rest
+            Upload your vehicle video and we&apos;ll handle the rest
           </p>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
             Make sure VIN, mileage, price, and condition are visible in the video
@@ -195,7 +196,7 @@ export default function DealMachineUploadPage() {
                 {uploadProgress}%
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                Please don't close this page
+                Please don&apos;t close this page
               </p>
             </div>
           )}

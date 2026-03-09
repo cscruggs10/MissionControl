@@ -219,7 +219,7 @@ export function TaskDetail({
               onChange={(e) => {
                 updateStatus({
                   id: task._id,
-                  status: e.target.value as any,
+                  status: e.target.value as "inbox" | "assigned" | "in_progress" | "blocked" | "done",
                 });
               }}
               className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide border-2 cursor-pointer transition-colors ${
