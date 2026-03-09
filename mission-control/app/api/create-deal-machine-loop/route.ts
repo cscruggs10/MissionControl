@@ -69,20 +69,10 @@ All vehicle info (VIN, mileage, price, condition) is visible in the video.`;
       ].filter((id): id is Id<"agents"> => id !== undefined),
     });
 
-    // Store video as document
-    await convex.mutation(api.documents.create, {
-      loopId: loop,
-      filename: fileName,
-      url: videoUrl,
-      mimeType: "video/mp4",
-      size: Math.round(fileSizeMB * 1024 * 1024),
-      uploadedBy: "DM Upload Bot",
-    });
-
     return NextResponse.json({
       success: true,
       loopId: loop,
-      messageId: message._id,
+      messageId: message,
       channelId: dealMachineChannel._id,
       videoUrl,
     });
