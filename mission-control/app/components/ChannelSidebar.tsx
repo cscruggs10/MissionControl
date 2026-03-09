@@ -43,15 +43,24 @@ export default function ChannelSidebar({
           </div>
           
           {/* Loop Creator Quick Link */}
-          <a
-            href="/loop-creator"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-nebula-blue hover:opacity-90 text-white text-sm font-medium transition-opacity"
-          >
-            <span>🔧</span>
-            <span>Create Loop</span>
-          </a>
+          <div className="flex gap-2">
+            <a
+              href="/loop-creator"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-nebula-blue hover:opacity-90 text-white text-sm font-medium transition-opacity"
+            >
+              <span>🔧</span>
+              <span>Create Loop</span>
+            </a>
+            <a
+              href="/deal-machine-upload"
+              className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-violet-600 hover:opacity-90 text-white text-sm font-medium transition-opacity"
+            >
+              <span>🚗</span>
+              <span>Upload</span>
+            </a>
+          </div>
         </div>
 
         {/* Channels Section */}
