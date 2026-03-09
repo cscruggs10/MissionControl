@@ -22,8 +22,8 @@ interface SessionCost {
   sessionId: string;
   totalCost: number;
   callCount: number;
-  firstCall: number;
-  lastCall: number;
+  firstCall: string;
+  lastCall: string;
 }
 
 export default function CostsPage() {
