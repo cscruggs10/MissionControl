@@ -117,7 +117,8 @@ All vehicle info (VIN, mileage, price, condition) is visible in the video.`;
       createdBy: "DM Upload Bot",
       assigneeIds: [wheeljack?._id, jazz?._id, skyfire?._id].filter(
         Boolean
-      ) as string[],
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ) as any,
     });
 
     return NextResponse.json({
