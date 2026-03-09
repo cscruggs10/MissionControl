@@ -5,13 +5,8 @@ import { Id } from "@/convex/_generated/dataModel";
 import {
   LoopCreatorAgent,
   type LoopCreatorSession,
+  type UploadedFile,
 } from "@/lib/loopCreator";
-
-interface UploadedFile {
-  filename: string;
-  size: number;
-  url?: string;
-}
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
