@@ -332,6 +332,145 @@ export default function DealMachineUploadPage() {
           )}
         </div>
 
+        {/* Share Shortcut Setup */}
+        <div className="mt-8 bg-[#12121a] border border-gray-800 rounded-2xl p-6">
+          <h2 className="text-lg font-bold text-white mb-1">
+            Share Sheet Shortcut
+          </h2>
+          <p className="text-sm text-gray-400 mb-4">
+            Send videos directly from your camera roll via Share
+          </p>
+
+          <div className="space-y-4">
+            {/* iOS */}
+            <details className="group">
+              <summary className="flex items-center justify-between cursor-pointer text-gray-300 hover:text-white transition-colors">
+                <span className="font-medium">iPhone (iOS Shortcuts)</span>
+                <svg
+                  className="w-5 h-5 transition-transform group-open:rotate-180"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </summary>
+              <ol className="mt-3 text-sm text-gray-400 space-y-2 pl-5 list-decimal">
+                <li>
+                  Open the <strong className="text-gray-300">Shortcuts</strong>{" "}
+                  app
+                </li>
+                <li>
+                  Tap <strong className="text-gray-300">+</strong> to create a
+                  new shortcut
+                </li>
+                <li>
+                  Tap{" "}
+                  <strong className="text-gray-300">
+                    Add Action &rarr; Receive input from Share Sheet
+                  </strong>{" "}
+                  (set to &quot;Media&quot;)
+                </li>
+                <li>
+                  Add action:{" "}
+                  <strong className="text-gray-300">Get Contents of URL</strong>
+                </li>
+                <li>
+                  Set Method to <strong className="text-gray-300">POST</strong>
+                </li>
+                <li>
+                  URL:{" "}
+                  <code className="bg-gray-800 px-2 py-0.5 rounded text-violet-300 text-xs break-all">
+                    {typeof window !== "undefined"
+                      ? `${window.location.origin}/api/deal-machine-shortcut`
+                      : "/api/deal-machine-shortcut"}
+                  </code>
+                </li>
+                <li>
+                  Request Body:{" "}
+                  <strong className="text-gray-300">Form</strong> &rarr; add
+                  field &quot;video&quot; = Shortcut Input
+                </li>
+                <li>
+                  Add action:{" "}
+                  <strong className="text-gray-300">Show Notification</strong>{" "}
+                  &rarr; &quot;Uploaded!&quot;
+                </li>
+                <li>
+                  Tap the shortcut name at top &rarr;{" "}
+                  <strong className="text-gray-300">
+                    Show in Share Sheet
+                  </strong>
+                </li>
+              </ol>
+            </details>
+
+            {/* Android */}
+            <details className="group">
+              <summary className="flex items-center justify-between cursor-pointer text-gray-300 hover:text-white transition-colors">
+                <span className="font-medium">
+                  Android (HTTP Shortcuts app)
+                </span>
+                <svg
+                  className="w-5 h-5 transition-transform group-open:rotate-180"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </summary>
+              <ol className="mt-3 text-sm text-gray-400 space-y-2 pl-5 list-decimal">
+                <li>
+                  Install{" "}
+                  <strong className="text-gray-300">HTTP Shortcuts</strong> from
+                  Play Store (free)
+                </li>
+                <li>
+                  Tap <strong className="text-gray-300">+</strong> &rarr;{" "}
+                  <strong className="text-gray-300">Regular Shortcut</strong>
+                </li>
+                <li>
+                  Method: <strong className="text-gray-300">POST</strong>
+                </li>
+                <li>
+                  URL:{" "}
+                  <code className="bg-gray-800 px-2 py-0.5 rounded text-violet-300 text-xs break-all">
+                    {typeof window !== "undefined"
+                      ? `${window.location.origin}/api/deal-machine-shortcut`
+                      : "/api/deal-machine-shortcut"}
+                  </code>
+                </li>
+                <li>
+                  Request Body &rarr;{" "}
+                  <strong className="text-gray-300">File (form upload)</strong>{" "}
+                  &rarr; parameter name: &quot;video&quot;
+                </li>
+                <li>
+                  Under{" "}
+                  <strong className="text-gray-300">
+                    Trigger &amp; Shortcuts
+                  </strong>
+                  , enable{" "}
+                  <strong className="text-gray-300">Share button</strong> and
+                  accept Video files
+                </li>
+                <li>Save &mdash; now you can Share any video to it</li>
+              </ol>
+            </details>
+          </div>
+        </div>
+
         {/* Info Footer */}
         <div className="mt-8 text-center text-sm text-gray-600">
           <p>Questions? Message Iris in Mission Control</p>
