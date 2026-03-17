@@ -167,6 +167,20 @@ Wait for explicit approval before running `git push`.
 
 ---
 
+## Email
+
+**Iris Email:** iris@ifinancememphis.com  
+**Corey Email:** corey@ifinancememphis.com
+
+**How to send email:**
+```bash
+node scripts/gmail-send.js "recipient@example.com" "Subject" "Email body"
+```
+
+**Setup:** Gmail OAuth credentials stored in `.credentials/gmail-oauth.json` and `.credentials/gmail-token.json`
+
+---
+
 ## What Goes Here
 
 Things like:
@@ -195,6 +209,23 @@ Things like:
 ## Why Separate?
 
 Skills are shared. Your setup is yours. Keeping them apart means you can update skills without losing your notes, and share skills without leaking your infrastructure.
+
+---
+
+## Deal Machine Vehicle Uploads
+
+**Website:** https://www.dealerdealmachine.com  
+**Skill:** `~/clawd/skills/deal-machine/SKILL.md`
+
+**Quick reference:**
+- When Palmer (id:8654861772) uploads vehicle video
+- Ask for: VIN (17 chars), mileage, price, condition
+- Run: `~/clawd/skills/deal-machine/upload-vehicle.sh`
+- Or follow skill documentation for manual process
+
+**Access control:**
+- Palmer: Deal Machine listings ONLY (no tasks, no system access)
+- All uploads go through #deal-machine channel
 
 ---
 
