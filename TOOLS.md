@@ -218,8 +218,15 @@ Skills are shared. Your setup is yours. Keeping them apart means you can update 
 **Skill:** `~/clawd/skills/deal-machine/SKILL.md`  
 **Quick Reference:** `~/clawd/skills/deal-machine/QUICK-REFERENCE.md` ⭐ **READ THIS EVERY TIME**
 
+**Trigger Phrases (Palmer or Corey):**
+- "Create Deal Machine listing"
+- "Post this vehicle"
+- "List the vehicle I just uploaded"
+- Any mention of uploading/posting vehicle to Deal Machine
+
 **Workflow:**
-- When Palmer (id:8654861772) uploads vehicle video
+- Palmer uploads video via web interface → Loop created in Mission Control
+- Palmer/Corey sends trigger phrase
 - **FIRST:** Read QUICK-REFERENCE.md (has complete step-by-step)
 - Get video URL from Mission Control loop (Cloudinary URL)
 - Ask for: VIN (17 chars), mileage, price, condition

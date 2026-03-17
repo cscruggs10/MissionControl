@@ -1,11 +1,14 @@
 # Deal Machine Quick Reference - Palmer Vehicle Uploads
 
-## When Palmer Uploads a Video
+## Trigger Phrases
 
-Palmer (Telegram id:8654861772) will say something like:
-- "Please post video to Deal Machine that I just uploaded"
-- "Here's a vehicle for Deal Machine"
-- "Upload this to Deal Machine"
+When Palmer (Telegram id:8654861772) says ANY of these, follow this workflow:
+- "Create Deal Machine listing"
+- "Post this vehicle"
+- "List the vehicle I just uploaded"
+- "Add this to Deal Machine"
+- "New vehicle for Deal Machine"
+- Any message mentioning uploading/posting a vehicle to Deal Machine
 
 ## Step-by-Step Workflow
 
