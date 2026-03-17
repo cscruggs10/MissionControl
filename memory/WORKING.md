@@ -1,8 +1,78 @@
 # WORKING.md
 
-## Current Status: ✅ Jazz Design Task SHIPPED
+## 🔔 TOMORROW'S REMINDERS (March 16, 2026)
 
-**Last updated:** 2026-03-04 20:32 UTC
+**Check-in schedule:** Every 2 hours starting 8am CDT until all complete
+
+### Tasks:
+1. ✅/❌ Check LOS for deals
+2. ✅/❌ Pay Cap One CC bill - Get check from Ajax
+3. ✅/❌ Setup Purchase Agent - Ask DealPack about inventory API
+4. ✅/❌ Check with Esther on deals
+5. ✅/❌ Talk with Kyle about logging payments in DealPack
+
+**Check-in times:** 8am, 10am, 12pm, 2pm, 4pm, 6pm CDT
+**Details:** See `/memory/tomorrow-tasks.md`
+
+---
+
+## Current Status: ✅ Weekend Cleanup Complete
+
+**Last updated:** 2026-03-14 08:15 CDT
+
+### 🧹 Today's Cleanup (March 14, 2026)
+**Closed 4 stale loops:**
+- ✅ 3 vehicle upload loops (#deal-machine) - no video files, 1-3 days old
+  - `1000017136.mp4` (Mar 13)
+  - `3803637471209939279.mp4` (Mar 11) 
+  - `2906412146755019292.mp4` (Mar 11)
+- ✅ 1 incomplete test loop (#wholesale-vehicles) - "Deal Machine posting"
+
+**Result:** Both channels now have 0 open loops. System clean and ready.
+
+---
+
+### 🔒 Access Control Rules (ENFORCE STRICTLY)
+- **Corey (id:6910769194):** FULL ACCESS to everything
+- **Palmer (id:8654861772):** Deal Machine listings ONLY
+  - Auto-process vehicle videos → create listings
+  - Allow price changes
+  - Block all other requests (tasks, questions, system access)
+
+### 🚗 Deal Machine Vehicle Upload System
+**Status:** ✅ Active & Working (Fixed 2026-03-17)
+
+- **Upload interface:** Working at https://www.dealerdealmachine.com
+- **Channel:** #deal-machine (kh79s0d7yt3mbpx9m2dy8f54f582hs33)
+- **Workflow:** Palmer uploads → Cloudinary → Mission Control loop → Iris creates listing
+
+**📋 CRITICAL: Read Skill EVERY TIME Palmer Uploads**
+- **Quick Reference:** `~/clawd/skills/deal-machine/QUICK-REFERENCE.md`
+- **Full Documentation:** `~/clawd/skills/deal-machine/SKILL.md`
+
+**8-Step Process (With Auto-Extraction):**
+1. **Get video URL** from Mission Control loop message (Cloudinary URL)
+2. **Extract frames** from video and analyze with vision model
+3. **Auto-extract VIN + mileage** (if visible in video)
+4. **Ask Palmer:** If extraction worked → 2 fields (price, condition) | If failed → 4 fields (VIN, mileage, price, condition)
+5. **Decode VIN** via NHTSA API → get make/model/year
+6. **Create vehicle** with Cloudinary video URL
+7. **Update to active** status
+8. **Close loop** in Mission Control
+
+**Key Lesson (2026-03-17):**
+- ❌ DON'T hardcode `/uploads/filename.mp4`
+- ✅ DO read `mediaUrl` from Mission Control loop message
+- Videos upload to Cloudinary automatically via web interface
+- Mission Control loop contains the correct Cloudinary URL
+
+**IMPORTANT:** Always ask for ALL 4 fields - never assume!
+
+---
+
+## Previously Completed: ✅ Jazz Design Task SHIPPED
+
+**Completed:** 2026-03-04 20:32 UTC
 
 ### ✅ Design Task COMPLETED & HANDED OFF
 - Task (js7823wdxj8t6j04kzynfa5r0h81jbfr) moved to "done" status

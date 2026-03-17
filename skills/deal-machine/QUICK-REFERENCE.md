@@ -27,10 +27,44 @@ LOOP_ID=$(npx convex run loops:listByChannel '{"channelId": "kh79s0d7yt3mbpx9m2d
 echo "Loop ID: $LOOP_ID"
 ```
 
-### 2. Ask Palmer for 4 Required Fields
+### 2. Extract VIN and Mileage from Video (Automatic)
 
-**Always ask for ALL 4 - never skip or assume:**
+Download the video and extract frames:
+```bash
+# Download video
+curl -o /tmp/vehicle-video.mp4 "$VIDEO_URL"
 
+# Extract frames at different timestamps (to catch VIN door jamb + odometer)
+mkdir -p /tmp/vehicle-frames
+/opt/homebrew/lib/node_modules/clawdbot/skills/video-frames/scripts/frame.sh /tmp/vehicle-video.mp4 --time 00:00:05 --out /tmp/vehicle-frames/frame-5s.jpg
+/opt/homebrew/lib/node_modules/clawdbot/skills/video-frames/scripts/frame.sh /tmp/vehicle-video.mp4 --time 00:00:15 --out /tmp/vehicle-frames/frame-15s.jpg
+/opt/homebrew/lib/node_modules/clawdbot/skills/video-frames/scripts/frame.sh /tmp/vehicle-video.mp4 --time 00:00:30 --out /tmp/vehicle-frames/frame-30s.jpg
+```
+
+Then analyze frames with vision model using the `image` tool:
+```
+Ask the vision model to analyze each frame and extract:
+- VIN (17-character code, often on door jamb sticker or dashboard)
+- Mileage (odometer reading)
+```
+
+**If extraction successful:**
+- Tell Palmer: "I extracted VIN: {VIN} and Mileage: {MILEAGE} from the video. Please confirm these are correct."
+- Wait for confirmation
+- Only ask for: **Price** and **Condition**
+
+**If extraction fails (VIN/mileage not visible):**
+- Fall back to asking all 4 fields
+
+### 3. Ask Palmer for Required Fields
+
+**If auto-extraction worked, ask for 2 fields:**
+1. **Price** (number, no $ or commas)
+2. **Condition** (exactly one of):
+   - "Deal Machine Certified"
+   - "Auction Certified"
+
+**If auto-extraction failed, ask for ALL 4 fields:**
 1. **VIN** (17 characters exactly)
 2. **Mileage** (number)
 3. **Price** (number, no $ or commas)
@@ -40,13 +74,13 @@ echo "Loop ID: $LOOP_ID"
 
 If VIN is too short/long, ask them to verify and resend.
 
-### 3. Decode VIN to Get Make/Model/Year
+### 4. Decode VIN to Get Make/Model/Year
 
 ```bash
 curl -s "https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/{VIN}?format=json" | jq -r '.Results[] | select(.Variable == "Make" or .Variable == "Model" or .Variable == "Model Year") | "\(.Variable): \(.Value)"'
 ```
 
-### 4. Create Vehicle Listing
+### 5. Create Vehicle Listing
 
 ```bash
 curl -s -X POST "https://www.dealerdealmachine.com/api/vehicles" \
@@ -62,7 +96,7 @@ curl -s -X POST "https://www.dealerdealmachine.com/api/vehicles" \
 
 **Save the vehicle ID from the response!**
 
-### 5. Update to Active Status
+### 6. Update to Active Status
 
 ```bash
 curl -s -X PATCH "https://www.dealerdealmachine.com/api/vehicles/{VEHICLE_ID}" \
@@ -75,14 +109,14 @@ curl -s -X PATCH "https://www.dealerdealmachine.com/api/vehicles/{VEHICLE_ID}" \
   }' | jq '.'
 ```
 
-### 6. Close the Loop
+### 7. Close the Loop
 
 ```bash
 cd ~/clawd/mission-control
 npx convex run loops:close "{\"id\": \"$LOOP_ID\"}"
 ```
 
-### 7. Notify Palmer
+### 8. Notify Palmer
 
 ```
 ✅ Listing created successfully!
@@ -120,26 +154,44 @@ Palmer (id:8654861772) has LIMITED access:
 - ❌ System changes
 - ❌ General questions
 
-## Example Session
+## Example Session (With Auto-Extraction)
 
-**Palmer:** "Please post video to Deal Machine that I just uploaded"
+**Palmer:** "Create Deal Machine listing"
 
-**You:** "I see your video upload. To create the listing, I need:
+**You:** [Download video, extract frames, analyze with vision]
+
+**You:** "I extracted from your video:
+- VIN: 1HGCV1F47NA014222
+- Mileage: 126,285
+
+Please confirm these are correct, then I need:
+- Price
+- Condition (Deal Machine Certified OR Auction Certified)"
+
+**Palmer:** "Correct"
+
+**Palmer:** "Price 15500"
+
+**Palmer:** "Auction certified"
+
+**You:** [Execute workflow, create listing, close loop, notify]
+
+---
+
+## Example Session (Auto-Extraction Failed)
+
+**Palmer:** "Create Deal Machine listing"
+
+**You:** [Download video, extract frames, analyze]
+
+**You:** "I couldn't read the VIN or mileage from the video. Please provide:
 1. VIN (17 characters)
 2. Mileage
 3. Price
 4. Condition (Deal Machine Certified OR Auction Certified)"
 
-**Palmer:** "VIN 1HGCV1F47NA014222"
-**You:** "Got it. Now I need: mileage, price, and condition."
+**Palmer:** [Provides all 4 fields]
 
-**Palmer:** "Mileage 126285"
-**You:** "Perfect. Now: price and condition."
-
-**Palmer:** "Auction certified"
-**You:** "Got it. Last piece: price."
-
-**Palmer:** "Price 15500"
 **You:** [Execute workflow, create listing, close loop, notify]
 
 ---
