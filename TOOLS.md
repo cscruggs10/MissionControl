@@ -215,13 +215,16 @@ Skills are shared. Your setup is yours. Keeping them apart means you can update 
 ## Deal Machine Vehicle Uploads
 
 **Website:** https://www.dealerdealmachine.com  
-**Skill:** `~/clawd/skills/deal-machine/SKILL.md`
+**Skill:** `~/clawd/skills/deal-machine/SKILL.md`  
+**Quick Reference:** `~/clawd/skills/deal-machine/QUICK-REFERENCE.md` ⭐ **READ THIS EVERY TIME**
 
-**Quick reference:**
+**Workflow:**
 - When Palmer (id:8654861772) uploads vehicle video
+- **FIRST:** Read QUICK-REFERENCE.md (has complete step-by-step)
+- Get video URL from Mission Control loop (Cloudinary URL)
 - Ask for: VIN (17 chars), mileage, price, condition
-- Run: `~/clawd/skills/deal-machine/upload-vehicle.sh`
-- Or follow skill documentation for manual process
+- Create listing with Cloudinary video URL
+- Close loop
 
 **Access control:**
 - Palmer: Deal Machine listings ONLY (no tasks, no system access)
