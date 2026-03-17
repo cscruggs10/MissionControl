@@ -27,6 +27,25 @@ Always ask the user for ALL of these fields:
 
 ## Workflow
 
+### Step 0: Get Video URL from Loop
+When Palmer uploads a video through the web interface, a loop is created in Mission Control with the Cloudinary URL.
+
+**Find the video URL:**
+```bash
+cd ~/clawd/mission-control
+
+# Get the most recent open loop
+npx convex run loops:listByChannel '{"channelId": "kh79s0d7yt3mbpx9m2dy8f54f582hs33"}' | jq '[.[] | select(.status == "open")] | sort_by(._creationTime) | reverse | .[0]'
+
+# Get the loop ID and message ID from above, then get the message
+npx convex run messages:listByChannel '{"channelId": "kh79s0d7yt3mbpx9m2dy8f54f582hs33"}' | jq 'sort_by(._creationTime) | reverse | .[0] | {videoUrl: .mediaUrl, fileName: (.content | split("\n")[0] | split(": ")[1])}'
+```
+
+The message will contain the Cloudinary URL like:
+`https://res.cloudinary.com/dcpy2x17s/video/upload/v1773767809/deal-machine-uploads/tfy8jkysluocuihochta.mp4`
+
+**Save this URL** - you'll need it in Step 3.
+
 ### Step 1: Validate VIN
 ```bash
 # VIN must be exactly 17 characters
@@ -59,9 +78,11 @@ curl -X POST "https://www.dealerdealmachine.com/api/vehicles" \
     "mileage": MILEAGE_NUMBER,
     "price": PRICE_NUMBER,
     "condition": "CONDITION_HERE",
-    "videos": ["/uploads/VIDEO_FILENAME.mp4"]
+    "videos": ["CLOUDINARY_URL_FROM_STEP_0"]
   }'
 ```
+
+**IMPORTANT:** Use the Cloudinary URL from Step 0, NOT a local path.
 
 **Note:** This creates the vehicle but may return status "pending" with null fields.
 
@@ -108,10 +129,16 @@ View it at: https://www.dealerdealmachine.com/vehicles/VEHICLE_ID
 - Mileage: 126,289
 - Price: $15,500
 - Condition: Auction Certified
-- Video: 1000017493.mp4
+- Video uploaded via web interface (Cloudinary URL from loop)
 
 **Commands:**
 ```bash
+# 0. Get video URL from Mission Control loop
+cd ~/clawd/mission-control
+VIDEO_URL=$(npx convex run messages:listByChannel '{"channelId": "kh79s0d7yt3mbpx9m2dy8f54f582hs33"}' 2>/dev/null | jq -r 'sort_by(._creationTime) | reverse | .[0].mediaUrl')
+echo "Video URL: $VIDEO_URL"
+# Returns: https://res.cloudinary.com/dcpy2x17s/video/upload/v1773767809/deal-machine-uploads/tfy8jkysluocuihochta.mp4
+
 # 1. Decode VIN
 curl -s "https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/1HGCV1F47NA014222?format=json" \
   | jq -r '.Results[] | select(.Variable == "Make" or .Variable == "Model" or .Variable == "Model Year") | "\(.Variable): \(.Value)"'
@@ -119,17 +146,17 @@ curl -s "https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/1HGCV1F47NA014222?for
 # 2. Create vehicle
 curl -X POST "https://www.dealerdealmachine.com/api/vehicles" \
   -H "Content-Type: application/json" \
-  -d '{
-    "vin": "1HGCV1F47NA014222",
-    "mileage": 126289,
-    "price": 15500,
-    "condition": "Auction Certified",
-    "videos": ["/uploads/1000017493.mp4"]
-  }'
-# Returns: {"id": 96, ...}
+  -d "{
+    \"vin\": \"1HGCV1F47NA014222\",
+    \"mileage\": 126289,
+    \"price\": 15500,
+    \"condition\": \"Auction Certified\",
+    \"videos\": [\"$VIDEO_URL\"]
+  }"
+# Returns: {"id": 97, ...}
 
-# 3. Update to active
-curl -X PATCH "https://www.dealerdealmachine.com/api/vehicles/96" \
+# 3. Update to active (use the vehicle ID from step 2 response)
+curl -X PATCH "https://www.dealerdealmachine.com/api/vehicles/97" \
   -H "Content-Type: application/json" \
   -d '{
     "mileage": 126289,
@@ -138,9 +165,10 @@ curl -X PATCH "https://www.dealerdealmachine.com/api/vehicles/96" \
     "status": "active"
   }'
 
-# 4. Close loop
+# 4. Close loop (get loop ID from Mission Control)
 cd ~/clawd/mission-control
-npx convex run loops:close '{"id": "kn7d97e0ss3zy80hwchzzpcx6h8334f8"}'
+LOOP_ID=$(npx convex run loops:listByChannel '{"channelId": "kh79s0d7yt3mbpx9m2dy8f54f582hs33"}' 2>/dev/null | jq -r '[.[] | select(.status == "open")] | sort_by(._creationTime) | reverse | .[0]._id')
+npx convex run loops:close "{\"id\": \"$LOOP_ID\"}"
 ```
 
 ## Error Handling
