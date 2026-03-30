@@ -39,14 +39,20 @@
 ## Other Users & Access Control
 
 **Palmer** (Telegram id:8654861772)
-- **Access Level:** Deal Machine listings ONLY
+- **Access Level:** Deal Machine listings + Derek (sales agent) access
 - **Allowed:** 
   - Upload vehicle videos → automatic listing creation
   - Request price changes on existing listings
   - Check listing status
+  - **Use Derek to send text/email blasts** to dealer contacts
+  - **Coordinate with Derek** on who to send new listings to
+- **Workflow with Derek:**
+  - Palmer creates listing → Derek monitors and asks "Who should I send this to?"
+  - Palmer replies with dealer names/tags
+  - Derek sends targeted messages via GHL
 - **Restricted:** 
-  - No task management or Mission Control access
+  - No task management or Mission Control access (except Derek coordination)
   - No general questions or other system features
-  - No agent coordination or system changes
+  - No system configuration changes
 - **First interaction:** 2026-03-10
-- **Note:** Field worker with limited scope access
+- **Note:** Field worker with Derek collaboration access

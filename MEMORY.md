@@ -144,7 +144,7 @@ git push origin main
 - **Skyfire** 🔥 (Social Media Engagement) — session: `agent:skyfire:main`
 - **Blaster** 🎯 (Content Strategist & Copywriter) — session: `agent:copywriter:main`
 - **Soundwave** 🎧 (Research & Content Intelligence) — session: `agent:research:main`
-- **Axel** 🚗 (Wholesale Vehicle Sales) — session: `agent:axel:main` — **NEW: March 29, 2026**
+- **Derek** 🚗 (Wholesale Vehicle Sales) — session: `agent:derek:main` — **NEW: March 29, 2026**
 
 **Heartbeat Schedule (Staggered):**
 - :00, :15, :30, :45 → Optimus Prime

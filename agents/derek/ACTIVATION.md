@@ -1,15 +1,17 @@
-# Axel Activation Summary
+# Derek Activation Summary
 
 **Date:** March 29, 2026  
 **Agent ID:** j97atsm6pvkc4k76g4xj4em63583wkpe  
-**Session Key:** agent:axel:main
+**Session Key:** agent:derek:main  
+**Real Name:** Derek (human-sounding for dealer communications)
 
 ## ✅ What's Complete
 
 ### 1. Mission Control Registration
 - Registered as agent in Convex database
-- Name: Axel 🚗
+- Name: Derek 🚗
 - Role: Wholesale Vehicle Sales Agent
+- Collaborates with Palmer on listing distribution
 
 ### 2. Go High Level Integration
 - API Key configured and tested
