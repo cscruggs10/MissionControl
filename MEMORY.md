@@ -135,7 +135,7 @@ git push origin main
    - Generates summary: Completed, In Progress, Blocked, Needs Review
    - Delivers to Telegram
 
-**Current Squad (9 Agents):**
+**Current Squad (9 Agents, 1 Planned):**
 - **Iris** 🌸 (Interface & Coordinator) — session: `agent:main:main`
 - **Optimus Prime** 🤖 (Squad Lead) — session: `agent:optimus-prime:main`
 - **Jazz** 🎨 (Designer) — session: `agent:designer:main`
@@ -144,7 +144,19 @@ git push origin main
 - **Skyfire** 🔥 (Social Media Engagement) — session: `agent:skyfire:main`
 - **Blaster** 🎯 (Content Strategist & Copywriter) — session: `agent:copywriter:main`
 - **Soundwave** 🎧 (Research & Content Intelligence) — session: `agent:research:main`
-- **Derek** 🚗 (Wholesale Vehicle Sales) — session: `agent:derek:main` — **NEW: March 29, 2026**
+- **Derek** 🚗 (Wholesale Vehicle Sales) — session: `agent:derek:main` — **ACTIVE: March 29, 2026**
+  - Go High Level integration ✅ (22 dealer contacts)
+  - SMS sending tested and working
+  - Palmer can use for dealer outreach
+  - Command-driven (no automated monitoring yet)
+
+**Planned Agents:**
+- **Bookkeeper** 📊 (Invoice Processing & Data Entry) — **PLANNED: March 30, 2026**
+  - Replace remote employee for invoice data entry
+  - Vision AI extraction from PDF/image invoices
+  - Auto-generate CSV for accounting upload
+  - Gmail monitoring, hourly heartbeat
+  - Cost: ~$1-5/month (vs. employee hours)
 
 **Heartbeat Schedule (Staggered):**
 - :00, :15, :30, :45 → Optimus Prime
@@ -157,6 +169,38 @@ git push origin main
 - mission-control/NOTIFICATION_SYSTEM.md
 - mission-control/DAILY_STANDUP.md
 - mission-control/daemon/README.md
+
+## Paperclip Evaluation (March 29, 2026)
+
+**Discovery:** Paperclip = open-source control plane for AI agent companies
+
+**Key Insight:** May replace Mission Control entirely
+
+**Why it fits:**
+- Multi-company support (Deal Machine, Ajax Partners separate)
+- Cost tracking & budgets (token limits per agent)
+- Mobile-first UI (manage from phone)
+- OpenClaw Gateway adapter (built-in, first-class)
+- Production-grade foundation (vs. custom build)
+- Community maintained (vs. solo maintenance)
+
+**Architecture:**
+- Agents STAY on Mac mini (no migration)
+- Paperclip on Railway (control plane)
+- Connects via OpenClaw Gateway (WebSocket)
+- Iris bridges Telegram ↔ Paperclip
+
+**Decision pending:** Deploy to Railway for testing
+
+**If adopted:**
+- Week 1: Deploy + test
+- Week 2: Migrate agents
+- Week 3: Build GHL/Deal Machine plugins
+- Week 4: Full cutover from Mission Control
+
+**Cost:** ~$10-15/month (Railway PostgreSQL + app)
+
+---
 
 ## Recent Context (Last 3 Days)
 
