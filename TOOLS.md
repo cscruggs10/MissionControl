@@ -239,4 +239,27 @@ Skills are shared. Your setup is yours. Keeping them apart means you can update 
 
 ---
 
+## Campfire VPS (Digital Ocean)
+
+**Server:** 167.99.125.7  
+**Hostname:** CampFire-for-DeamMachine  
+**SSH User:** root  
+**SSH Password:** DealMachine$6440  
+
+**Connection:**
+```bash
+ssh root@167.99.125.7
+```
+
+**Reverse Tunnel (for Campfire bridge):**
+```bash
+# From Mac, establish tunnel so VPS can reach Mac's bridge
+ssh -R 18790:localhost:18790 -N root@167.99.125.7
+```
+
+**Campfire Webhook URL:**
+- Outgoing: http://167.99.125.7/rooms/1/2-2zU2n8pAaWVl/messages
+
+---
+
 Add whatever helps you do your job. This is your cheat sheet.

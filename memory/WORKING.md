@@ -1,24 +1,32 @@
 # WORKING.md
 
-## 🔔 TOMORROW'S REMINDERS (March 16, 2026)
+## Current Status: Open Vehicle Loop + 5 Inbox Tasks
 
-**Check-in schedule:** Every 2 hours starting 8am CDT until all complete
+**Last updated:** 2026-03-20 20:30 CDT
 
-### Tasks:
-1. ✅/❌ Check LOS for deals
-2. ✅/❌ Pay Cap One CC bill - Get check from Ajax
-3. ✅/❌ Setup Purchase Agent - Ask DealPack about inventory API
-4. ✅/❌ Check with Esther on deals
-5. ✅/❌ Talk with Kyle about logging payments in DealPack
+### 🔄 Immediate Action Required
 
-**Check-in times:** 8am, 10am, 12pm, 2pm, 4pm, 6pm CDT
-**Details:** See `/memory/tomorrow-tasks.md`
+**Open Loop:**
+- Vehicle 1000018149.mp4 (opened 3:49 PM) - needs completion
+
+**Inbox Tasks (5) - from March 16 reminders:**
+All still waiting for action/decision:
+- Check LOS for deals
+- Pay Cap One CC bill - Get check from Ajax
+- Setup Purchase Agent - Ask DealPack about inventory API
+- Check with Esther on deals
+- Talk with Kyle about logging payments in DealPack
+
+**Next Action:** Review these tasks with Corey — migrate forward, complete, or archive.
 
 ---
 
-## Current Status: ✅ Weekend Cleanup Complete
+## Today's Wins (March 20)
 
-**Last updated:** 2026-03-14 08:15 CDT
+**✅ Deal Machine:** 7 vehicles processed successfully  
+System running smoothly, good volume day.
+
+---
 
 ### 🧹 Today's Cleanup (March 14, 2026)
 **Closed 4 stale loops:**
