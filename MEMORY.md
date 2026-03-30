@@ -135,7 +135,7 @@ git push origin main
    - Generates summary: Completed, In Progress, Blocked, Needs Review
    - Delivers to Telegram
 
-**Current Squad (8 Agents):**
+**Current Squad (9 Agents):**
 - **Iris** 🌸 (Interface & Coordinator) — session: `agent:main:main`
 - **Optimus Prime** 🤖 (Squad Lead) — session: `agent:optimus-prime:main`
 - **Jazz** 🎨 (Designer) — session: `agent:designer:main`
@@ -144,6 +144,7 @@ git push origin main
 - **Skyfire** 🔥 (Social Media Engagement) — session: `agent:skyfire:main`
 - **Blaster** 🎯 (Content Strategist & Copywriter) — session: `agent:copywriter:main`
 - **Soundwave** 🎧 (Research & Content Intelligence) — session: `agent:research:main`
+- **Axel** 🚗 (Wholesale Vehicle Sales) — session: `agent:axel:main` — **NEW: March 29, 2026**
 
 **Heartbeat Schedule (Staggered):**
 - :00, :15, :30, :45 → Optimus Prime

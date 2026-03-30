@@ -1,0 +1,5 @@
+{
+  "processedMessages": [],
+  "lastCheck": null,
+  "notes": "Tracks which GHL messages Axel has already processed to avoid duplicates"
+}
